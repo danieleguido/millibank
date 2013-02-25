@@ -1,0 +1,23 @@
+
+DB_BACKEND	= 'django.db.backends.sqlite3'
+DB_NAME	= '/path/to/walt/sqlite/walt.db'
+DB_USER = ''
+DB_PASS = ''
+DB_HOST = ''
+DB_PORT	= ''
+
+MEDIA_ROOT = '/path/to/walt/media'
+SECRET_KEY = 'your own secret key !'
+
+TEMPLATE_DIRS = (
+    # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
+    # Always use forward slashes, even on Windows.
+    # Don't forget to use absolute paths, not relative paths.
+)
+
+LOCALE_PATHS = (
+	'/path/to/walt/locale',
+)
+LANGUAGES = (
+
+)

@@ -1,4 +1,5 @@
 from django.conf.urls import patterns, include, url
+from django.views.generic.simple import direct_to_template
 
 # Uncomment the next two lines to enable the admin:
 # from django.contrib import admin
@@ -6,7 +7,10 @@ from django.conf.urls import patterns, include, url
 
 urlpatterns = patterns('',
     # Examples:
-    # url(r'^$', 'walt.views.home', name='home'),
+    url(r'^$', 'walt.views.home', name='walt_home'),
+    url(r'^robots\.txt$', direct_to_template, {'template': 'walt/robots.txt', 'mimetype': 'text/plain'}),
+    url(r'^humans\.txt$', direct_to_template, {'template': 'walt/humans.txt', 'mimetype': 'text/plain'}),
+    url(r'^crossdomain\.xml$', direct_to_template, {'template': 'walt/crossdomain.xml', 'mimetype': 'text/xml'}),
     # url(r'^walt/', include('walt.foo.urls')),
 
     # Uncomment the admin/doc line below to enable admin documentation:

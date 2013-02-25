@@ -1,0 +1,23 @@
+import os
+import sys
+
+opath = list( sys.path ) # old path, cfr. http://jmoiron.net/blog/deploying-django-mod-wsgi-virtualenv/ workaround
+
+import site
+site.addsitedir('/path/to/Envs/walt/lib/python2.6/site-packages/') # your virtualenv for sven, cfr install.md
+
+path = '/path/to/walt'
+if path not in sys.path:
+    sys.path.append( path )
+    sys.path.append(os.path.join( path, "walt" ) )
+
+npath = [ p for p in sys.path if p not in opath ]
+for item in npath:
+    sys.path.remove(item)
+sys.path[:0] = npath
+
+
+os.environ['DJANGO_SETTINGS_MODULE'] = 'walt.settings'
+
+import django.core.handlers.wsgi
+application = django.core.handlers.wsgi.WSGIHandler()

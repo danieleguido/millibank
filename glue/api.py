@@ -14,6 +14,10 @@ from glue.forms import AddPageForm, AddPinForm, EditPinForm, UploadPinForm
 
 logger = logging.getLogger(__name__)
 
+def home(request):
+	# logger.info("Welcome to GLUEBOX api")
+	return Epoxy( request ).json()
+
 def index(request):
 	# logger.info("Welcome to GLUEBOX api")
 	return Epoxy( request ).json()
