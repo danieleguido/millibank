@@ -1,16 +1,16 @@
-from django.db import models
+from django.conf import settings
 from django.contrib.auth.models import User
+from django.db import models
 
-LANGUAGE_CHOICES = (
-	('EN', 'EN'),
-	('FR', 'FR')
-)
 
 class Geo( models.Model): # geo spot, with zoom
 	lat = models.FloatField() # map center LAT
 	lon = models.FloatField() # map center LON
 	zoom = models.IntegerField() # start zoom
 	content = models.TextField( default="", blank=True, null=True ) # textual GEO description
+
+# class Tag( models.Model ):
+
 
 class Pin( models.Model ):
 	published='P'
@@ -22,7 +22,7 @@ class Pin( models.Model ):
 	title = models.CharField( max_length=160, default="", blank=True, null=True )
 	abstract = models.TextField( default="", blank=True, null=True )
 	content = models.TextField( default="", blank=True, null=True )
-	language =  models.CharField( max_length=2, default='EN', choices=LANGUAGE_CHOICES ) # magic admin features: create a pin for the same language
+	language =  models.CharField( max_length=2, default='EN', choices=settings.LANGUAGES ) # magic admin features: create a pin for the same language
 
 	mimetype = models.CharField( max_length=255, default="", blank=True, null=True )
 	sort =  models.IntegerField( default=0 )
@@ -65,7 +65,7 @@ class PageAbstract( models.Model ):
 	abstract =  models.TextField( default="", blank=True, null=True )
 	content  =  models.TextField( default="", blank=True, null=True )
 	
-	language =  models.CharField( max_length=2, default='EN', choices=LANGUAGE_CHOICES ) # magic admin features: create a pin for the same language
+	language =  models.CharField( max_length=2, default='EN', choices=settings.LANGUAGES ) # magic admin features: create a pin for the same language
 	sort     =  models.IntegerField( default=0 )
 	
 	class Meta:

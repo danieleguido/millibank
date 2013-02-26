@@ -3,11 +3,24 @@
 
 {% block body %}
 		<div class="container_12">
-			<div class="grid_12">
+			<div class="grid_12">	
 				<h1>walt.</h1>
-				{% block page %}
-				
-				{% endblock %}
 			</div>
+			
+			
+			{% block page %}
+
+			{% endblock %}
+
+			{% block footer %}
+			
+			<div class="grid_12">
+				language:{{ language }} {% for language in languages %} {{ language }}{%if not forloop.last %}, {%endif%}{% endfor %}
+				{{ warnings }}
+			</div>
+			
+			{% endblock %}
 		</div>
+
+
 {% endblock %}

@@ -3,16 +3,191 @@
 
 {% block page %}
 
-	<div class="grid_3 alpha">
-		<h2>watch</h2>
+	<div class="grid_12">	
+		<h2 style="border-width:0px">Protocols</h2>
+
+		<div class="stories">
+			<div class="story">
+				<div class="title">Grimm fairy tale analysis. <span><a href="#">play</a></span></div>
+				<div class="timeline">
+					<div class="inner">
+						<div class="start">1867 &rarr;</div>
+
+						<div class="end">2013</div>
+					
+					</div>
+				</div>
+			</div>
+
+			<div class="story">
+				<div class="title">Learn how to get more value out of metadata easily <span><a href="#">play</a></span></div>
+				<div class="timeline">
+					<div class="inner">
+						<div class="start">2005 &rarr;</div>
+
+						<div class="end">2013</div>
+					</div>
+				</div>
+			</div>
+		</div>
 	</div>
-	<div class="grid_3">
-		<h2>ask</h2>
-	</div>
-	<div class="grid_3">
-		<h2>learn</h2>
-	</div>
-	<div class="grid_3 omega">
-		<h2>tell</h2>
+
+
+	<div class="grid_12">	
+		
+		<div class="grid_3 alpha">
+			<h2>{{ walt.wander.title }}
+				<div class="description">
+				{{ walt.wander.abstract }} ( {{ walt.wander.pins.count }} )
+				</div>
+			</h2>
+
+			<div class="items">
+				<div class="item">
+					<div class="content">
+						<img src="http://yakyakyak.fr/wp-content/uploads/2013/02/lumberjack.png" style="width: 100%"/>
+					</div>
+					<h3>Visualizing Networks: Beyond the Hairball</h3>
+					<div class="metadata"><span class="date">25 Feb. 2013</span>
+						<a href="#" class="tag">video</a>, <a href="#" class="tag">documentaire</a>, <a href="#" class="tag">ontology</a>
+					</div>
+					<blockquote>
+						 Lumberjack permet la gestion des métadonnées en temps réel lors d’un tournage. Il se présente via une page internet sur un iPad par exemple, où il suffit de cocher pendant une interview les mots clés adéquats ( personnes, thèmes lieux…).
+					</blockquote>
+					<div class="comment">
+						<a href="#" class="author">b.s.</a> peut-être une idée pour mettre en place un outil d'observation...
+					</div>
+				</div>
+
+						
+				<div class="item">
+					<div class="content">
+						<img src="http://yakyakyak.fr/wp-content/uploads/2013/02/lumberjack.png" style="width: 100%"/>
+					</div>
+					<h3>Lumberjack: Gérer les métadonnées pour le documentaire</h3>
+					<div class="metadata"><span class="date">22 Feb. 2013</span>
+						<a href="#" class="tag">video</a>, <a href="#" class="tag">documentaire</a>, <a href="#" class="tag">ontology</a>
+					</div>
+					<blockquote>
+						 Lumberjack permet la gestion des métadonnées en temps réel lors d’un tournage. Il se présente via une page internet sur un iPad par exemple, où il suffit de cocher pendant une interview les mots clés adéquats ( personnes, thèmes lieux…).
+					</blockquote>
+					<div class="comment">
+						<a href="#" class="author">b.s.</a> peut-être une idée pour mettre en place un outil d'observation...
+					</div>
+				</div>
+
+				<div class="item">
+					
+					<h3>Synchronous objects</h3>
+					<div class="metadata"><span class="date">20 Feb. 2013</span>
+						<a href="#" class="tag">video</a>, <a href="#" class="tag">documentaire</a>, <a href="#" class="tag">ontology</a>
+					</div>
+					<blockquote>
+						 Lumberjack permet la gestion des métadonnées en temps réel lors d’un tournage. Il se présente via une page internet sur un iPad par exemple, où il suffit de cocher pendant une interview les mots clés adéquats ( personnes, thèmes lieux…).
+					</blockquote>
+					<div class="comment">
+						<a href="#" class="author">b.s.</a> Très bel exemple de vidéo avec graphisme intégré, dans une très belle interface interactive et  dynamique... 
+					</div>
+					<div class="comment">
+						<a href="#" class="author">t.c.</a>
+					oui , c'est magnifique  (surtout la danse)
+	merci bertrand
+					</div>
+					<div class="comment">
+						<a href="#" class="author">d.b.</a> et magnifique aussi en vue du dessus qu'il faut sélectionner . La chorégraphie a toujours été une graphie, là elle est en plus doublement graphiée
+					</div>
+				</div>
+
+			</div>
+
+		</div>
+		<div class="grid_3">
+			<h2>{{ walt.ask.title }}
+				<div class="description">
+				{{ walt.ask.abstract }} ( {{ walt.ask.pins.count }} )
+				</div>
+			</h2>
+			<div class="items">
+				<div class="item">
+					<iframe width="100%" height="166" scrolling="no" frameborder="no" src="https://w.soundcloud.com/player/?url=http%3A%2F%2Fapi.soundcloud.com%2Ftracks%2F80053791"></iframe>
+				</div>
+			</div>
+		</div>
+		<div class="grid_3">
+			<h2>{{ walt.learn.title }}
+				<div class="description">
+				{{ walt.learn.abstract }} ( {{ walt.learn.pins.count }} )
+				</div>
+			</h2>
+			<div class="items">
+				<div class="item">
+					<h4>C Dollerup</h4>
+					<h3>Tales and Translation: The Grimm Tales from Pan-Germanic narratives to shared international fairytales</h3>
+					<div class="metadata">C Dollerup - 1999 - books.google.com
+						<a href="#" class="tag">video</a>, <a href="#" class="tag">documentaire</a>, <a href="#" class="tag">ontology</a>
+					</div>
+					<blockquote>
+					Dealing with the most translated work of German literature, the Tales of the brothers Grimm 
+	(1812-1815), this book discusses their history, notably in relation to Denmark and 
+	subsequently other nations from 1816 to 1986. The Danish intelligentsia responded\
+					</blockquote>
+				</div>
+				<div class="item">
+					<h4>T Honkela, V Pulkki, T Kohonen</h4>
+					<h3>Contextual relations of words in Grimm tales analyzed by self-organizing map</h3>
+					<div class="metadata">Proceedings of ICANN-95, …, 1995 - users.ics.aalto.fi
+						<a href="#" class="tag">video</a>, <a href="#" class="tag">documentaire</a>, <a href="#" class="tag">ontology</a>
+					</div>
+					<blockquote>
+					Dealing with the most translated work of German literature, the Tales of the brothers Grimm 
+	(1812-1815), this book discusses their history, notably in relation to Denmark and 
+	subsequently other nations from 1816 to 1986. The Danish intelligentsia responded\
+					</blockquote>
+				</div>
+			</div>
+		</div>
+		<div class="grid_3 omega">
+			<h2>{{ walt.try.title }}
+				<div class="description">
+				{{ walt.try.abstract }} ( {{ walt.try.pins.count }} )
+				</div>
+			</h2>
+			<div class="items">
+				{% for pin in walt.try.pins.all|slice:":10" %}
+				<div class="item">
+					
+					<h3>{{ pin.title }}</h3>
+					<div class="metadata"><span class="date">{{ pin.ref_date }}</span>
+						<a href="#" class="tag">video</a>, <a href="#" class="tag">documentaire</a>, <a href="#" class="tag">ontology</a>
+					</div>
+					<blockquote>
+						 {{ pin.abstract }}
+
+					</blockquote>
+					<a class="external" href="{{ pin.permalink}}">tabletonet</a>
+					<div class="comment">
+						<a href="#" class="author">b.s.</a> Très bel exemple de vidéo avec graphisme intégré, dans une très belle interface interactive et  dynamique... 
+					</div>
+					
+				</div>
+				{% endfor %}
+				<div class="item">
+					
+					<h3>Table2Net</h3>
+					<div class="metadata"><span class="date">20 Feb. 2013</span>
+						<a href="#" class="tag">video</a>, <a href="#" class="tag">documentaire</a>, <a href="#" class="tag">ontology</a>
+					</div>
+					<blockquote>
+						 Table to net permet
+
+					</blockquote>
+					<a class="external" href="#medialab tool">tabletonet</a>
+					<div class="comment">
+						<a href="#" class="author">b.s.</a> Très bel exemple de vidéo avec graphisme intégré, dans une très belle interface interactive et  dynamique... 
+					</div>
+					
+				</div>
+			</div>
+		</div>
 	</div>
 {% endblock %}

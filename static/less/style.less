@@ -3,13 +3,73 @@
 
 @grid-padding: 24px;
 
+@red: #cc1600;
+
 body{
 	background: white;
 	height: 100%;
-	.sans-serif(10px);
+	.sans-serif(13px);
+	color: #383838;
+}
+h1{
+	.sans-serif(24px);
+}
+h2{
+	border-bottom: 1px solid #ccc;
+	padding-bottom: @grid-padding;
+	.mono-caps(14px);
+	color: #000;
+	.description{
+		.mono(12px, lowercase);
+	}
 }
 
-h2{
-	border-bottom: 1px solid #eee;
+.item{
+	margin-bottom: @grid-padding;
+
 	padding-bottom: @grid-padding;
+	border-bottom: 1px solid #ccc;
+	h3{
+		.serif-slant(17px);
+		color: #000;
+	}
+	h4{
+		.serif(17px);
+		color: #000;
+	}
+	blockquote{
+		padding: @grid-padding/2 0;
+		margin:0;
+
+	}
+}	
+
+.timeline{
+	width: 100%;
+	.inner{
+		position:absolute;
+		
+
+	}
+	
+	.title{
+	
+	}
+	.start{
+		float:left;
+		
+		padding-right: 6px;
+	}
+	.end{
+		float:right;
+		
+		
+	}
+}
+
+.story{
+	margin-bottom: @grid-padding;
+
+	padding-bottom: @grid-padding;
+	border-bottom: 1px solid #ccc;
 }
