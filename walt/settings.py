@@ -174,3 +174,4 @@ LOGGING = {
 # walt ad hoc settings
 LOCALE_PATHS = local_settings.LOCALE_PATHS
 LANGUAGES = local_settings.LANGUAGES
+ALCHEMY_API_KEY = local_settings.ALCHEMY_API_KEY

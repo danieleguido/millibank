@@ -8,7 +8,7 @@ from django.utils.translation import ugettext as _
 from django.template.defaultfilters import slugify
 
 from glue import Epoxy, API_EXCEPTION_FORMERRORS, API_EXCEPTION_INTEGRITY, API_EXCEPTION_DOESNOTEXIST, API_EXCEPTION_OSERROR
-from glue.models import Page, Pin
+from glue.models import Page, Pin, Tag
 from glue.forms import AddPageForm, AddPinForm, EditPinForm, UploadPinForm
 
 
@@ -68,53 +68,57 @@ def pins( request ):
 		if not form.is_valid():
 			return response.throw_error( error=form.errors, code=API_EXCEPTION_FORMERRORS).json()
 
+		pages = {}			
+			
 		if len(form.cleaned_data['page_slug']) > 0:
 			# attacch new pin to a selected page (both languages)
 			response.add('page_slug',form.cleaned_data['page_slug'])
 			
-			try:
-				page_en = Page.objects.get( slug=form.cleaned_data['page_slug'],language='EN')
-				page_fr = Page.objects.get( slug=form.cleaned_data['page_slug'],language='FR')
-			except Page.DoesNotExist:
-				return response.throw_error( error=_("selected page does not exists"), code=API_EXCEPTION_FORMERRORS).json()
+			
+			for language,l in settings.LANGUAGES:
+				try:
+					pages[ language ] = Page.objects.get( slug=form.cleaned_data['page_slug'], language=language )
+				except Page.DoesNotExist:
+					return response.throw_error( error=_("selected page does not exists"), code=API_EXCEPTION_FORMERRORS ).json()
 
-			response.add('page', [ page_en.json(), page_fr.json() ] )
+			response.add('pages', [ pages[p].json() for p in pages ] )
+
+		pins = {}
 
 		if len(form.cleaned_data['parent_pin_slug']) > 0:
+
 			# attacch new pin to a selected pin (pin children, usually displayed on the right side, both languages)
 			response.add('parent_pin_slug',form.cleaned_data['parent_pin_slug'])
 			
-			try:
-				pin_en = Pin.objects.get( slug=form.cleaned_data['parent_pin_slug'],language='EN')
-				pin_fr = Pin.objects.get( slug=form.cleaned_data['parent_pin_slug'],language='FR')
-			except Pin.DoesNotExist, e:
-				return response.throw_error( error=_("selected pin does not exists. Exception: %s" % e), code=API_EXCEPTION_FORMERRORS).json()
+			
+			for language,l in settings.LANGUAGES:
+				try:
+					pins[ language ] = Pin.objects.get( slug=form.cleaned_data['parent_pin_slug'], language=language )
+				except Pin.DoesNotExist, e:
+					return response.throw_error( error=_("selected pin does not exists. Exception: %s" % e), code=API_EXCEPTION_FORMERRORS).json()
 
-			response.add('pin', [ pin_en.json(), pin_fr.json() ] )
+			response.add('pins', [ pins[p].json() for p in pins ] )
 
 		#return response.queryset( Pin.objects.filter() ).json()
+		ipins = {}
 
-		try:
-			p_en = Pin( title=form.cleaned_data['title_en'], language='EN', slug=form.cleaned_data['slug'])
-			p_fr = Pin( title=form.cleaned_data['title_fr'], language='FR', slug=form.cleaned_data['slug'])
-			
-			if len(form.cleaned_data['parent_pin_slug']) > 0:
-				p_en.parent = pin_en
-				p_fr.parent = pin_fr
+		for language,l in settings.LANGUAGES:
+			try:
+				ipin = Pin( title=form.cleaned_data[ 'title_%s' % language ], language=language, slug=form.cleaned_data[ 'slug' ], permalink=form.cleaned_data['permalink'] )
+				ipin.save()
 
-			
-			p_en.save()
-			p_fr.save() 
-		except IntegrityError, e:
-			return response.throw_error( error={'slug':"Exception %s" % e}, code=API_EXCEPTION_INTEGRITY).json()
+			except IntegrityError, e:
+				return response.throw_error( error={'slug':"Exception %s" % e}, code=API_EXCEPTION_INTEGRITY).json()
 		
-		if len(form.cleaned_data['page_slug']) > 0:
-			page_en.pins.add( p_en )
-			page_en.save()
-			page_fr.pins.add( p_fr )
-			page_fr.save()
+			if len(pages) > 0:
+				pages[ language ].pins.add( ipin )
+				pages[ language ].save()
 
-		response.add('object',[ p_en.json(), p_fr.json() ])
+			if len(pins) > 0:
+				ipin.parent = pins[ language ]
+				ipin.save()
+
+		response.add('object',[ p.json() for p in ipins ])
 
 	return response.queryset( Pin.objects.filter() ).json()
 
@@ -145,9 +149,63 @@ def pin( request, pin_id ):
 	
 	return response.single( Pin, {'id':pin_id} ).json()
 
+
+
 def pin_by_slug( request, pin_slug, pin_language ):
 	return Epoxy( request ).single( Pin, {'slug':pin_slug,'language':pin_language} ).json()
 	
+def pin_by_parmalink( request ):
+	
+	return Epoxy( request ).single( Pin, {'slug':pin_slug,'language':pin_language} ).json()
+
+def pin_alchemy( request, pin_id ):
+	response = Epoxy( request )
+
+	try:
+		pin = Pin.objects.get( id=pin_id )
+	except Pin.DoesNotExist, e:
+		return response.throw_error( error="%s" % e, code=API_EXCEPTION_DOESNOTEXIST).json()
+
+	# check alchemy availability
+	from glue import AlchemyAPI
+
+	ao = AlchemyAPI.AlchemyAPI()
+	
+	try:
+		ao.setAPIKey( settings.ALCHEMY_API_KEY )
+	except AttributeError, e:
+		return response.throw_error( error="You didn't specify an AlchemyAPI key", code=API_EXCEPTION_DOESNOTEXIST).json()
+	
+	# Has it alchemy tags already?
+	if len( pin.permalink) > 0 :
+
+		# if len( pin.permalink > 0) :
+		result = response.add( "URLGetTitle", ao.URLGetTitle( pin.permalink ) );
+		result = response.add( "URLGetRankedNamedEntities", ao.URLGetRankedNamedEntities( pin.permalink ) );
+		result = response.add( "URLGetRankedConcepts", ao.URLGetRankedConcepts( pin.permalink ) );
+		
+
+	#except Exception, e:
+	#	return response.throw_error( error="%s" % e, code=API_EXCEPTION_OSERROR ).json()
+	return response.json();
+
+
+def pin_tags( request, pin_id ):
+	response = Epoxy( request )
+	# get pins
+	try:
+		pins = Pin.objects.get( id=pin_id )
+	except Pin.DoesNotExist, e:
+		return response.throw_error( error="%s" % e, code=API_EXCEPTION_DOESNOTEXIST).json()
+
+	if response.method == 'POST':
+		form = AddTagForm( request.REQUEST )
+		if not form.is_valid():
+			return response.throw_error( error=form.errors, code=API_EXCEPTION_FORMERRORS ).json()
+
+
+	return response.queryset( Tag.objects.filter( pin__id=pin_id) ).json()
+
 def publish_pin( request, pin_id ):
 	response = Epoxy( request )
 	new_status = request.POST.get("new_status")
@@ -163,7 +221,23 @@ def publish_pin( request, pin_id ):
 
 	except Pin.DoesNotExist, e:
 		return response.throw_error( error="%s" % e, code=API_EXCEPTION_DOESNOTEXIST).json()
-		
+
+def pin_clean( request, pin_id ):
+	import re
+	response = Epoxy( request )
+
+	try:
+		pin = Page.objects.get( id = pin_id )
+	except Pin.DoesNotExist, e:
+		return response.throw_error( error="%s" % e, code=API_EXCEPTION_DOESNOTEXIST).json()
+	
+	e = re.compile( r'<span *[^>]*>(.*)</span *>')
+	pin.content = e.sub( r"\1", pin.content )
+	pin.save()
+
+	response.add( 'object', pin, jsonify=True)
+
+	return response.json()
 		
 def pin_upload( request ):
 	response = Epoxy( request )

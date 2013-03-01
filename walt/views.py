@@ -11,51 +11,66 @@ from django.template import RequestContext
 from django.utils.translation import ugettext as _
 from django.utils.translation import get_language
 
-
+from glue.forms import LoginForm, AddPinForm, EditPinForm
 from glue.models import Pin, Page
 
 
 logger = logging.getLogger('glue')
 
 # slugs of walt pages.
-WALT_PAGES = ['wander','ask','learn','try']
+WALT_W = 'wander'
+WALT_A = 'ask'
+WALT_L = 'learn'
+WALT_T = 'try'
+WALT_PAGES = [ WALT_W, WALT_A, WALT_L, WALT_T ]
 
 # 
 #	SHARED, commont context (tags, language, user availability...)
 #
-def sc( request, tags=[], d={} ):
+def sc( request, tags=[], d={}, load_walt=True ):
 	
 	# startup
 	d['tags'] = tags
 	d['language'] = get_language()
 	d['languages'] = dict( settings.LANGUAGES )
 	d['warnings'] = {}
+	
+	if load_walt:
+		d['walt'] = dict([(p.slug,p) for p in Page.objects.filter( language=d['language'], slug__in=WALT_PAGES ) ] )
 
-	d['walt'] = dict([(p.slug,p) for p in Page.objects.filter( language=d['language'], slug__in=WALT_PAGES ) ] )
+	# load edit mode
+	d['login_form'] = LoginForm( auto_id="id_login_%s")
+	d['add_pin_form'] = AddPinForm( auto_id="id_add_pin_%s")
+
 	return d
 
 def home( request ):
 	data = sc( request, tags=[ "home" ] )
 
 	return render_to_response(  "walt/index.html", RequestContext(request, data ) )
-	try:
-		data['page'] = Page.objects.get( slug="index", language=data['language'])
-	except Page.DoesNotExist:
-		p_en = Page( title="Home Page", language='EN', slug="index")
-		p_en.save()
 
-		p_fr = Page( title="Home Page", language='FR', slug="index")
-		p_fr.save()
-
-		data['page'] = p_fr if data['language'] == 'FR' else p_en
-
-	# load all pins without page
-	data['pins'] = Pin.objects.filter(language=data['language'], page__slug="index" ).order_by("-id")
-
-	# get news
-	data['news'] = Pin.objects.filter(language=data['language'], page__isnull=True ).order_by("-id")
-
+def tag( request, tag_type, tag_slug ):
+	data = sc( request, tags=[ "tags" ] )
+	
 	return render_to_response(  "walt/index.html", RequestContext(request, data ) )
+
+
+def waltw( request ):
+	data = sc( request, tags=[ "w" ] )
+	data['page'] = get_object_or_404( Page, language=data['language'], slug=WALT_W )
+	return render_to_response(  "walt/walt.html", RequestContext(request, data ) )
+	
+def walta( request ):
+	data = sc( request, tags=[ "a" ] )
+	return render_to_response(  "walt/walt.html", RequestContext(request, data ) )
+
+def waltl( request ):
+	data = sc( request, tags=[ "l" ] )
+	return render_to_response(  "walt/walt.html", RequestContext(request, data ) )
+
+def waltt( request ):
+	data = sc( request, tags=[ "t" ] )
+	return render_to_response(  "walt/walt.html", RequestContext(request, data ) )
 
 # call this function once. It will check for page availability and other stories...
 @staff_member_required

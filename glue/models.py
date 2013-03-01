@@ -3,6 +3,57 @@ from django.contrib.auth.models import User
 from django.db import models
 
 
+class Serie( models.Model ):
+	
+	KEY = "Ke"
+	GHOST = "GH" # a non published serie ?
+	GHOST = "GH"
+
+	TYPE_CHOICES = (
+        (KEY, 'key frame'),
+        (GHOST, 'ghost'),
+    )
+
+	slug     =  models.SlugField( unique=True )
+	title    =  models.CharField( max_length=160, default="", blank=True, null=True )
+	abstract =  models.TextField( default="", blank=True, null=True )
+	content  =  models.TextField( default="", blank=True, null=True )
+	
+	type = models.CharField( max_length=2, choices=TYPE_CHOICES ) # if true, serie is a default serie
+
+	date = models.DateField( blank=True, null=True ) # main date, manually added
+	date_last_modified = models.DateField( auto_now=True ) # date last save()
+
+
+	frames = models.ManyToManyField( Pin, through='Frame', null=True, blank=True )
+	related = models.ManyToManyField("self", symmetrical=True, null=True, blank=True )
+
+
+
+class Frame( models.Model ):
+
+	KEY = "Ke"
+	GHOST = "GH" # visible but just for reference.
+
+
+	TYPE_CHOICES = (
+        (KEY, 'key frame'),
+        (GHOST, 'ghost'),
+    )
+
+	pin = models.ForeignKey( Pin )
+	serie = models.ForeignKey( Serie )
+	sort  =  models.IntegerField( default=0 )
+	
+	type = models.CharField( max_length=2, choices=TYPE_CHOICES )
+
+	abstract =  models.TextField( default="", blank=True, null=True ) # a description of the passage
+
+	class Meta:
+		unique_together = ( "serie", "sort" )
+		ordering = ('sort' )
+
+
 class Geo( models.Model): # geo spot, with zoom
 	lat = models.FloatField() # map center LAT
 	lon = models.FloatField() # map center LON
@@ -10,7 +61,38 @@ class Geo( models.Model): # geo spot, with zoom
 	content = models.TextField( default="", blank=True, null=True ) # textual GEO description
 
 # class Tag( models.Model ):
+class Tag(models.Model):
 
+	# feel free to add tag type to this model ... :D
+	AUTHOR = 'Au'
+	KEYWORD = 'Ke'
+	INSTITUTION = 'In'
+	RESEARCHER = 'Rs'
+	PLACE = 'Pl'
+	DATE = 'Da'
+	GEOCOVER = 'GC'
+
+
+	TYPE_CHOICES = (
+        (AUTHOR, 'AUTHOR'),
+        (KEYWORD, 'KEYWORD'),
+        (INSTITUTION, 'Institution'),
+        (RESEARCHER, 'Researcher'),
+        (PLACE, 'Place'),
+        (DATE, 'Date'),
+        (GEOCOVER, 'Geographic coverage')
+    )
+
+	name = models.CharField(max_length=128) # e.g. 'Mr. E. Smith'
+	slug = models.SlugField(max_length=128) # e.g. 'mr-e-smith'
+	type = models.CharField( max_length=2, choices=TYPE_CHOICES ) # e.g. 'author' or 'institution'
+
+	def __unicode__(self):
+		return "%s : %s"% ( self.get_type_display(), self.name)
+
+	class Meta:
+		ordering = ["type", "slug" ]
+		unique_together = ("type", "slug")
 
 class Pin( models.Model ):
 	published='P'
@@ -38,11 +120,12 @@ class Pin( models.Model ):
 	status  = models.CharField( max_length=2, default="D",choices=PIN_STATUS_CHOICES)
 
 	geos = models.ManyToManyField( Geo, blank=True, null=True ) # add geographic point
+	tags = models.ManyToManyField( Tag, blank=True, null=True ) # add tags !
 	users = models.ManyToManyField( User, blank=True, null=True )
 
 	class Meta:
 		unique_together = ( "slug", "language" )
-		ordering = ('sort','id')
+		ordering = ('sort','-id')
 
 	def __unicode__(self):
 		return "%s (%s) a.k.a. %s" % (self.slug, self.language, self.title)
@@ -57,6 +140,9 @@ class Pin( models.Model ):
 			'language': self.language,
 			'mimetype': self.mimetype
 		}
+
+
+
 
 
 class PageAbstract( models.Model ):

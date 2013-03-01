@@ -73,3 +73,179 @@ h2{
 	padding-bottom: @grid-padding;
 	border-bottom: 1px solid #ccc;
 }
+
+
+/*
+
+																Reveal Modals
+																-------------
+*/
+
+.reveal-modal-bg { 
+	position: fixed; 
+	height: 100%;
+	width: 100%;
+	background: #000;
+	background: rgba(0,0,0,.8);
+	z-index: 100;
+	display: none;
+	top: 0;
+	left: 0; 
+}
+	
+.reveal-modal {
+	visibility: hidden;
+	top: 0; 
+	left: 50%;
+	margin-left: -245px;
+	width: 470px;
+	background: #fff;
+	position: fixed;
+	z-index: 101;
+	padding: 30px 40px 34px;
+
+	-moz-box-shadow: 0 0 10px rgba(0,0,0,.4);
+	-webkit-box-shadow: 0 0 10px rgba(0,0,0,.4);
+	-box-shadow: 0 0 10px rgba(0,0,0,.4);
+}
+		
+.reveal-modal.small { width: 200px; margin-left: -140px;}
+.reveal-modal.medium { width: 400px; margin-left: -240px;}
+.reveal-modal.large { width: 600px; margin-left: -340px;}
+.reveal-modal.xlarge { width: 800px; margin-left: -440px;}
+	
+.reveal-modal .close-reveal-modal {
+	font-size: 28px;
+	line-height: .5;
+	position: absolute;
+	top: 8px;
+	right: 11px;
+	color: #aaa;
+	text-shadow: 0 -1px 1px rbga(0,0,0,.6);
+	
+	cursor: pointer;
+} 
+
+input[type="text"]{
+	-webkit-border-radius: 0px;
+	-moz-border-radius: 0px;
+	border-radius: 0px
+}
+
+input, button, select, textarea {
+	.mono(16px)
+}
+
+
+
+
+/*
+
+																		Toast
+
+*/
+@toast-width: 280px;
+@base-color: #292929;
+.toast-container {
+	width: @toast-width;
+	z-index: 1999999999;
+	position: fixed;
+    left: 50%;
+    top: 50%;
+    
+	&.toast-position-middle-center {
+    	margin-left: -@toast-width/2;
+    	margin-top: -40px;
+    }
+    &.toast-position-top-left {
+    	left: 20px;
+    	top: 20px;
+	}
+}
+
+
+* html .toast-container {
+	position: absolute;
+}
+@original-color: darken(@base-color, 38%);
+
+.toast-item {
+	height: auto;
+	// opacity: 0.95;
+	padding: 0 0 0 0;
+	font-size: 14px;
+	line-height: 20px;
+	display: block;
+	position: relative;
+	margin: 0 0 12px 0;
+	
+	background: white;
+	border: 1px solid fade( @original-color, 15%);
+	
+	.mono(16px, normal, 1.414);
+
+	h1{
+		color: #191919;
+		border-bottom: 1px solid lighten( @original-color, 15%);
+		margin: 12px;
+		//.serif-slant(18px, normal, 1.44);
+		.mono(16px, normal, 1.414);
+
+		padding: 0 46px 12px 0;	
+	}
+	
+	p{
+    	text-align: left;
+    	margin: 0 12px 14px 12px;
+    	
+	}
+
+}
+
+
+p.invalid{
+	background-color: fade( #cc1400, 20%);
+	border: 1px solid #cc1400;
+	margin: @grid-padding/3;
+	padding: @grid-padding/3;
+	.border-radius(2px);
+}
+
+input.invalid{
+	border: 1px solid #cc1400;
+}
+
+.toast-item-close {
+    background:url("../../img/icons/32-Cross-white.png");
+    width:32px;
+    height:32px;
+    position: absolute;
+    top:7px;
+    right:7px;
+}
+
+.toast-item-image {
+    width:32px;
+    height: 32px;
+    margin-left: 10px;
+    margin-top: 10px;
+    margin-right: 10px;
+    float:left;
+}
+
+.toast-item-image-notice {
+    /*background:url("../../img/icons/32-Alert.png");*/
+    display:none;
+}
+
+.toast-item-image-success {
+    background:url(../../images/success.png);
+}
+
+.toast-item-image-warning {
+    background:url(../../images/warning.png);
+}
+
+.toast-item-image-error {
+    background:url(../../images/error.png);
+}

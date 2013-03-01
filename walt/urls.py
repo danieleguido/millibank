@@ -15,6 +15,13 @@ urlpatterns = patterns('',
     # url(r'^walt/', include('walt.foo.urls')),
     url(r'^api/', include('glue.urls')),
 
+    url(r'^w/', 'walt.views.waltw', name='walt_w'),
+    url(r'^a/', 'walt.views.walta', name='walt_a'),
+    url(r'^l/', 'walt.views.waltl', name='walt_l'),
+    url(r'^t/', 'walt.views.waltt', name='walt_t'),
+    
+    url(r'^tag/(?P<tag_type>[a-z\-]+)/(?P<tag_slug>[a-zA-Z\d\-]+)/', 'walt.views.tag', name='walt_tag'),
+
     # Uncomment the admin/doc line below to enable admin documentation:
     # url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
 

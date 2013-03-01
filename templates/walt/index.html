@@ -36,69 +36,41 @@
 	<div class="grid_12">	
 		
 		<div class="grid_3 alpha">
-			<h2>{{ walt.wander.title }}
-				<div class="description">
-				{{ walt.wander.abstract }} ( {{ walt.wander.pins.count }} )
-				</div>
-			</h2>
-
+			<a href="{% url walt_w %}"><h2>{{ walt.wander.title }}
+					<div class="description">
+						{{ walt.wander.abstract }} ( {{ walt.wander.pins.count }} )
+					</div>
+				</h2>
+			</a>
 			<div class="items">
-				<div class="item">
-					<div class="content">
-						<img src="http://yakyakyak.fr/wp-content/uploads/2013/02/lumberjack.png" style="width: 100%"/>
-					</div>
-					<h3>Visualizing Networks: Beyond the Hairball</h3>
-					<div class="metadata"><span class="date">25 Feb. 2013</span>
-						<a href="#" class="tag">video</a>, <a href="#" class="tag">documentaire</a>, <a href="#" class="tag">ontology</a>
-					</div>
-					<blockquote>
-						 Lumberjack permet la gestion des métadonnées en temps réel lors d’un tournage. Il se présente via une page internet sur un iPad par exemple, où il suffit de cocher pendant une interview les mots clés adéquats ( personnes, thèmes lieux…).
-					</blockquote>
-					<div class="comment">
-						<a href="#" class="author">b.s.</a> peut-être une idée pour mettre en place un outil d'observation...
-					</div>
-				</div>
-
-						
-				<div class="item">
-					<div class="content">
-						<img src="http://yakyakyak.fr/wp-content/uploads/2013/02/lumberjack.png" style="width: 100%"/>
-					</div>
-					<h3>Lumberjack: Gérer les métadonnées pour le documentaire</h3>
-					<div class="metadata"><span class="date">22 Feb. 2013</span>
-						<a href="#" class="tag">video</a>, <a href="#" class="tag">documentaire</a>, <a href="#" class="tag">ontology</a>
-					</div>
-					<blockquote>
-						 Lumberjack permet la gestion des métadonnées en temps réel lors d’un tournage. Il se présente via une page internet sur un iPad par exemple, où il suffit de cocher pendant une interview les mots clés adéquats ( personnes, thèmes lieux…).
-					</blockquote>
-					<div class="comment">
-						<a href="#" class="author">b.s.</a> peut-être une idée pour mettre en place un outil d'observation...
-					</div>
-				</div>
-
+				{% for pin in walt.wander.pins.all|slice:":10" %}
 				<div class="item">
 					
-					<h3>Synchronous objects</h3>
-					<div class="metadata"><span class="date">20 Feb. 2013</span>
-						<a href="#" class="tag">video</a>, <a href="#" class="tag">documentaire</a>, <a href="#" class="tag">ontology</a>
+					<h3>#{{ pin.id }} {{ pin.title }} </h3>
+					<div class="metadata"><span class="date">{% if pin.date %}{{ pin.date }}{% else %}{{ pin.date_last_modified }}{% endif %}</span>
+						{% for tag in pin.tags.all %}
+							<a href="{% url walt_tag tag.type|lower tag.slug %}" class="tag" alt="{{ tag.name }} ( {{ tag.type }} )">{{ tag.name }}</a>
+							{% if not forloop.last %},{%endif %} 
+						{% endfor %}
+						<p><a href="{% url admin:glue_pin_change pin.id %}">&rarr; {% trans "edit" %}</a></p>
 					</div>
 					<blockquote>
-						 Lumberjack permet la gestion des métadonnées en temps réel lors d’un tournage. Il se présente via une page internet sur un iPad par exemple, où il suffit de cocher pendant une interview les mots clés adéquats ( personnes, thèmes lieux…).
+						 {{ pin.abstract }}
+
 					</blockquote>
+					<a class="external" href="{{ pin.permalink}}">&rarr; {{ pin.permalink}}</a>
+
+					{% for child in pin.children.all|slice:":10" %}
 					<div class="comment">
-						<a href="#" class="author">b.s.</a> Très bel exemple de vidéo avec graphisme intégré, dans une très belle interface interactive et  dynamique... 
+						<a href="#" class="author"> </a> {{ child.abstract }}
 					</div>
-					<div class="comment">
-						<a href="#" class="author">t.c.</a>
-					oui , c'est magnifique  (surtout la danse)
-	merci bertrand
-					</div>
-					<div class="comment">
-						<a href="#" class="author">d.b.</a> et magnifique aussi en vue du dessus qu'il faut sélectionner . La chorégraphie a toujours été une graphie, là elle est en plus doublement graphiée
-					</div>
+					{% endfor %}
+					
 				</div>
+				{% endfor %}
 
 			</div>
+			
 
 		</div>
 		<div class="grid_3">
