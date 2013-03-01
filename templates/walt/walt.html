@@ -57,6 +57,7 @@
 						 {{ pin.abstract }}
 
 					</blockquote>
+					 {{ pin.content|safe }}
 					<a class="external" href="{{ pin.permalink}}">&rarr; {{ pin.permalink}}</a>
 
 					{% for child in pin.children.all|slice:":10" %}
@@ -71,11 +72,24 @@
 			</div>
 		</div>
 		<div class="grid_6 omega">
-			<h2>{% trans "top protocols" %}
+			<h2>{% trans "series" %}( {{ series.count }} )
 				<div class="description">
-					protocols using mostly wander items ( {{ page.pins.count }} )
+					series or protocols using 'wander' items
 				</div>
+
+
 			</h2>
+
+			<div class="items">
+				{% for serie in series %}
+					<div class="item">
+						<h3>{{ serie.title }}</h3>
+						<div class="abstract">
+							{{ serie.abstract }}
+						</div>
+					</div>
+				{% endfor %}
+			</div>
 		</div>
 
 	</div>

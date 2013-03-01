@@ -3,55 +3,6 @@ from django.contrib.auth.models import User
 from django.db import models
 
 
-class Serie( models.Model ):
-	
-	KEY = "Ke"
-	GHOST = "GH" # a non published serie ?
-	GHOST = "GH"
-
-	TYPE_CHOICES = (
-        (KEY, 'key frame'),
-        (GHOST, 'ghost'),
-    )
-
-	slug     =  models.SlugField( unique=True )
-	title    =  models.CharField( max_length=160, default="", blank=True, null=True )
-	abstract =  models.TextField( default="", blank=True, null=True )
-	content  =  models.TextField( default="", blank=True, null=True )
-	
-	type = models.CharField( max_length=2, choices=TYPE_CHOICES ) # if true, serie is a default serie
-
-	date = models.DateField( blank=True, null=True ) # main date, manually added
-	date_last_modified = models.DateField( auto_now=True ) # date last save()
-
-
-	frames = models.ManyToManyField( Pin, through='Frame', null=True, blank=True )
-	related = models.ManyToManyField("self", symmetrical=True, null=True, blank=True )
-
-
-
-class Frame( models.Model ):
-
-	KEY = "Ke"
-	GHOST = "GH" # visible but just for reference.
-
-
-	TYPE_CHOICES = (
-        (KEY, 'key frame'),
-        (GHOST, 'ghost'),
-    )
-
-	pin = models.ForeignKey( Pin )
-	serie = models.ForeignKey( Serie )
-	sort  =  models.IntegerField( default=0 )
-	
-	type = models.CharField( max_length=2, choices=TYPE_CHOICES )
-
-	abstract =  models.TextField( default="", blank=True, null=True ) # a description of the passage
-
-	class Meta:
-		unique_together = ( "serie", "sort" )
-		ordering = ('sort' )
 
 
 class Geo( models.Model): # geo spot, with zoom
@@ -172,3 +123,58 @@ class PageAbstract( models.Model ):
 
 class Page( PageAbstract ):
 	pins = models.ManyToManyField( Pin, null=True, blank=True, related_name="page")
+
+
+
+class Serie( models.Model ):
+	# note: Serie are not unique, but 
+	MAIN = "Mn"
+	GHOST = "Gh" # a non published serie ?
+	SIBLING = "Sb" # a sibling
+
+	TYPE_CHOICES = (
+        (MAIN, 'main or default serie'), # normally editable only by staff
+        (GHOST, 'ghost'),
+        (SIBLING, 'sibling'),
+    )
+
+	slug     =  models.SlugField( )
+	title    =  models.CharField( max_length=160, default="", blank=True, null=True )
+	abstract =  models.TextField( default="", blank=True, null=True )
+	content  =  models.TextField( default="", blank=True, null=True ) # a looong description
+	sort  =  models.IntegerField( default=0 )
+
+	type = models.CharField( max_length=2, choices=TYPE_CHOICES, default=SIBLING )
+
+	date = models.DateField( blank=True, null=True ) # main date, manually added
+	date_last_modified = models.DateField( auto_now=True ) # date last save()
+
+	related = models.ManyToManyField("self", symmetrical=True, null=True, blank=True )
+	frames = models.ManyToManyField( Pin, through='Frame', null=True, blank=True )
+	users = models.ManyToManyField( User, blank=True, null=True ) # authors
+	
+
+
+class Frame( models.Model ):
+
+	KEY = "Ke"
+	GHOST = "Gh" # visible but just for reference.
+	SIMPLE = "Sl" # visible but just for reference.
+
+	TYPE_CHOICES = (
+        (KEY, 'key frame'),
+        (GHOST, 'ghost'),
+        (SIMPLE, 'simple frame'),
+    )
+
+	pin = models.ForeignKey( Pin )
+	serie = models.ForeignKey( Serie )
+	sort  =  models.IntegerField( default=0 )
+	
+	type = models.CharField( max_length=2, choices=TYPE_CHOICES, default=SIMPLE  )
+
+	abstract =  models.TextField( default="", blank=True, null=True ) # a description of the passage
+
+	class Meta:
+		unique_together = ( "serie", "sort" )
+		ordering = ('sort', )

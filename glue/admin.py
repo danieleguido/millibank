@@ -1,5 +1,5 @@
 from django.contrib import admin
-from glue.models import Page, Pin, Tag
+from glue.models import Page, Pin, Tag, Serie, Frame
 
 
 class TagAdmin(admin.ModelAdmin):
@@ -9,3 +9,5 @@ class TagAdmin(admin.ModelAdmin):
 admin.site.register( Page )
 admin.site.register( Pin )
 admin.site.register( Tag, TagAdmin )
+admin.site.register( Serie )
+admin.site.register( Frame )
