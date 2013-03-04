@@ -19,5 +19,13 @@ LOCALE_PATHS = (
 	'/path/to/walt/locale',
 )
 LANGUAGES = (
-
+	('it', 'Italian'),
+    ('en', 'English'),
+    ('fr', 'French'),
 )
+
+
+GLUE_LOG_PATH = '/pth/to/walt/logs/glue.log'
+
+# alchemy api deeloper key
+ALCHEMY_API_KEY = 'if desired'

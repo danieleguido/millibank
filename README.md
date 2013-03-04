@@ -7,6 +7,7 @@ web documentary purposes.
 
 Walt is basically a django python project.
 
+---
 
 Mac & Unix installation
 ---
@@ -31,7 +32,16 @@ Create your walt virtualenv:
 	$ cd walt
 	$ pip install -r requirements.txt
 
+… and create the lacking folders (change permission according to your system configuration)
+
+	$ mkdir logs media locale sqlite
+	
+We added sqlite folder because we will use a sqlite db.
+
+
+
 Let's suppose our WORKON_HOME is /path/to/Envs...
+
 
 Change your LOCAL local_settings.py (cfr settings.py), there is a sample local settings file you can use as base.
 
