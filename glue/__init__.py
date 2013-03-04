@@ -1,4 +1,4 @@
-import json, os, inspect
+import json, os, inspect, re
 
 from django.db.models.query import QuerySet, RawQuerySet
 from django.conf import settings
@@ -38,6 +38,7 @@ def whosdaddy( level=2 ):
 class OffsetLimitForm( Form ):
 	offset	= IntegerField( min_value=0, required=False, initial=0 )
 	limit	= IntegerField( min_value=1, max_value=100, required=False, initial=25 )
+
 
 
 #

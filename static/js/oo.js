@@ -198,3 +198,19 @@ oo.i18n.dict = {
 
 	}
 };
+
+
+/*
+
+
+    Bibtex
+    ======
+
+*/
+oo.fn.bibtex = function ( bibtex ){
+	var bibjson = bibtex.replace(/(\w+)\s*=\s*\{+/g,"\"$1\": \"")
+		.replace(/\}+(?=\s*[,\}+])/g,"\"")
+		.replace(/@(\w+)\s*\{([^,]*)/,"{\"bibtext_key\":\"$1\",\"$1\": \"$2\"");
+	oo.log( bibjson )
+	return JSON.parse(bibjson);
+}

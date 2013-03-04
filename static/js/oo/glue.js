@@ -130,6 +130,9 @@ oo.glue.init = function(){ oo.log("[oo.glue.init]");
 		var permalink = $("#id_add_pin_permalink").val();
 		var page_slug = el.attr("data-page-slug");
 		var pin_slug = el.attr("data-pin-slug");
+		var content = $("#id_add_pin_content").val();
+		var mimetype = $("#id_add_pin_mimetype").val();
+		
 
 		oo.log("[oo.glue.init:click] #add-pin, page-slug:", page_slug, ", parent-pin-slug:", pin_slug );
 
@@ -143,6 +146,14 @@ oo.glue.init = function(){ oo.log("[oo.glue.init]");
 
 		if ( typeof permalink != "undefined" && permalink.length ){
 			$.extend(params,{permalink:permalink});
+		}
+
+		if ( typeof content != "undefined" && content.length ){
+			$.extend(params,{content:content});
+		}
+
+		if ( typeof mimetype != "undefined" && mimetype.length ){
+			$.extend(params,{mimetype:mimetype});
 		}
 
 		if ( typeof page_slug != "undefined" && page_slug.length ){
@@ -227,7 +238,32 @@ oo.glue.init = function(){ oo.log("[oo.glue.init]");
 		oo.api.pin.publish($(this).attr('data-pin-id'),{'new_status':$(this).attr('new-status')});
 	});
 	
+
+	// bib text
+	oo.glue.bibtex.init();
 };
+
+oo.glue.bibtex = { timer:0 }
+oo.glue.bibtex.wait = function( event ){
+	clearTimeout( oo.glue.bibtex.timer );
+	oo.glue.bibtex.timer  = setTimeout( oo.glue.bibtex.parse, 1000);
+}
+
+oo.glue.bibtex.parse = function(){
+	try{	
+		var bib = oo.fn.bibtex( $("#id_add_pin_content").val() );
+		$("#id_add_pin_title_en").val( bib.title );
+		$("#id_add_pin_slug").val( oo.fn.slug( bib[ bib.bibtext_key ] ) );
+	} catch( e ){
+		oo.log( e );
+	}
+}
+
+oo.glue.bibtex.init = function(){
+	// content as bibtext parser !@!
+	$("#id_add_pin_content").on("keyup", oo.glue.bibtex.wait );
+
+}
 
 
 oo.glue.upload = { is_dragging:false }

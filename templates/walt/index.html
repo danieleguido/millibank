@@ -1,5 +1,6 @@
 {% extends "walt/middle.html" %}
 {% load i18n %}
+{% load extras %}
 
 {% block page %}
 
@@ -113,12 +114,20 @@
 
 		</div>
 		<div class="grid_3">
-			<h2>{{ walt.learn.title }}
-				<div class="description">
-				{{ walt.learn.abstract }} ( {{ walt.learn.pins.count }} )
-				</div>
-			</h2>
+			<a href="{% url walt_w %}"><h2>{{ walt.learn.title }}
+					<div class="description">
+						{{ walt.learn.abstract }} ( {{ walt.learn.pins.count }} )
+					</div>
+				</h2>
+			</a>
 			<div class="items">
+				{% for pin in walt.learn.pins.all|slice:":10" %}
+				{{ pin.mimetype }}
+				{% ifequal pin.mimetype "text/x-bibtex" %}
+					{{ pin.content|bibtex }}
+				{% endifequal %}
+				{{ pin.content }}
+				{% endfor %}
 				<div class="item">
 					<h4>C Dollerup</h4>
 					<h3>Tales and Translation: The Grimm Tales from Pan-Germanic narratives to shared international fairytales</h3>

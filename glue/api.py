@@ -104,7 +104,7 @@ def pins( request ):
 
 		for language,l in settings.LANGUAGES:
 			try:
-				ipin = Pin( title=form.cleaned_data[ 'title_%s' % language ], language=language, slug=form.cleaned_data[ 'slug' ], permalink=form.cleaned_data['permalink'] )
+				ipin = Pin( title=form.cleaned_data[ 'title_%s' % language ], language=language, slug=form.cleaned_data[ 'slug' ], permalink=form.cleaned_data['permalink'], content=form.cleaned_data['content'], mimetype=form.cleaned_data['mimetype'] )
 				ipin.save()
 
 			except IntegrityError, e:

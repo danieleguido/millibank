@@ -32,7 +32,12 @@ class AddPinForm(forms.Form):
             
 
 	slug = forms.SlugField( required=True )
+	
 	permalink = forms.URLField( required=False )
+	abstract = forms.CharField( label=_("abstract"), required=False, widget=forms.Textarea )
+	content = forms.CharField( label=_("content"), required=False, widget=forms.Textarea )
+	mimetype = forms.CharField( label=_("mimetype"), max_length=255, required=False, widget=forms.Textarea )
+
 	page_slug = forms.SlugField( required=False, widget=forms.HiddenInput )
 	parent_pin_slug = forms.SlugField( required=False, widget=forms.HiddenInput )
 
