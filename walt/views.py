@@ -12,7 +12,7 @@ from django.utils.translation import ugettext as _
 from django.utils.translation import get_language
 
 from glue.forms import LoginForm, AddPinForm, EditPinForm
-from glue.models import Pin, Page
+from glue.models import Pin, Page, Serie
 
 
 logger = logging.getLogger('glue')
@@ -46,6 +46,7 @@ def sc( request, tags=[], d={}, load_walt=True ):
 
 def home( request ):
 	data = sc( request, tags=[ "home" ] )
+	data['series'] = Serie.objects.all()
 
 	return render_to_response(  "walt/index.html", RequestContext(request, data ) )
 
@@ -54,22 +55,29 @@ def tag( request, tag_type, tag_slug ):
 	
 	return render_to_response(  "walt/index.html", RequestContext(request, data ) )
 
+def _walt( data, slug ):
+	data['page'] = get_object_or_404( Page, language=data['language'], slug=slug )
+	data['series'] = Serie.objects.filter( frame__pin__page__slug=slug ).distinct()
+	return data
 
 def waltw( request ):
 	data = sc( request, tags=[ "w" ] )
-	data['page'] = get_object_or_404( Page, language=data['language'], slug=WALT_W )
+	data = _walt( data, WALT_W )
 	return render_to_response(  "walt/walt.html", RequestContext(request, data ) )
 	
 def walta( request ):
 	data = sc( request, tags=[ "a" ] )
+	data = _walt( data, WALT_A )
 	return render_to_response(  "walt/walt.html", RequestContext(request, data ) )
 
 def waltl( request ):
 	data = sc( request, tags=[ "l" ] )
+	data = _walt( data, WALT_L )
 	return render_to_response(  "walt/walt.html", RequestContext(request, data ) )
 
 def waltt( request ):
 	data = sc( request, tags=[ "t" ] )
+	data = _walt( data, WALT_T )
 	return render_to_response(  "walt/walt.html", RequestContext(request, data ) )
 
 # call this function once. It will check for page availability and other stories...
