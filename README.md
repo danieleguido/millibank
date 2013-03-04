@@ -1,13 +1,35 @@
 walt
 ====
 
-a pythonical django approach for adaptation (Wander / Watch, Ask, Learn, Tell)
+Walt is a lippmanian platform meant to collect papers, video, blogpost like a bookmarker and to
+bind them together in series (or protocols) in order to provide augmented documentation and pseudo-scenario for 
+web documentary purposes.
+
+Walt is basically a django python project.
 
 
+Mac & Unix installation
+---
+Note: we use '/path/to/' as base folder
 
-[install virtualenv, virtualenvwrapper](http://virtualenvwrapper.readthedocs.org/en/latest/)
-	cd walt
-	pip install -r requirements.txt
+git init walt
+	$ cd /path/to
+	$ git clone git@github.com:danieleguido/walt.git
+
+Then [install virtualenv, virtualenvwrapper](http://virtualenvwrapper.readthedocs.org/en/latest/)
+
+	$ pip install virtualenvwrapper
+	...
+	$ export WORKON_HOME=~/Envs
+	$ mkdir -p $WORKON_HOME
+	$ source /usr/local/bin/virtualenvwrapper.sh
+	...
+	
+Create your walt virtualenv:
+	
+	$ mkvirtualenv walt
+	$ cd walt
+	$ pip install -r requirements.txt
 
 Let's suppose our WORKON_HOME is /path/to/Envs...
 
