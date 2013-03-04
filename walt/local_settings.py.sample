@@ -10,14 +10,22 @@ MEDIA_ROOT = '/path/to/walt/media'
 SECRET_KEY = 'your own secret key !'
 
 TEMPLATE_DIRS = (
+	'/path/to/walt/templates',
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
 )
 
+STATICFILES_DIRS = (
+    '/path/to/walt/static',
+)
+
+STATIC_ROOT = '/path/to/walt/static/assets'
+
 LOCALE_PATHS = (
 	'/path/to/walt/locale',
 )
+
 LANGUAGES = (
 	('it', 'Italian'),
     ('en', 'English'),

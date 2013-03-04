@@ -24,7 +24,6 @@ Then [install virtualenv, virtualenvwrapper](http://virtualenvwrapper.readthedoc
 	$ export WORKON_HOME=~/Envs
 	$ mkdir -p $WORKON_HOME
 	$ source /usr/local/bin/virtualenvwrapper.sh
-	...
 	
 Create your walt virtualenv:
 	
@@ -36,14 +35,10 @@ Create your walt virtualenv:
 
 	$ mkdir logs media locale sqlite
 	
-We added sqlite folder because we will use a sqlite db.
+We added sqlite folder because we will use a sqlite db. Make sure that apache user has the right to write the .db parent folder.
 
 
-
-Let's suppose our WORKON_HOME is /path/to/Envs...
-
-
-Change your LOCAL local_settings.py (cfr settings.py), there is a sample local settings file you can use as base.
+Copy `walt/local_settings.py.sample` to `walt/local_settings.py` and change it according to your LOCAL configuration (cfr `walt/settings.py`). This file is gitignored.
 
 Configure apache conf and your wsgi. We provide to sample file as well.
 
@@ -57,5 +52,13 @@ and do a proper syncdb command
 	$ cd /path/to/walt/
 	$ python manage.py syncdb
 	
+finally, runserver (test environment)
 
-goto setup apge
+	$ python manage.py runserver
+
+point your browser your local [setup page](http://127.0.0.1:8000/setup/)
+ - our is http://127.0.0.1:8000/setup/, then back to http://127.0.0.1:8000/
+ 
+ you should see 4 columns named Wander, Ask, Learn and Try respectively.
+ 
+	
