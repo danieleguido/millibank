@@ -69,7 +69,7 @@
 
 						<div class="item">
 							
-							<h3>#{{ pin.id }} {{ pin.title }} </h3>
+							<h3><a href="{% url walt_pin pin.slug%}"><!-- #{{ pin.id }} --> {{ pin.title }} </a></h3>
 							<div class="metadata"><span class="date">{% if pin.date %}{{ pin.date }}{% else %}{{ pin.date_last_modified }}{% endif %}</span>
 								{% for tag in pin.tags.all %}
 									<a href="{% url walt_tag tag.type|lower tag.slug %}" class="tag" alt="{{ tag.name }} ( {{ tag.type }} )">{{ tag.name }}</a>

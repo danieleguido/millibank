@@ -21,7 +21,7 @@
 						<p><a href="{% url admin:glue_pin_change pin.id %}">&rarr; {% trans "edit" %}</a></p>
 					</div>
 					<blockquote>
-						{% if bibtex.abstract %}<p> {{ bibtex.abstract }} </p>{% endif %}
+						{% if bibtex.abstract %}{{ bibtex.abstract }}{% endif %}
 
 						{{ pin.abstract }}
 						
