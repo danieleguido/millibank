@@ -47,7 +47,7 @@
 				{% for pin in walt.wander.pins.all|slice:":10" %}
 				<div class="item">
 					
-					<h3>#{{ pin.id }} {{ pin.title }} </h3>
+					<h3><a href="{% url walt_pin pin.slug %}"><!-- #{{ pin.id }} --> {{ pin.title }} </a></h3>
 					<div class="metadata"><span class="date">{% if pin.date %}{{ pin.date }}{% else %}{{ pin.date_last_modified }}{% endif %}</span>
 						{% for tag in pin.tags.all %}
 							<a href="{% url walt_tag tag.type|lower tag.slug %}" class="tag" alt="{{ tag.name }} ( {{ tag.type }} )">{{ tag.name }}</a>
@@ -85,7 +85,7 @@
 				{% for pin in walt.ask.pins.all|slice:":10" %}
 				<div class="item">
 					
-					<h3>#{{ pin.id }} {{ pin.title }} </h3>
+					<h3><a href="{% url walt_pin pin.slug %}"><!-- #{{ pin.id }} --> {{ pin.title }} </a></h3>
 					<div class="metadata"><span class="date">{% if pin.date %}{{ pin.date }}{% else %}{{ pin.date_last_modified }}{% endif %}</span>
 						{% for tag in pin.tags.all %}
 							<a href="{% url walt_tag tag.type|lower tag.slug %}" class="tag" alt="{{ tag.name }} ( {{ tag.type }} )">{{ tag.name }}</a>
@@ -114,7 +114,7 @@
 
 		</div>
 		<div class="grid_3">
-			<a href="{% url walt_w %}"><h2>{{ walt.learn.title }}
+			<a href="{% url walt_l %}"><h2>{{ walt.learn.title }}
 					<div class="description">
 						{{ walt.learn.abstract }} ( {{ walt.learn.pins.count }} )
 					</div>
@@ -122,79 +122,70 @@
 			</a>
 			<div class="items">
 				{% for pin in walt.learn.pins.all|slice:":10" %}
-				{{ pin.mimetype }}
-				{% ifequal pin.mimetype "text/x-bibtex" %}
-					{{ pin.content|bibtex }}
-				{% endifequal %}
-				{{ pin.content }}
+				
+					{% ifequal pin.mimetype "text/x-bibtex" %}
+						{% with bibtex=pin.bib %}
+						<div class="item">
+							<h4>{{ bibtex.author }}</h4>
+							<h3><a href="{% url walt_pin pin.slug %}"><!-- #{{ pin.id  }}-->{{ bibtex.title }}</a></h3>
+							<div class="metadata">
+								<p>{{ bibtex.publisher }}, {{ bibtex.year }}</p>
+								{% for tag in bibtex.keywords|split %}
+									<a href="#" class="tag" alt="{{ tag }}">{{ tag }}</a>
+									{% if not forloop.last %},{%endif %}
+								{% endfor %}
+								<p><a href="{% url admin:glue_pin_change pin.id %}">&rarr; {% trans "edit" %}</a></p>
+							</div>
+							<blockquote>
+								{% if bibtex.abstract %} {{ bibtex.abstract }} {% endif %}
+
+								{{ pin.abstract }}
+								
+							</blockquote>
+
+						</div>
+						{% endwith %}
+					{% endifequal %}
+				
 				{% endfor %}
-				<div class="item">
-					<h4>C Dollerup</h4>
-					<h3>Tales and Translation: The Grimm Tales from Pan-Germanic narratives to shared international fairytales</h3>
-					<div class="metadata">C Dollerup - 1999 - books.google.com
-						<a href="#" class="tag">video</a>, <a href="#" class="tag">documentaire</a>, <a href="#" class="tag">ontology</a>
-					</div>
-					<blockquote>
-					Dealing with the most translated work of German literature, the Tales of the brothers Grimm 
-	(1812-1815), this book discusses their history, notably in relation to Denmark and 
-	subsequently other nations from 1816 to 1986. The Danish intelligentsia responded\
-					</blockquote>
-				</div>
-				<div class="item">
-					<h4>T Honkela, V Pulkki, T Kohonen</h4>
-					<h3>Contextual relations of words in Grimm tales analyzed by self-organizing map</h3>
-					<div class="metadata">Proceedings of ICANN-95, …, 1995 - users.ics.aalto.fi
-						<a href="#" class="tag">video</a>, <a href="#" class="tag">documentaire</a>, <a href="#" class="tag">ontology</a>
-					</div>
-					<blockquote>
-					Dealing with the most translated work of German literature, the Tales of the brothers Grimm 
-	(1812-1815), this book discusses their history, notably in relation to Denmark and 
-	subsequently other nations from 1816 to 1986. The Danish intelligentsia responded\
-					</blockquote>
-				</div>
+				
 			</div>
 		</div>
 		<div class="grid_3 omega">
-			<h2>{{ walt.try.title }}
-				<div class="description">
-				{{ walt.try.abstract }} ( {{ walt.try.pins.count }} )
-				</div>
-			</h2>
+			<a href="{% url walt_t %}"><h2>{{ walt.try.title }}
+					<div class="description">
+						{{ walt.try.abstract }} ( {{ walt.try.pins.count }} )
+					</div>
+				</h2>
+			</a>
 			<div class="items">
 				{% for pin in walt.try.pins.all|slice:":10" %}
 				<div class="item">
 					
-					<h3>{{ pin.title }}</h3>
-					<div class="metadata"><span class="date">{{ pin.ref_date }}</span>
-						<a href="#" class="tag">video</a>, <a href="#" class="tag">documentaire</a>, <a href="#" class="tag">ontology</a>
+					<h3><a href="{% url walt_pin pin.slug %}"><!-- #{{ pin.id }} -->{{ pin.title }} </a></h3>
+					<div class="metadata"><span class="date">{% if pin.date %}{{ pin.date }}{% else %}{{ pin.date_last_modified }}{% endif %}</span>
+						{% for tag in pin.tags.all %}
+							<a href="{% url walt_tag tag.type|lower tag.slug %}" class="tag" alt="{{ tag.name }} ( {{ tag.type }} )">{{ tag.name }}</a>
+							{% if not forloop.last %},{%endif %} 
+						{% endfor %}
+						<p><a href="{% url admin:glue_pin_change pin.id %}">&rarr; {% trans "edit" %}</a></p>
 					</div>
 					<blockquote>
 						 {{ pin.abstract }}
 
 					</blockquote>
-					<a class="external" href="{{ pin.permalink}}">tabletonet</a>
+					 {{ pin.content|safe }}
+					<a class="external" href="{{ pin.permalink}}">&rarr; {{ pin.permalink}}</a>
+
+					{% for child in pin.children.all|slice:":10" %}
 					<div class="comment">
-						<a href="#" class="author">b.s.</a> Très bel exemple de vidéo avec graphisme intégré, dans une très belle interface interactive et  dynamique... 
+						<a href="#" class="author"> </a> {{ child.abstract }}
 					</div>
+					{% endfor %}
 					
 				</div>
 				{% endfor %}
-				<div class="item">
-					
-					<h3>Table2Net</h3>
-					<div class="metadata"><span class="date">20 Feb. 2013</span>
-						<a href="#" class="tag">video</a>, <a href="#" class="tag">documentaire</a>, <a href="#" class="tag">ontology</a>
-					</div>
-					<blockquote>
-						 Table to net permet
-
-					</blockquote>
-					<a class="external" href="#medialab tool">tabletonet</a>
-					<div class="comment">
-						<a href="#" class="author">b.s.</a> Très bel exemple de vidéo avec graphisme intégré, dans une très belle interface interactive et  dynamique... 
-					</div>
-					
-				</div>
+				
 			</div>
 		</div>
 	</div>

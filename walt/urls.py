@@ -27,4 +27,7 @@ urlpatterns = patterns('',
 
     # Uncomment the next line to enable the admin:
     url(r'^admin/', include(admin.site.urls)),
+
+    # all the rest. pins.
+    url(r'^(?P<pin_slug>[a-zA-Z\d\-]+)/', 'walt.views.pin', name='walt_pin'),
 )

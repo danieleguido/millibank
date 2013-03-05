@@ -2,7 +2,7 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import models
 
-
+from glue import bibtex
 
 
 class Geo( models.Model): # geo spot, with zoom
@@ -80,6 +80,11 @@ class Pin( models.Model ):
 
 	def __unicode__(self):
 		return "%s (%s) a.k.a. %s" % (self.slug, self.language, self.title)
+
+	# use this function if and only if the pin content is in bibtex (CLEAN) format
+	def bib( self ):
+		return bibtex( self.content )
+		
 
 	def json( self ):
 		return{

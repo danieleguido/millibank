@@ -55,6 +55,13 @@ def tag( request, tag_type, tag_slug ):
 	
 	return render_to_response(  "walt/index.html", RequestContext(request, data ) )
 
+def pin( request, pin_slug ):
+	data = sc( request, tags=[ "tags" ] )
+	data['pin'] = get_object_or_404( Pin, language=data['language'], slug=pin_slug )
+	data['series'] = Serie.objects.filter( frame__pin__slug=pin_slug ).distinct()
+	
+	return render_to_response(  "walt/pin.html", RequestContext(request, data ) )
+
 def _walt( data, slug ):
 	data['page'] = get_object_or_404( Page, language=data['language'], slug=slug )
 	data['series'] = Serie.objects.filter( frame__pin__page__slug=slug ).distinct()
