@@ -51,7 +51,7 @@ class Pin( models.Model ):
 
 	PIN_STATUS_CHOICES = ( (published,"published"),(draft,"draft") )
 
-	slug = models.SlugField()
+	slug = models.SlugField( max_length=160 )
 	title = models.CharField( max_length=160, default="", blank=True, null=True )
 	abstract = models.TextField( default="", blank=True, null=True )
 	content = models.TextField( default="", blank=True, null=True )

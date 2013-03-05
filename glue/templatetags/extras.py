@@ -13,4 +13,5 @@ register = template.Library()
 #
 @register.filter
 def split( value, pattern=',' ):
-	return re.split( pattern, value)
+	return re.split( pattern, value) if value is not None else []
+	
