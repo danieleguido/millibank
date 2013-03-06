@@ -19,6 +19,20 @@ oo.log = function(){
 	}
 }
 
+/*
+
+
+	WINDOW On / Trigger helpers
+	===========================
+*/
+oo.on = function( eventType, callback ){
+	$(window).on( eventType, callback );
+};
+
+oo.trigger = function ( eventType, data ){
+	$(window).trigger( eventType, data );
+};
+
 
 /*
 

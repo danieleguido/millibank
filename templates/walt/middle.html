@@ -1,8 +1,10 @@
 {% extends "walt/boilerplate.html" %}
 {% load i18n %}
 
+
 {% block body %}
-		<div class="container_12">
+	
+		<div class="container_12" style="margin-bottom:201px">
 			<div class="grid_12">	
 				<h1><a href="{% url walt_home %}">{% block spiffing %}{% endblock %} walt.</a></h1>
 
@@ -14,21 +16,33 @@
 				{% endif %}
 			</div>
 			
-			
-			{% block page %}
+			{% if exception %}
+				<div class="grid_12">
+					<h2>maybe you want to <a href="{% url walt_setup %}">SETUP</a> first ?</h2>
 
-			{% endblock %}
+				</div>
+			{% else %}
+				{% block page %}
 
+				{% endblock %}
+			{% endif %}
 			{% block footer %}
 			
 			<div class="grid_12">
 				language:{{ language }} {% for language in languages %} {{ language }}{%if not forloop.last %}, {%endif%}{% endfor %}
 				{{ warnings }}
 			</div>
+
+
 			
 			{% endblock %}
 		</div>
 
+
+		<!-- ACTLUA SERIE DROP -->
+		<div id="actual-serie" style="position:fixed; bottom: 0px; height:30px; width: 100%; background: #2bbfbd; color: white; line-height:30px; padding: 0 20px">
+			drag an element to start a new serie
+		</div>
 
 		{% ifequal page.slug 'learn' %}
 		<div id="add-pin-modal" class="reveal-modal">
@@ -137,5 +151,5 @@
 			<a class="close-reveal-modal">&#215;</a>
 		</div>
 		{% endifequal %}
-
+		
 {% endblock %}

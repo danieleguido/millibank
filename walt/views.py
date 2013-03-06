@@ -43,6 +43,7 @@ def sc( request, tags=[], d={}, load_walt=True, username=None ):
 	d['language'] = get_language()
 	d['languages'] = dict( settings.LANGUAGES )
 	d['warnings'] = {}
+	d['exception'] = False
 	d['walt'] = {}
 	d['spiff'] = ""
 	
@@ -51,14 +52,17 @@ def sc( request, tags=[], d={}, load_walt=True, username=None ):
 		d['spiff'] = username
 		d['filters']['authors__username'] = username
 
-	if load_walt:
-		for page_slug in WALT_PAGES:
+	try:
+		if load_walt:
+			for page_slug in WALT_PAGES:
 
-			d['walt'][ page_slug ] = {
-				'page': Page.objects.get( language=d['language'], slug=page_slug ),
-				'pins': Pin.objects.filter(  language=d['language'], page__slug=page_slug ).filter( **d['filters'] )
-			}
-
+				d['walt'][ page_slug ] = {
+					'page': Page.objects.get( language=d['language'], slug=page_slug ),
+					'pins': Pin.objects.filter(  language=d['language'], page__slug=page_slug ).filter( **d['filters'] )
+				}
+	except Page.DoesNotExist,e:
+		d['exception'] = e
+		
 	# d['walt'] = dict([(p.slug,p) for p in Page.objects.filter( language=d['language'], slug__in=WALT_PAGES ) ] ) if load_walt else {}
 	
 

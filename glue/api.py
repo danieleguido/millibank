@@ -106,25 +106,33 @@ def pins( request ):
 
 		#already linked permalink?
 		permalink_hash = ''
+		is_a_clone = False
 
 		# handle aliases
 		if len( form.cleaned_data['permalink'] ) > 0:
 			import hashlib
 			permalink_hash = hashlib.md5( form.cleaned_data['permalink'] ).hexdigest()
+			is_a_clone = Pin.objects.filter( permalink_hash=permalink_hash ).count() > 0
 
-			aliases = Pin.objects.filter( permalink_hash=permalink_hash )
-			if aliases.count() > 0:
-				for a in aliases:
-					a.authors.add( request.user )
-					
-					if len(pins) > 0:
-						a.parent = pins[ a.language ]
-					
-					a.save()
+		
+		for language,l in settings.LANGUAGES:
+			ipin = None
+			if is_a_clone:
+				# content exists in some language
+				try:
+					ipin = Pin.objects.get( permalink_hash=permalink_hash, language=language )
+					ipin.authors.add( request.user )
+					ipin.save()
 
-		else:
-			for language,l in settings.LANGUAGES:
 
+				except Pin.DoesNotExist, e:
+					# pin has not been created for a certain language...
+					pass
+			
+
+
+			if ipin is None:
+				# it is an original import.		
 				try:
 					
 					ipin = Pin( title=form.cleaned_data[ 'title_%s' % language ], language=language, slug=form.cleaned_data[ 'slug' ], permalink=form.cleaned_data['permalink'], permalink_hash = permalink_hash,content=form.cleaned_data['content'], mimetype=form.cleaned_data['mimetype'] )
@@ -135,16 +143,16 @@ def pins( request ):
 				except IntegrityError, e:
 					return response.throw_error( error={'slug':"Exception %s" % e}, code=API_EXCEPTION_INTEGRITY).json()
 			
-				if len(pages) > 0:
-					pages[ language ].pins.add( ipin )
-					pages[ language ].save()
+			if len(pages) > 0:
+				pages[ language ].pins.add( ipin )
+				pages[ language ].save()
 
-				if len(pins) > 0:
-					ipin.parent = pins[ language ]
-					ipin.save()
+			if len(pins) > 0:
+				ipin.parent = pins[ language ]
+				ipin.save()
 
-		return response.json()			
-		# response.add('object',[ p.json() for p in ipins ])
+		#return response.json()			
+		#response.add('object',[ p.json() for p in ipins ])
 
 	return response.queryset( Pin.objects.filter() ).json()
 

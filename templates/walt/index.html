@@ -68,7 +68,11 @@
 								{% if not forloop.last %}, {% endif %}
 							{% endfor %}
 						</p>
-						<p><a href="{% url admin:glue_pin_change pin.id %}">&rarr; {% trans "edit" %}</a></p>
+						<p>
+							<a href="{% url admin:glue_pin_change pin.id %}">&rarr; {% trans "edit" %}</a>
+							<div style="float:left" draggable="true" class="drag-to-serie" >&curren; {% trans "drag" %}</div>
+
+						</p>
 					</div>
 					<blockquote>
 						 {{ pin.abstract }}
