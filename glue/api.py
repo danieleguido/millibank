@@ -2,6 +2,7 @@ import logging, os, mimetypes
 import datetime as dt
 
 from django.conf import settings
+from django.contrib.auth.decorators import login_required
 from django.db.models.loading import get_model
 from django.db import IntegrityError
 from django.utils.translation import ugettext as _
@@ -61,6 +62,7 @@ def page( request, page_id ):
 def page_by_slug( request, page_slug, page_language ):
 	return Epoxy( request ).single( Page, {'slug':page_slug,'language':page_language} ).json()
 
+@login_required
 def pins( request ):
 	response = Epoxy( request )
 	if response.method =='POST':
@@ -102,27 +104,51 @@ def pins( request ):
 		#return response.queryset( Pin.objects.filter() ).json()
 		ipins = {}
 
-		for language,l in settings.LANGUAGES:
-			try:
-				ipin = Pin( title=form.cleaned_data[ 'title_%s' % language ], language=language, slug=form.cleaned_data[ 'slug' ], permalink=form.cleaned_data['permalink'], content=form.cleaned_data['content'], mimetype=form.cleaned_data['mimetype'] )
-				ipin.save()
+		#already linked permalink?
+		permalink_hash = ''
 
-			except IntegrityError, e:
-				return response.throw_error( error={'slug':"Exception %s" % e}, code=API_EXCEPTION_INTEGRITY).json()
-		
-			if len(pages) > 0:
-				pages[ language ].pins.add( ipin )
-				pages[ language ].save()
+		# handle aliases
+		if len( form.cleaned_data['permalink'] ) > 0:
+			import hashlib
+			permalink_hash = hashlib.md5( form.cleaned_data['permalink'] ).hexdigest()
 
-			if len(pins) > 0:
-				ipin.parent = pins[ language ]
-				ipin.save()
+			aliases = Pin.objects.filter( permalink_hash=permalink_hash )
+			if aliases.count() > 0:
+				for a in aliases:
+					a.authors.add( request.user )
+					
+					if len(pins) > 0:
+						a.parent = pins[ a.language ]
+					
+					a.save()
 
-		response.add('object',[ p.json() for p in ipins ])
+		else:
+			for language,l in settings.LANGUAGES:
+
+				try:
+					
+					ipin = Pin( title=form.cleaned_data[ 'title_%s' % language ], language=language, slug=form.cleaned_data[ 'slug' ], permalink=form.cleaned_data['permalink'], permalink_hash = permalink_hash,content=form.cleaned_data['content'], mimetype=form.cleaned_data['mimetype'] )
+					ipin.save()
+					ipin.authors.add( request.user )
+					ipin.save()
+
+				except IntegrityError, e:
+					return response.throw_error( error={'slug':"Exception %s" % e}, code=API_EXCEPTION_INTEGRITY).json()
+			
+				if len(pages) > 0:
+					pages[ language ].pins.add( ipin )
+					pages[ language ].save()
+
+				if len(pins) > 0:
+					ipin.parent = pins[ language ]
+					ipin.save()
+
+		return response.json()			
+		# response.add('object',[ p.json() for p in ipins ])
 
 	return response.queryset( Pin.objects.filter() ).json()
 
-
+@login_required
 def pin( request, pin_id ):
 	# @todo: check pin permissions
 	response = Epoxy( request )

@@ -37,7 +37,7 @@
 		<div class="grid_6 alpha">
 			<h2>{{ page.title }}
 				<div class="description">
-				{{ page.abstract }} ( {{ page.pins.count }} ) <a href="#" class="add-pin">add</a> upload
+				{{ page.abstract }} ( {{ pins.count }} ) <a href="#" class="add-pin">add</a>
 				</div>
 			</h2>
 
@@ -75,6 +75,11 @@
 									<a href="{% url walt_tag tag.type|lower tag.slug %}" class="tag" alt="{{ tag.name }} ( {{ tag.type }} )">{{ tag.name }}</a>
 									{% if not forloop.last %},{%endif %} 
 								{% endfor %}
+
+								{% for u in pin.authors.all %}
+	
+									<a href="{% url walt_spiff u.username %}">{{ u.username }}</a>
+								{% endfor %}
 								<p><a href="{% url admin:glue_pin_change pin.id %}">&rarr; {% trans "edit" %}</a></p>
 							</div>
 							<blockquote>
@@ -82,7 +87,9 @@
 
 							</blockquote>
 							 {{ pin.content|safe }}
+							 {% if pin.permalink %}
 							<a class="external" href="{{ pin.permalink}}">&rarr; {{ pin.permalink}}</a>
+							{% endif %}
 
 							{% for child in pin.children.all|slice:":10" %}
 							<div class="comment">

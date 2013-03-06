@@ -4,7 +4,14 @@
 {% block body %}
 		<div class="container_12">
 			<div class="grid_12">	
-				<h1><a href="{% url walt_home %}">walt.</a></h1>
+				<h1><a href="{% url walt_home %}">{% block spiffing %}{% endblock %} walt.</a></h1>
+
+				<a href="{% url walt_home %}">flow</a> |
+				{% if user.is_authenticated %}
+					<a href="{% url walt_spiff user.username %}">{% trans "my walt"%} ( {{ user.username }} )</a> | <a href="{% url walt_logout %}">{% trans "logout" %}</a>
+				{% else %}
+					<a href="{% url walt_login %}">{% trans "login" %}</a>
+				{% endif %}
 			</div>
 			
 			
@@ -50,7 +57,9 @@
 			<a href="#" id="add-pin" data-page-slug="{{ page.slug }}" data-pin-slug="">{% trans "add your object" %}</a>
 			<a class="close-reveal-modal">&#215;</a>
 		</div>
-		{% else %}
+		{% endifequal %}
+
+		{% ifequal page.slug 'wander' %}
 		<div id="add-pin-modal" class="reveal-modal">
 			<h1>{% trans "give it a name" %}</h1>
 			<p>Each object should have at least a <b>slug</b> and a <b>title</b>.</p>
@@ -74,4 +83,59 @@
 			<a class="close-reveal-modal">&#215;</a>
 		</div>
 		{% endifequal %}
+
+		{% ifequal page.slug 'augment' %}
+		<div id="add-pin-modal" class="reveal-modal">
+			<h1>{% trans "augmented content" %}</h1>
+			<p>Each object should have at least a <b>slug</b> and a <b>title</b>.</p>
+			
+			<p>
+				<label for='id_add_pin_content'>{% trans "share code" %}</label>
+				<textarea class="span6" id="id_add_pin_content">
+
+
+				</textarea>
+				<input type='hidden' id="id_add_pin_mimetype" value="text/html"/>
+			</p>
+			<p>
+				<label for='id_add_pin_title_en'>{% trans "its title" %}</label>
+				<input type='text' class="span6" id="id_add_pin_title_en" placeholder="title"/>
+			</p>
+			
+			<p>
+				<label for='id_add_pin_slug'>{% trans "slug" %}</label>
+				<input type='text' class="span6" id="id_add_pin_slug" placeholder="slug"/>
+			</p>
+
+
+			<a href="#" id="add-pin" data-page-slug="{{ page.slug }}" data-pin-slug="">{% trans "add your object" %}</a>
+			<a class="close-reveal-modal">&#215;</a>
+		</div>
+		{% endifequal %}
+
+		{% ifequal page.slug 'try' %}
+		<div id="add-pin-modal" class="reveal-modal">
+			<h1>{% trans "give it a name" %}</h1>
+			<p>Each object should have at least a <b>slug</b> and a <b>title</b>.</p>
+			
+			<p>
+				<label for='id_add_pin_permalink'>{% trans "permalink (optional)" %}</label>
+				<input type='text' class="span6" id="id_add_pin_permalink" placeholder="http://"/>
+
+			</p>
+			<p>
+				<label for='id_add_pin_title_en'>{% trans "its title" %}</label>
+				<input type='text' class="span6" id="id_add_pin_title_en" placeholder="title"/>
+			</p>
+			
+			<p>
+				<label for='id_add_pin_slug'>{% trans "slug" %}</label>
+				<input type='text' class="span6" id="id_add_pin_slug" placeholder="slug"/>
+			</p>
+
+			<a href="#" id="add-pin" data-page-slug="{{ page.slug }}" data-pin-slug="">{% trans "add your object" %}</a>
+			<a class="close-reveal-modal">&#215;</a>
+		</div>
+		{% endifequal %}
+
 {% endblock %}

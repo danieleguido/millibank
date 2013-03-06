@@ -1,0 +1,74 @@
+{% extends "walt/middle.html" %}
+{% load i18n %}
+{% load extras %}
+{% block page %}
+	<div class="grid_12">
+		<div class="grid_3 alpha">
+			&nbsp;
+			
+		</div>
+		<div class="grid_6">
+			<h2>{{ serie.title }}
+				<div class="description">{{ serie.abstract }}</div>
+			</h2>
+			<div class="items">
+			{% for pin in serie.frames.all %}
+				
+				{% ifequal pin.mimetype "text/x-bibtex" %}
+					{% with bibtex=pin.bib %}
+					<div class="item">
+						<h4>{{ bibtex.author }}</h4>
+						<h3>{{ bibtex.title }}</h3>
+						<div class="metadata">
+							<p>{{ bibtex.publisher }}, {{ bibtex.year }}</p>
+							{% for tag in bibtex.keywords|split %}
+								<a href="#" class="tag" alt="{{ tag }}">{{ tag }}</a>
+								{% if not forloop.last %},{%endif %}
+							{% endfor %}
+							<p><a href="{% url admin:glue_pin_change pin.id %}">&rarr; {% trans "edit" %}</a></p>
+						</div>
+						<blockquote>
+							{% if bibtex.abstract %}{{ bibtex.abstract }}{% endif %}
+
+							{{ pin.abstract }}
+							
+						</blockquote>
+						{{ pin.content }}
+					</div>
+					{% endwith %}
+				{% else %}
+
+					<div class="item">
+						
+						<h3><a href="{% url walt_pin pin.slug %}">{{ pin.title }} </a></h3>
+						<div class="metadata"><span class="date">{% if pin.date %}{{ pin.date }}{% else %}{{ pin.date_last_modified }}{% endif %}</span>
+							{% for tag in pin.tags.all %}
+								<a href="{% url walt_tag tag.type|lower tag.slug %}" class="tag" alt="{{ tag.name }} ( {{ tag.type }} )">{{ tag.name }}</a>
+								{% if not forloop.last %},{%endif %} 
+							{% endfor %}
+							<p><a href="{% url admin:glue_pin_change pin.id %}">&rarr; {% trans "edit" %}</a></p>
+						</div>
+						<blockquote>
+							 {{ pin.abstract }}
+
+						</blockquote>
+						 {{ pin.content|safe }}
+						<a class="external" href="{{ pin.permalink}}">&rarr; {{ pin.permalink}}</a>
+
+						{% for child in pin.children.all|slice:":10" %}
+						<div class="comment">
+							<a href="#" class="author"> </a> {{ child.abstract }}
+						</div>
+						{% endfor %}
+						
+					</div>
+				{% endifequal %}
+				
+			{% endfor %}
+			</div>
+		</div>
+		<div class="grid_3 omega">
+			
+		</div>
+	</div>
+{% endblock %}

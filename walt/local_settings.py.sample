@@ -32,6 +32,8 @@ LANGUAGES = (
     ('fr', 'French'),
 )
 
+LOGIN_URL = '/walt/login/'
+LOGOUT_URL = '/walt/logout/'
 
 GLUE_LOG_PATH = '/pth/to/walt/logs/glue.log'
 

@@ -3,6 +3,8 @@ import logging
 from django.db.models import Q
 from django.conf import settings
 from django.contrib.admin.views.decorators import staff_member_required
+from django.contrib.auth import login, logout, authenticate
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import Group
 
 from django.http import HttpResponse, HttpRequest, HttpResponseRedirect
@@ -19,24 +21,46 @@ logger = logging.getLogger('glue')
 
 # slugs of walt pages.
 WALT_W = 'wander'
-WALT_A = 'ask'
+WALT_A = 'augment'
 WALT_L = 'learn'
 WALT_T = 'try'
 WALT_PAGES = [ WALT_W, WALT_A, WALT_L, WALT_T ]
 
+WALT_PAGES_ABSTRACT ={
+	WALT_W: _('put here random element, usually blog posts or your own content'),
+	WALT_A: _('put here content having iframe, like vimeo videos or soundcloud audio'),
+	WALT_L: _('put here articles, papers and books'),
+	WALT_T: _('put here tools and applications'),
+}
+
 # 
 #	SHARED, commont context (tags, language, user availability...)
 #
-def sc( request, tags=[], d={}, load_walt=True ):
+def sc( request, tags=[], d={}, load_walt=True, username=None ):
 	
 	# startup
 	d['tags'] = tags
 	d['language'] = get_language()
 	d['languages'] = dict( settings.LANGUAGES )
 	d['warnings'] = {}
+	d['walt'] = {}
+	d['spiff'] = ""
 	
+	d['filters'] = {}
+	if username is not None:
+		d['spiff'] = username
+		d['filters']['authors__username'] = username
+
 	if load_walt:
-		d['walt'] = dict([(p.slug,p) for p in Page.objects.filter( language=d['language'], slug__in=WALT_PAGES ) ] )
+		for page_slug in WALT_PAGES:
+
+			d['walt'][ page_slug ] = {
+				'page': Page.objects.get( language=d['language'], slug=page_slug ),
+				'pins': Pin.objects.filter(  language=d['language'], page__slug=page_slug ).filter( **d['filters'] )
+			}
+
+	# d['walt'] = dict([(p.slug,p) for p in Page.objects.filter( language=d['language'], slug__in=WALT_PAGES ) ] ) if load_walt else {}
+	
 
 	# load edit mode
 	d['login_form'] = LoginForm( auto_id="id_login_%s")
@@ -44,53 +68,125 @@ def sc( request, tags=[], d={}, load_walt=True ):
 
 	return d
 
+
+
+def login_view( request ):
+	
+	form = LoginForm( request.POST )
+	next = request.REQUEST.get('next', 'walt_home')
+
+	login_message = { 'next': next if len( next ) else 'walt_home'}
+
+	if request.method != 'POST':
+		data = sc( request, tags=[ "index" ], d=login_message )
+		return render_to_response('walt/login.html', RequestContext(request, data ) )
+	
+	if form.is_valid():
+		user = authenticate(username=form.cleaned_data['username'], password=form.cleaned_data['password'])
+		if user is not None:
+			if user.is_active:
+				login(request, user)
+				# @todo: Redirect to next page
+
+				return redirect( login_message['next'] )
+			else:
+				login_message['error'] = _("user has been disabled")
+		else:
+			login_message['error'] = _("invalid credentials")
+			# Return a 'disabled account' error message
+	else:
+		login_message['error'] = _("invalid credentials")
+		login_message['invalid_fields'] = form.errors
+
+
+	data = sc( request, tags=[ "index" ], d=login_message )
+
+
+	return render_to_response('walt/login.html', RequestContext(request, data ) )
+
+def logout_view( request ):
+	logout( request )
+	return redirect( 'walt_home' )
+
+
+
 def home( request ):
 	data = sc( request, tags=[ "home" ] )
 	data['series'] = Serie.objects.all()
 
 	return render_to_response(  "walt/index.html", RequestContext(request, data ) )
 
+@login_required
+def spiff( request, username ):
+	data = sc( request, tags=[ "home" ], username=username )
+
+	
+
+	data['series'] = Serie.objects.all()
+
+	return render_to_response(  "walt/index.html", RequestContext(request, data ) )
+
+@login_required
 def tag( request, tag_type, tag_slug ):
 	data = sc( request, tags=[ "tags" ] )
 	
 	return render_to_response(  "walt/index.html", RequestContext(request, data ) )
 
+@login_required
 def pin( request, pin_slug ):
-	data = sc( request, tags=[ "tags" ] )
+	data = sc( request, tags=[ "pin" ] )
 	data['pin'] = get_object_or_404( Pin, language=data['language'], slug=pin_slug )
 	data['series'] = Serie.objects.filter( frame__pin__slug=pin_slug ).distinct()
 	
 	return render_to_response(  "walt/pin.html", RequestContext(request, data ) )
 
-def _walt( data, slug ):
+@login_required
+def serie( request, serie_slug ):
+	data = sc( request, tags=[ "serie" ] )
+	data['serie'] = get_object_or_404( Serie, slug=serie_slug )
+	
+	return render_to_response(  "walt/serie.html", RequestContext(request, data ) )
+
+
+def _walt( data, slug, username ):
 	data['page'] = get_object_or_404( Page, language=data['language'], slug=slug )
-	data['series'] = Serie.objects.filter( frame__pin__page__slug=slug ).distinct()
+	
+	data['pins'] = Pin.objects.filter(  language=data['language'], page__slug=slug ).filter( **data['filters'] )
+
+	# top series (series using )
+
+	data['series'] = Serie.objects.filter( frames__pin__page__slug=slug ).distinct()
+	
 	return data
 
-def waltw( request ):
+@login_required
+def waltw( request, username=None ):
 	data = sc( request, tags=[ "w" ] )
-	data = _walt( data, WALT_W )
+	data = _walt( data, WALT_W, username )
 	return render_to_response(  "walt/walt.html", RequestContext(request, data ) )
-	
-def walta( request ):
+
+@login_required
+def walta( request, username=None ):
 	data = sc( request, tags=[ "a" ] )
-	data = _walt( data, WALT_A )
+	data = _walt( data, WALT_A, username )
 	return render_to_response(  "walt/walt.html", RequestContext(request, data ) )
 
-def waltl( request ):
+@login_required
+def waltl( request, username=None ):
 	data = sc( request, tags=[ "l" ] )
-	data = _walt( data, WALT_L )
+	data = _walt( data, WALT_L, username )
 	return render_to_response(  "walt/walt.html", RequestContext(request, data ) )
 
-def waltt( request ):
+@login_required
+def waltt( request, username=None ):
 	data = sc( request, tags=[ "t" ] )
-	data = _walt( data, WALT_T )
+	data = _walt( data, WALT_T, username )
 	return render_to_response(  "walt/walt.html", RequestContext(request, data ) )
 
 # call this function once. It will check for page availability and other stories...
 @staff_member_required
 def setup( request ):
-	data = sc( request, tags=[ "home" ] )
+	data = sc( request, tags=[ "home" ], load_walt=False )
 	logger.info('setup view called')
 
 	logger.info('check for GLUE editor group...')
@@ -125,9 +221,10 @@ def setup( request ):
 				p = Page.objects.get( slug=slug, language=l )
 				logger.info( "slug='%s', language: %s exists" % ( slug,l ) )
 			except Page.DoesNotExist, e :
-				p = Page( title=slug, language=l, slug=slug)
+				p = Page( title=slug, language=l, slug=slug, abstract=WALT_PAGES_ABSTRACT[ slug ])
 				p.save()
 				logger.info( "slug='%s', language: %s created" % ( slug, l ) )
 
 	logger.info('setup completed!')
-	return render_to_response(  "walt/index.html", RequestContext(request, data ) )
+	return home( request )
+

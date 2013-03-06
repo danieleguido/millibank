@@ -1,19 +1,21 @@
 {% extends "walt/middle.html" %}
 {% load i18n %}
 {% load extras %}
-
+{% block spiffing %}{% if spiff %} {{ spiff }}'s {% endif %}{% endblock %}
 {% block page %}
 
 	<div class="grid_12">	
 		<h2 style="border-width:0px">{% trans "series" %} ( {{ series.count }} )</h2>
 
 		<div class="series">
+			<a href="{% url admin:glue_serie_add %}">{% trans "add serie" %}</a>
 			{% for serie in series %}
 			<div class="serie">
-				<div class="title">{{ serie.title }}. <span><a href="#">play</a></span></div>
+				<div class="title">{{ serie.title }}. <span><a href="{% url walt_serie serie.slug %}">play #{{ serie.id }}</a></span></div>
 				<div class="frames">
 					{% for frame in serie.frames.all %}
-						<span>{{ frame.id }}</span>
+						<span><a href="{% url admin:glue_frame_change frame.id %}"> {{ frame.title }}</a></span>
+
 					{% endfor %}
 				</div>
 				<div class="timeline">
@@ -37,12 +39,18 @@
 	<div class="grid_12">	
 		
 		<div class="grid_3 alpha">
-			<a href="{% url walt_w %}"><h2>{{ walt.wander.title }}
-					<div class="description">
-						{{ walt.wander.abstract }} ( {{ walt.wander.pins.count }} )
-					</div>
-				</h2>
-			</a>
+			
+			<h2>
+				<a href="{% if spiff %}{% url walt_w_spiff spiff %}{% else %}{% url walt_w %}{% endif %}">{% if spiff %} his/her {% endif %} {{ walt.wander.page.title }}
+					( {{ walt.wander.pins.count }} )
+				</a>
+				<div class="description">
+					
+				
+					{{ walt.wander.page.abstract }}
+				</div>
+			</h2>
+			
 			<div class="items">
 				{% for pin in walt.wander.pins.all|slice:":10" %}
 				<div class="item">
@@ -53,6 +61,13 @@
 							<a href="{% url walt_tag tag.type|lower tag.slug %}" class="tag" alt="{{ tag.name }} ( {{ tag.type }} )">{{ tag.name }}</a>
 							{% if not forloop.last %},{%endif %} 
 						{% endfor %}
+						<p class="authors">
+							{%trans "posted by" %}
+							{% for u in pin.authors.all %}
+								<a href="{% url walt_spiff u.username %}">{{ u.username }}</a>
+								{% if not forloop.last %}, {% endif %}
+							{% endfor %}
+						</p>
 						<p><a href="{% url admin:glue_pin_change pin.id %}">&rarr; {% trans "edit" %}</a></p>
 					</div>
 					<blockquote>
@@ -76,14 +91,17 @@
 
 		</div>
 		<div class="grid_3 alpha">
-			<a href="{% url walt_a %}"><h2>{{ walt.ask.title }}
+			<h2>
+				<a href="{% if spiff %}{% url walt_a_spiff spiff %}{% else %}{% url walt_a %}{% endif %}">{% if spiff %} his/her {% endif %}  {{ walt.augment.page.title }}
+					( {{ walt.augment.pins.count }} )
+				</a>
 					<div class="description">
-						{{ walt.ask.abstract }} ( {{ walt.ask.pins.count }} )
+						{{ walt.augment.page.abstract }} 
 					</div>
-				</h2>
-			</a>
+			</h2>
+			
 			<div class="items">
-				{% for pin in walt.ask.pins.all|slice:":10" %}
+				{% for pin in walt.augment.pins %}
 				<div class="item">
 					
 					<h3><a href="{% url walt_pin pin.slug %}"><!-- #{{ pin.id }} --> {{ pin.title }} </a></h3>
@@ -92,6 +110,13 @@
 							<a href="{% url walt_tag tag.type|lower tag.slug %}" class="tag" alt="{{ tag.name }} ( {{ tag.type }} )">{{ tag.name }}</a>
 							{% if not forloop.last %},{%endif %} 
 						{% endfor %}
+						<p class="authors">
+							{%trans "posted by" %}
+							{% for u in pin.authors.all %}
+								<a href="{% url walt_spiff u.username %}">{{ u.username }}</a>
+								{% if not forloop.last %}, {% endif %}
+							{% endfor %}
+						</p>
 						<p><a href="{% url admin:glue_pin_change pin.id %}">&rarr; {% trans "edit" %}</a></p>
 					</div>
 					<blockquote>
@@ -115,12 +140,14 @@
 
 		</div>
 		<div class="grid_3">
-			<a href="{% url walt_l %}"><h2>{{ walt.learn.title }}
-					<div class="description">
-						{{ walt.learn.abstract }} ( {{ walt.learn.pins.count }} )
-					</div>
-				</h2>
-			</a>
+			<h2>
+				<a href="{% if spiff %}{% url walt_l_spiff spiff %}{% else %}{% url walt_l %}{% endif %}">{% if spiff %} his/her {% endif %}  {{ walt.learn.page.title }}
+					 ( {{ walt.learn.pins.count }} )
+				</a>
+				<div class="description">
+					{{ walt.learn.page.abstract }}
+				</div>
+			</h2>
 			<div class="items">
 				{% for pin in walt.learn.pins.all|slice:":10" %}
 				
@@ -135,6 +162,13 @@
 									<a href="#" class="tag" alt="{{ tag }}">{{ tag }}</a>
 									{% if not forloop.last %},{%endif %}
 								{% endfor %}
+								<p class="authors">
+									{%trans "posted by" %}
+									{% for u in pin.authors.all %}
+										<a href="{% url walt_spiff u.username %}">{{ u.username }}</a>
+										{% if not forloop.last %}, {% endif %}
+									{% endfor %}
+								</p>
 								<p><a href="{% url admin:glue_pin_change pin.id %}">&rarr; {% trans "edit" %}</a></p>
 							</div>
 							<blockquote>
@@ -153,12 +187,15 @@
 			</div>
 		</div>
 		<div class="grid_3 omega">
-			<a href="{% url walt_t %}"><h2>{{ walt.try.title }}
-					<div class="description">
-						{{ walt.try.abstract }} ( {{ walt.try.pins.count }} )
-					</div>
-				</h2>
-			</a>
+			<h2>
+				<a href="{% if spiff %}{% url walt_t_spiff spiff %}{% else %}{% url walt_t %}{% endif %}">{% if spiff %} his/her {% endif %}  {{ walt.try.page.title }}
+					( {{ walt.try.pins.count }} )
+				</a>
+				<div class="description">
+					{{ walt.try.page.abstract }}
+				</div>
+			</h2>
+			
 			<div class="items">
 				{% for pin in walt.try.pins.all|slice:":10" %}
 				<div class="item">
@@ -169,6 +206,13 @@
 							<a href="{% url walt_tag tag.type|lower tag.slug %}" class="tag" alt="{{ tag.name }} ( {{ tag.type }} )">{{ tag.name }}</a>
 							{% if not forloop.last %},{%endif %} 
 						{% endfor %}
+						<p class="authors">
+							{%trans "posted by" %}
+							{% for u in pin.authors.all %}
+								<a href="{% url walt_spiff u.username %}">{{ u.username }}</a>
+								{% if not forloop.last %}, {% endif %}
+							{% endfor %}
+						</p>
 						<p><a href="{% url admin:glue_pin_change pin.id %}">&rarr; {% trans "edit" %}</a></p>
 					</div>
 					<blockquote>

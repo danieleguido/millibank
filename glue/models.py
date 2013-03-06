@@ -25,13 +25,13 @@ class Tag(models.Model):
 
 
 	TYPE_CHOICES = (
-        (AUTHOR, 'AUTHOR'),
-        (KEYWORD, 'KEYWORD'),
-        (INSTITUTION, 'Institution'),
-        (RESEARCHER, 'Researcher'),
-        (PLACE, 'Place'),
-        (DATE, 'Date'),
-        (GEOCOVER, 'Geographic coverage')
+        ( AUTHOR, 'AUTHOR'),
+        ( KEYWORD, 'KEYWORD'),
+        ( INSTITUTION, 'Institution'),
+        ( RESEARCHER, 'Researcher'),
+        ( PLACE, 'Place'),
+        ( DATE, 'Date'),
+        ( GEOCOVER, 'Geographic coverage')
     )
 
 	name = models.CharField(max_length=128) # e.g. 'Mr. E. Smith'
@@ -46,10 +46,14 @@ class Tag(models.Model):
 		unique_together = ("type", "slug")
 
 class Pin( models.Model ):
-	published='P'
-	draft='D'
+	PUBLISHED='P'
+	DRAFT = 'D'
 
-	PIN_STATUS_CHOICES = ( (published,"published"),(draft,"draft") )
+	PIN_STATUS_CHOICES = (
+		( PUBLISHED,'published'),
+		( DRAFT,'draft')
+
+	)
 
 	slug = models.SlugField( max_length=160 )
 	title = models.CharField( max_length=160, default="", blank=True, null=True )
@@ -65,6 +69,7 @@ class Pin( models.Model ):
 
 	local = models.FileField( upload_to='pins/%Y-%m/',  blank=True, null=True ) # local stored file
 	permalink  = models.TextField( default="", blank=True, null=True ) # remote link
+	permalink_hash  = models.CharField( max_length=32, blank=True, null=True ) # remote link
 
 	related = models.ManyToManyField("self", symmetrical=True, null=True, blank=True)
 	parent  = models.ForeignKey("self", null=True, blank=True, related_name="children" )
@@ -72,7 +77,9 @@ class Pin( models.Model ):
 
 	geos = models.ManyToManyField( Geo, blank=True, null=True ) # add geographic point
 	tags = models.ManyToManyField( Tag, blank=True, null=True ) # add tags !
-	users = models.ManyToManyField( User, blank=True, null=True )
+
+	authors = models.ManyToManyField( User, blank=True, null=True,  related_name="pin_authored" ) # co-authors User.pin_authored
+	watchers = models.ManyToManyField( User, blank=True, null=True, related_name="pin_watched"  ) # User.pin_watched
 
 	class Meta:
 		unique_together = ( "slug", "language" )
@@ -131,55 +138,68 @@ class Page( PageAbstract ):
 
 
 
-class Serie( models.Model ):
-	# note: Serie are not unique, but 
-	MAIN = "Mn"
-	GHOST = "Gh" # a non published serie ?
-	SIBLING = "Sb" # a sibling
-
-	TYPE_CHOICES = (
-        (MAIN, 'main or default serie'), # normally editable only by staff
-        (GHOST, 'ghost'),
-        (SIBLING, 'sibling'),
-    )
-
-	slug     =  models.SlugField( )
-	title    =  models.CharField( max_length=160, default="", blank=True, null=True )
-	abstract =  models.TextField( default="", blank=True, null=True )
-	content  =  models.TextField( default="", blank=True, null=True ) # a looong description
-	sort  =  models.IntegerField( default=0 )
-
-	type = models.CharField( max_length=2, choices=TYPE_CHOICES, default=SIBLING )
-
-	date = models.DateField( blank=True, null=True ) # main date, manually added
-	date_last_modified = models.DateField( auto_now=True ) # date last save()
-
-	related = models.ManyToManyField("self", symmetrical=True, null=True, blank=True )
-	frames = models.ManyToManyField( Pin, through='Frame', null=True, blank=True )
-	users = models.ManyToManyField( User, blank=True, null=True ) # authors
-	
 
 
 class Frame( models.Model ):
+	# Frame class is a wrapper for pin instances inside a serie. Pin are given as ForeignKey.
 
 	KEY = "Ke"
 	GHOST = "Gh" # visible but just for reference.
 	SIMPLE = "Sl" # visible but just for reference.
 
 	TYPE_CHOICES = (
-        (KEY, 'key frame'),
-        (GHOST, 'ghost'),
-        (SIMPLE, 'simple frame'),
+        ( KEY, 'key frame' ),
+        ( GHOST, 'ghost' ),
+        ( SIMPLE, 'simple frame' ),
+    )
+
+	LINK = "Li"
+	ILLUSTRATION = "Il"
+	TEXT = "Te"
+
+	ROLE_CHOICES = (
+        (LINK, 'external link' ),
+        (ILLUSTRATION, 'illustration' ),
+        (TEXT, 'text' ),
     )
 
 	pin = models.ForeignKey( Pin )
-	serie = models.ForeignKey( Serie )
 	sort  =  models.IntegerField( default=0 )
-	
-	type = models.CharField( max_length=2, choices=TYPE_CHOICES, default=SIMPLE  )
+	duration  =  models.IntegerField( default=0 ) # in milliseconds
+
+	type = models.CharField( max_length=2, choices=TYPE_CHOICES, default=SIMPLE )
+	role = models.CharField( max_length=2, choices=ROLE_CHOICES, default=TEXT )
 
 	abstract =  models.TextField( default="", blank=True, null=True ) # a description of the passage
 
 	class Meta:
-		unique_together = ( "serie", "sort" )
-		ordering = ('sort', )
+		ordering = ( 'sort', )
+
+class Serie( PageAbstract ):
+
+	PROTOCOL = "Pr"
+	ARTICLE = "Ar" # a sibling
+	SCENARIO = "Sc"
+	WEBDOCUMENTARY = "WD"
+	REFERENCE = "Rf"
+
+	TYPE_CHOICES = (
+        ( PROTOCOL, 'main or default serie'), # normally editable only by staff
+        ( ARTICLE, 'paper or article'),
+        ( SCENARIO, 'scenario'),
+        ( WEBDOCUMENTARY, 'WEB DOCUMENTARY'),
+        ( REFERENCE, 'reference'),
+    )
+	
+	type = models.CharField( max_length=2, choices=TYPE_CHOICES, default=REFERENCE ) # type of the serie
+	frames = models.ManyToManyField( Frame, null=True, blank=True ) # frame composign the serie
+
+	date = models.DateField( blank=True, null=True ) # main date, manually added
+	date_last_modified = models.DateField( auto_now=True ) # date last save()
+	
+	siblings = models.ManyToManyField("self", symmetrical=True, null=True, blank=True ) # siblings series
+	
+	authors = models.ManyToManyField( User, blank=True, null=True,  related_name="serie_authored" ) # co-authors User.serie_authored
+	watchers = models.ManyToManyField( User, blank=True, null=True, related_name="serie_watched"  ) # User.serie_watched
+	
+	tags = models.ManyToManyField( Tag, blank=True, null=True ) # add tags !

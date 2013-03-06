@@ -166,6 +166,8 @@ LOGGING = {
     }
 }
 
+LOGIN_URL = local_settings.LOGIN_URL
+LOGOUT_URL = local_settings.LOGOUT_URL
 
 # walt ad hoc settings
 LOCALE_PATHS = local_settings.LOCALE_PATHS
