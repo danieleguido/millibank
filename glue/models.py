@@ -172,6 +172,18 @@ class Frame( models.Model ):
 
 	abstract =  models.TextField( default="", blank=True, null=True ) # a description of the passage
 
+	def json( self ):
+		return{
+			'id': self.id,
+			'serie':self.serie.id,
+			'duration': self.duration,
+			'sort': self.sort,
+			'abstract': self.abstract,
+			'pin': self.pin.json(),
+			'role': self.role,
+			'type': self.type
+		}
+
 	class Meta:
 		ordering = ( 'sort', )
 
@@ -203,3 +215,16 @@ class Serie( PageAbstract ):
 	watchers = models.ManyToManyField( User, blank=True, null=True, related_name="serie_watched"  ) # User.serie_watched
 	
 	tags = models.ManyToManyField( Tag, blank=True, null=True ) # add tags !
+
+	def json( self, load_frames=False ):
+		# when load frames is True return the list. otherwise null
+		return{
+			'id': self.id,
+			'slug':self.slug,
+			'title': self.title,
+			'abstract': self.abstract,
+			'content': self.content,
+			'language': self.language,
+			'type': self.type,
+			'frames':[ f.json() for f in self.frames.all() ] if load_frames else None
+		}

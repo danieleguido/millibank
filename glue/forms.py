@@ -2,7 +2,7 @@ from django import forms
 from django.forms import ModelForm
 from django.utils.translation import ugettext as _
 from django.conf import settings
-from glue.models import Tag
+from glue.models import Tag, Serie
 
 class LoginForm(forms.Form):
 	username = forms.CharField( label=_('login'), max_length=64 )
@@ -19,6 +19,18 @@ class AddPageForm(forms.Form):
 			
 	slug = forms.SlugField( required=True )
 
+
+class AddSerieForm(forms.Form):
+	def __init__(self, *args, **kwargs):
+		
+		super(AddSerieForm, self).__init__(*args, **kwargs)
+
+		for l,lang in settings.LANGUAGES:
+			self.fields['title_%s' % l] = forms.CharField( label=_("%s title" % lang), required=True )
+			
+	slug = forms.SlugField( required=True )
+
+	type = forms.ChoiceField( label=_("type"), required=True, choices=Serie.TYPE_CHOICES )
 
 
 class AddPinForm(forms.Form):

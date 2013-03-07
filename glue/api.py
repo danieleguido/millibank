@@ -9,8 +9,8 @@ from django.utils.translation import ugettext as _
 from django.template.defaultfilters import slugify
 
 from glue import Epoxy, API_EXCEPTION_FORMERRORS, API_EXCEPTION_INTEGRITY, API_EXCEPTION_DOESNOTEXIST, API_EXCEPTION_OSERROR
-from glue.models import Page, Pin, Tag
-from glue.forms import AddPageForm, AddPinForm, EditPinForm, UploadPinForm
+from glue.models import Page, Pin, Tag, Serie, Frame
+from glue.forms import AddPageForm, AddPinForm, EditPinForm, UploadPinForm, AddSerieForm
 
 
 logger = logging.getLogger(__name__)
@@ -61,6 +61,58 @@ def page( request, page_id ):
 
 def page_by_slug( request, page_slug, page_language ):
 	return Epoxy( request ).single( Page, {'slug':page_slug,'language':page_language} ).json()
+
+
+@login_required
+def series( request ):
+	response = Epoxy( request )
+
+	if response.method =='POST':
+		form = AddSerieForm( request.REQUEST )
+		if not form.is_valid():
+			return response.throw_error( error=form.errors, code=API_EXCEPTION_FORMERRORS).json()
+
+
+		for language,l in settings.LANGUAGES:
+			try:
+				serie = Serie( title=form.cleaned_data[ 'title_%s' % language ], language=language, slug=form.cleaned_data[ 'slug' ], type=form.cleaned_data[ 'type' ] )
+				serie.save()
+				serie.authors.add( request.user )
+
+			except IntegrityError, e:
+				return response.throw_error( error="%s" % e, code=API_EXCEPTION_INTEGRITY).json()
+
+		response.add( 'object', serie, jsonify=True )
+	return response.queryset( Serie.objects.filter( authors=request.user ) ).json()
+
+@login_required
+def serie( request, serie_id ):
+	return Epoxy( request ).single( Serie, {'id':serie_id} ).json()
+
+@login_required
+def serie_frames( request, serie_id ):
+	response = Epoxy( request )
+
+	try:
+		serie = Serie.objects.get( id=serie_id )
+	except Serie.DoesNotExist, e:
+		return response.throw_error( error="%s" % e, code=API_EXCEPTION_DOESNOTEXIST ).json()
+
+	
+	response.add( 'object', serie.json(load_frames=True))
+	return response.json()
+
+@login_required
+def frames( request, serie_id ):
+	response = Epoxy( request )
+	# add a dictonary of frame : sort
+	return response.queryset( Frame.objects.filter( serie__authors=request.user ) ).json()
+
+
+
+@login_required
+def frame( request, frame_id ):
+	return Epoxy( request ).single( Frame, {'id':frame_id,'serie__authors':request.user } ).json()
 
 @login_required
 def pins( request ):

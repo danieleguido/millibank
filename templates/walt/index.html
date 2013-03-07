@@ -70,8 +70,9 @@
 						</p>
 						<p>
 							<a href="{% url admin:glue_pin_change pin.id %}">&rarr; {% trans "edit" %}</a>
-							<div style="float:left" draggable="true" class="drag-to-serie" >&curren; {% trans "drag" %}</div>
-
+							<ul>
+							<li style="float:left" class="drag-to-serie draggable" data-slug="{{ pin.slug }}" data-mimetype="{{ pin.mimetype }}" data-id="{{ pin.id }}">{% trans "drag" %}</li>
+							</ul>
 						</p>
 					</div>
 					<blockquote>

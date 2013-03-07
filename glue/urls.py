@@ -23,4 +23,11 @@ urlpatterns = patterns('',
 	url(r'^pin/(?P<pin_id>\d+)/clean/$', 'glue.api.pin_clean', name='glue_api_pin_clean'), 
 	url(r'^pin/upload/$', 'glue.api.pin_upload', name='glue_api_pin_upload'), 
 
+
+	url(r'^serie/$', 'glue.api.series', name='glue_api_series'), # get list, post single serie
+	url(r'^serie/(?P<serie_id>\d+)/$', 'glue.api.serie', name='glue_api_serie'), # get a signle serie WITHOUT its frame collection. POST to edit serie Data
+	url(r'^serie/(?P<serie_id>\d+)/frames/$', 'glue.api.serie_frames', name='glue_api_serie_frames'), # get a signle serie along wiht its frame collection. POST to add frame...
+
+	url(r'^frame/$', 'glue.api.frames', name='glue_api_frames'), # get list of frames per author (useless)
+	url(r'^frame/(?P<frame_id>\d+)/$', 'glue.api.frame', name='glue_api_frame'), # GET: full information 
 )
