@@ -2,7 +2,7 @@ from django import forms
 from django.forms import ModelForm
 from django.utils.translation import ugettext as _
 from django.conf import settings
-from glue.models import Tag, Serie
+from glue.models import Tag, Serie, Frame
 
 class LoginForm(forms.Form):
 	username = forms.CharField( label=_('login'), max_length=64 )
@@ -32,6 +32,10 @@ class AddSerieForm(forms.Form):
 
 	type = forms.ChoiceField( label=_("type"), required=True, choices=Serie.TYPE_CHOICES )
 
+class AddFrameForm(forms.Form):
+	slug = forms.SlugField( required=True )
+	type = forms.ChoiceField( label=_("type"), required=True, choices=Frame.TYPE_CHOICES )
+	sort = forms.IntegerField( min_value=1 )
 
 class AddPinForm(forms.Form):
 	

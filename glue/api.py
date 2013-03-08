@@ -10,7 +10,7 @@ from django.template.defaultfilters import slugify
 
 from glue import Epoxy, API_EXCEPTION_FORMERRORS, API_EXCEPTION_INTEGRITY, API_EXCEPTION_DOESNOTEXIST, API_EXCEPTION_OSERROR
 from glue.models import Page, Pin, Tag, Serie, Frame
-from glue.forms import AddPageForm, AddPinForm, EditPinForm, UploadPinForm, AddSerieForm
+from glue.forms import AddPageForm, AddPinForm, EditPinForm, UploadPinForm, AddSerieForm, AddFrameForm
 
 
 logger = logging.getLogger(__name__)
@@ -89,17 +89,43 @@ def series( request ):
 def serie( request, serie_id ):
 	return Epoxy( request ).single( Serie, {'id':serie_id} ).json()
 
+
+
 @login_required
 def serie_frames( request, serie_id ):
 	response = Epoxy( request )
 
 	try:
 		serie = Serie.objects.get( id=serie_id )
+
+		# gimme series !
+		series = dict([(s.language,s) for s in Serie.objects.filter( slug=serie.slug ) ])
+
 	except Serie.DoesNotExist, e:
 		return response.throw_error( error="%s" % e, code=API_EXCEPTION_DOESNOTEXIST ).json()
 
+	if response.method == 'POST':
+		form = AddFrameForm( request.REQUEST )
+		if not form.is_valid():
+			return response.throw_error( error=form.errors, code=API_EXCEPTION_FORMERRORS).json()
+
+		# check exhistence 
+		for s in series:
+
+			try:
+				#	( serie.slug )
+				frame = Frame( pin=Pin.objects.get( language=series[s].language, slug=form.cleaned_data['slug'] ), sort=form.cleaned_data['sort'] )
+				frame.save()
+			except IntegrityError,e:
+				return response.throw_error( error="%s" % e, code=API_EXCEPTION_INTEGRITY).json()
+
+
+			series[s].frames.add( frame )
+			series[s].save()
+
+		response.add( 'object', frame.json() )
 	
-	response.add( 'object', serie.json(load_frames=True))
+	response.add( 'object', serie.json(load_frames=True) )
 	return response.json()
 
 @login_required

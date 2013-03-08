@@ -116,7 +116,7 @@ def logout_view( request ):
 
 def home( request ):
 	data = sc( request, tags=[ "home" ] )
-	data['series'] = Serie.objects.all()
+	data['series'] = Serie.objects.filter( language=data['language'] ).order_by( '-date_last_modified' )[:3]
 
 	return render_to_response(  "walt/index.html", RequestContext(request, data ) )
 
@@ -140,14 +140,14 @@ def tag( request, tag_type, tag_slug ):
 def pin( request, pin_slug ):
 	data = sc( request, tags=[ "pin" ] )
 	data['pin'] = get_object_or_404( Pin, language=data['language'], slug=pin_slug )
-	data['series'] = Serie.objects.filter( frame__pin__slug=pin_slug ).distinct()
+	data['series'] = Serie.objects.filter( frames__pin__slug=pin_slug ).distinct()
 	
 	return render_to_response(  "walt/pin.html", RequestContext(request, data ) )
 
 @login_required
 def serie( request, serie_slug ):
 	data = sc( request, tags=[ "serie" ] )
-	data['serie'] = get_object_or_404( Serie, slug=serie_slug )
+	data['serie'] = get_object_or_404( Serie, slug=serie_slug, language=data['language'] )
 	
 	return render_to_response(  "walt/serie.html", RequestContext(request, data ) )
 

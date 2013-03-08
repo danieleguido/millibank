@@ -35,7 +35,7 @@ urlpatterns = patterns('',
     url(r'^u/(?P<username>[a-z\.]+)/$', 'walt.views.spiff', name='walt_spiff'),
 
     url(r'^tag/(?P<tag_type>[a-z\-]+)/(?P<tag_slug>[a-zA-Z\d\-]+)/', 'walt.views.tag', name='walt_tag'),
-    url(r'^serie/(?P<serie_slug>[a-zA-Z\d\-]+)/', 'walt.views.serie', name='walt_serie'),
+    url(r'^serie/(?P<serie_slug>[a-zA-Z\_\d\-]+)/', 'walt.views.serie', name='walt_serie'),
     # Uncomment the admin/doc line below to enable admin documentation:
     # url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
 

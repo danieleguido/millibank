@@ -175,7 +175,6 @@ class Frame( models.Model ):
 	def json( self ):
 		return{
 			'id': self.id,
-			'serie':self.serie.id,
 			'duration': self.duration,
 			'sort': self.sort,
 			'abstract': self.abstract,

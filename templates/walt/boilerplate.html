@@ -79,8 +79,8 @@
             add_pin : "{% url glue_api_pins %}"
           }
 
-          oo.urls.add_serie = "{% url glue_api_serie %}";
-          oo.urls.edit_serie = "{% url glue_api_serie %}";
+          oo.urls.add_serie = "{% url glue_api_serie 0 %}";
+          oo.urls.edit_serie = "{% url glue_api_serie 0 %}";
 
           $(document).ready( function(){
               oo.api.init();

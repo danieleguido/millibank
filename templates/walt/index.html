@@ -5,18 +5,20 @@
 {% block page %}
 
 	<div class="grid_12">	
-		<h2 style="border-width:0px">{% trans "series" %} ( {{ series.count }} )</h2>
+		<h2>{% trans "series" %} ( {{ series.count }} )<div class="description"><a href="#">{% trans "add serie" %}</a></div></h2>
 
-		<div class="series">
-			<a href="{% url admin:glue_serie_add %}">{% trans "add serie" %}</a>
+		<div class="series" style="border-bottom: 1px solid #ccc">
+			
 			{% for serie in series %}
 			<div class="serie">
 				<div class="title">{{ serie.title }}. <span><a href="{% url walt_serie serie.slug %}">play #{{ serie.id }}</a></span></div>
-				<div class="frames">
+				<div class="frames" style="border-bottom: 1px solid #ccc; padding-bottom: 10px; margin-bottom: 10px">
+					start &rarr;
 					{% for frame in serie.frames.all %}
-						<span><a href="{% url admin:glue_frame_change frame.id %}"> {{ frame.title }}</a></span>
+						<span><a href="{% url admin:glue_frame_change frame.id %}" title="{{ frame.pin.title }}"> {{ frame.role }} {{ frame.type }}</a></span> &rarr;
 
 					{% endfor %}
+					end.
 				</div>
 				<div class="timeline">
 
