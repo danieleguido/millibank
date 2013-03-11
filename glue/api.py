@@ -63,7 +63,7 @@ def page_by_slug( request, page_slug, page_language ):
 	return Epoxy( request ).single( Page, {'slug':page_slug,'language':page_language} ).json()
 
 
-@login_required
+@login_required( login_url=settings.GLUE_ACCESS_DENIED_URL )
 def series( request ):
 	response = Epoxy( request )
 

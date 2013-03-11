@@ -35,7 +35,8 @@ LANGUAGES = (
 LOGIN_URL = '/walt/login/'
 LOGOUT_URL = '/walt/logout/'
 
-GLUE_LOG_PATH = '/pth/to/walt/logs/glue.log'
+GLUE_LOG_PATH = '/path/to/walt/logs/glue.log'
+GLUE_ACCESS_DENIED_URL ='/api/access-denied/'
 
 # alchemy api deeloper key
 ALCHEMY_API_KEY = 'if desired'
