@@ -75,13 +75,14 @@
         <script src="{{ STATIC_URL }}/js/walt.js"></script>
 
         <script>
-          oo.urls = {
-            add_pin : "{% url glue_api_pins %}"
-          }
+          {% block urls %}
+            oo.urls = {
+              add_pin : "{% url glue_api_pins %}"
+            }
+          
+          {% endblock %}
 
-          oo.urls.add_serie = "{% url glue_api_serie 0 %}";
-          oo.urls.edit_serie = "{% url glue_api_serie 0 %}";
-
+          
           $(document).ready( function(){
               oo.api.init();
               oo.glue.init();

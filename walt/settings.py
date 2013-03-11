@@ -168,6 +168,7 @@ LOGGING = {
 
 LOGIN_URL = local_settings.LOGIN_URL
 LOGOUT_URL = local_settings.LOGOUT_URL
+GLUE_ACCESS_DENIED_URL = local_settings.GLUE_ACCESS_DENIED_URL
 
 # walt ad hoc settings
 LOCALE_PATHS = local_settings.LOCALE_PATHS

@@ -61,6 +61,9 @@ oo.api.process = function( result, callback, namespace ){
 		if (typeof callback == "object"){
 			oo.toast( callback.message, callback.title );
 		} else return callback( result );
+	} else if( result.code == 'IntegrityError' ){
+		$("#"+namespace+"_slug").addClass("invalid");
+		oo.toast(  oo.i18n.translate("this slug is already used") , oo.i18n.translate("error"), {stayTime:3000, cleanup: true});
 	} else if( typeof result.error == "object" ){
 		oo.invalidate( result.error, namespace );
 		oo.toast(  oo.i18n.translate("invalid form") , oo.i18n.translate("error"), {stayTime:3000, cleanup: true});
@@ -74,6 +77,69 @@ oo.api.urlfactory = function( url, factor, pattern ){
 	pattern = typeof pattern == "undefined"? "/0/":pattern ;
 	return url.replace( pattern, ["/",factor,"/"].join("") )
 }
+
+/*
+	Handle with care. 
+	This function add a add+edit+remove+get function to oo.api.<your model>
+	E.g to add a filter to oo.api.serie.get:
+
+		oo.api.compile('serie');
+		
+		oo.magic.serie.list = function( result ){
+			alert('list');
+		}
+
+		oo.api.serie.list({
+			'filters': JSON.stringify({
+				"language":"fr"
+			})
+		});
+
+	Cfr. oo.api.Builder
+
+	@param model	- your model, a.k.a oo.api namespace
+ 	
+*/
+oo.api.compile = function( model ){ oo.log( '[oo.api.compile ]', model );
+	oo.api[ model ] = new oo.api.Builder( model )
+}
+
+oo.api.Builder = function( model ){
+
+	var instance = this;
+	
+	this.methods = [ 'get', 'list', 'add', 'remove', 'edit' ];
+	this.model = model;
+
+	this.get = function( params, callback ){
+
+		instance.ajax( 'get', 'get', params, oo.api.urlfactory( oo.urls[ 'get_' + instance.model ], params.id ), callback  );
+	}
+
+	this.list = function( params ){
+		instance.ajax( 'get', 'list', params, oo.urls[ 'list_' + instance.model ] );
+	}
+
+	this.add = function( params ){
+		instance.ajax( 'post', 'add', params, oo.urls[ 'add_' + instance.model ] );
+	}
+
+	this.remove = function( params ){
+		instance.ajax( 'delete', 'remove', params, oo.api.urlfactory( oo.urls[ 'remove_' + instance.model ], params.id ) );
+	}
+
+	this.ajax = function( http_method, method, params, url, callback ){
+		oo.log( '[oo.api.' + instance.model + '.' + method + '] url :', url );
+		$.ajax( $.extend( oo.api.settings[ http_method ],{
+			url: url,
+			data: params,
+			success:function(result){ oo.log( '[oo.api.' + instance.model + '.' + method + '] result :', result );
+				oo.api.process( result, typeof callback == "undefined" ? oo.magic[ instance.model ][ method ]: callback, "id_" + method + "_" + instance.model );
+		}}));
+	}
+
+}
+
 
 /*
 

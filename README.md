@@ -61,4 +61,15 @@ point your browser your local [setup page](http://127.0.0.1:8000/setup/)
  
  you should see 4 columns named Wander, Ask, Learn and Try respectively.
  
+ ___
+ 
+ Notes
+ ---
+ 
+ Thanks to adapt.js we have a fluid and flexible 960grid.
+ Adapt css modification (added to the end):
+ 
+ 
+ 	.grid_12.floating{position:absolute;margin-left:-470px;left:50%;}
+ 
 	

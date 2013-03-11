@@ -44,29 +44,70 @@ h2{
 	}
 }	
 
-.timeline{
+#timeline-serie{
+	background: fade( #005580, 90%);
+	overflow: hidden;
+	position:fixed;
+	height:84px;
+	bottom: -84px;
 	width: 100%;
-	height: 30px;
-	.inner{
-		position:absolute;
+	.transition( bottom, .2s, ease-in-out );
+
+	.section{
+		
+		color: white;
+		height:30px;
+	}
+	.title{
+		.mono-caps(17px);
+		
 		
 
 	}
-	
-	.title{
-	
-	}
-	.start{
-		float:left;
+	#actual-serie{
+		height:48px;
+		border-top: 1px solid fade(white,50%);
+		border-bottom: 1px solid fade(white,50%);
 		
-		padding-right: 6px;
-	}
-	.end{
-		float:right;
-		
-		
+		margin:0;
+		padding: 0;
+
+		list-style-type:none;
+
+		.drag-to-serie, .frame{
+			background-color:white;
+			height: 37px;
+			float:left;
+			display: inline;
+			width: 54px;
+			margin: 6px;
+		}
 	}
 }
+
+.frames{
+	overflow: auto;
+}
+.frame{
+	float:left;
+	height: 50px;
+	
+	background: #ccc;
+	border: 1px solid #bbb;
+	margin: 8px 8px 6px 0;
+	.counter{
+		position: absolute;
+		margin: 5px 0 0 10px;
+		
+	}
+
+	.title{
+		display: block;
+		margin: 20px 10px 0px 10px;
+		.sans-serif(13px);
+	}
+}
+
 
 .story{
 	margin-bottom: @grid-padding;

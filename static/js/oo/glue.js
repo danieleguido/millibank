@@ -119,6 +119,16 @@ oo.api.page.add = function( params ){
 */
 oo.glue = {};
 oo.glue.init = function(){ oo.log("[oo.glue.init]");
+
+	// input.repeatable: copy $.val() to targeted data-target element
+	$(document).on('keyup', 'input.repeatable', function(event){ var $this = $(this); $( '#' + $this.attr('data-target') ).val( oo.fn.slug( $this.val() ) );});
+
+	// remove invalid elements
+	$(document).click( function(event){ $(".invalid").removeClass('invalid');});
+
+
+
+
 	$("#add-page").on("click", function(event){ event.preventDefault(); oo.api.page.add({
 		title_en:$("#id_add_page_title_en").val(),
 		title_fr:$("#id_add_page_title_fr").val(),
@@ -176,6 +186,8 @@ oo.glue.init = function(){ oo.log("[oo.glue.init]");
 	$("#id_add_page_title_en").on('keyup', function( event ){ $("#id_add_page_slug").val( oo.fn.slug( $("#id_add_page_title_en").val() ) ) });
 	$("#id_add_pin_title_en").on('keyup', function( event ){ $("#id_add_pin_slug").val( oo.fn.slug( $("#id_add_pin_title_en").val() ) ) });
 
+	
+
 
 
 	// html5 pin editor
@@ -187,9 +199,7 @@ oo.glue.init = function(){ oo.log("[oo.glue.init]");
 	} catch(e){
 		oo.log("[oo.glue.init:exception]",e);
 	}
-	// $("#edit-section-modal").modal('show')
-	$(document).click( function(event){ $(".invalid").removeClass('invalid');});
-
+	
 	// ADD PIN
 	$(document).on("click",".add-pin", function(event){
 		var el = $(this);

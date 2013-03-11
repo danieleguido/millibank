@@ -2,35 +2,53 @@
 {% load i18n %}
 {% load extras %}
 {% block spiffing %}{% if spiff %} {{ spiff }}'s {% endif %}{% endblock %}
+
+
+{% block urls %}
+	oo.urls.get_serie = "{% url glue_api_serie_frames 0 %}";
+	oo.urls.list_serie = "{% url glue_api_series %}";
+	oo.urls.remove_serie = "{% url glue_api_serie 0 %}";
+	oo.urls.add_serie = "{% url glue_api_series %}";
+    oo.urls.edit_serie = "{% url glue_api_serie 0 %}";
+{% endblock %}
+
+
 {% block page %}
 
 	<div class="grid_12">	
-		<h2>{% trans "series" %} ( {{ series.count }} )<div class="description"><a href="#">{% trans "add serie" %}</a></div></h2>
+		<h2>{% trans "series" %} ( {{ series.count }} )
+			<div class="description">{% trans "last serie created" %} 
+				{% if user.is_authenticated %}
+					<a href="#" class="add-serie">{% trans "start a new serie" %}</a>
+				{% else %}
+					{% trans "in order to start a new serie, you need to be logged in" %} (<a href="{% url walt_login %}">{% trans "login" %}</a>)
+				{% endif %}
+			</div>
+		</h2>
 
 		<div class="series" style="border-bottom: 1px solid #ccc">
 			
-			{% for serie in series %}
-			<div class="serie">
+			{% for serie in series|slice:"3" %}
+			<div class="serie change-serie" data-id="{{ serie.id }}" data-slug="{{ serie.slug }}" >
 				<div class="title">{{ serie.title }}. <span><a href="{% url walt_serie serie.slug %}">play #{{ serie.id }}</a></span></div>
-				<div class="frames" style="border-bottom: 1px solid #ccc; padding-bottom: 10px; margin-bottom: 10px">
-					start &rarr;
-					{% for frame in serie.frames.all %}
-						<span><a href="{% url admin:glue_frame_change frame.id %}" title="{{ frame.pin.title }}"> {{ frame.role }} {{ frame.type }}</a></span> &rarr;
+
+				<p class="authors">{% trans "created by" %}
+					{% for u in serie.authors.all %}
+						<a href="{% url walt_spiff u.username %}">{{ u.username }}</a>
+						{% if not forloop.last %}, {% endif %}
 
 					{% endfor %}
-					end.
-				</div>
-				<div class="timeline">
-
-					<div class="inner">
-						<div class="start">1867 &rarr;</div>
-
-						<div class="end">2013</div>
-					
-					</div>
+				<div class="frames" >
+					&rarr;
+					{% for frame in serie.frames.all %}
+						<div class="frame {{ frame.role }}">
+							<div class="counter">{{ forloop.counter }}</div>
+							<a href="{% url admin:glue_frame_change frame.id %}" class="title" title="{{ frame.pin.title }}"> {{ frame.pin.title|truncatewords:3 }}</a>
+						</div>
+					{% endfor %}
 					
 				</div>
-				<div class="clear"></div>
+				
 			</div>
 			{% endfor %}
 			
@@ -124,7 +142,10 @@
 								{% if not forloop.last %}, {% endif %}
 							{% endfor %}
 						</p>
-						<p><a href="{% url admin:glue_pin_change pin.id %}">&rarr; {% trans "edit" %}</a></p>
+						<p>
+							<a href="{% url admin:glue_pin_change pin.id %}">&rarr; {% trans "edit" %}</a>,
+							<a href="#" class="drag-to-serie" data-slug="{{ pin.slug }}" data-mimetype="{{ pin.mimetype }}" data-id="{{ pin.id }}">{% trans "add to serie" %}</a>
+						</p>
 					</div>
 					<blockquote>
 						 {{ pin.abstract }}
@@ -176,7 +197,8 @@
 										{% if not forloop.last %}, {% endif %}
 									{% endfor %}
 								</p>
-								<p><a href="{% url admin:glue_pin_change pin.id %}">&rarr; {% trans "edit" %}</a></p>
+								<p><a href="{% url admin:glue_pin_change pin.id %}">&rarr; {% trans "edit" %}</a>,
+							<a href="#" class="drag-to-serie" data-slug="{{ pin.slug }}" data-mimetype="{{ pin.mimetype }}" data-id="{{ pin.id }}">{% trans "add to serie" %}</a></p>
 							</div>
 							<blockquote>
 								{% if bibtex.abstract %} {{ bibtex.abstract }} {% endif %}
@@ -220,7 +242,8 @@
 								{% if not forloop.last %}, {% endif %}
 							{% endfor %}
 						</p>
-						<p><a href="{% url admin:glue_pin_change pin.id %}">&rarr; {% trans "edit" %}</a></p>
+						<p><a href="{% url admin:glue_pin_change pin.id %}">&rarr; {% trans "edit" %}</a>,
+							<a href="#" class="drag-to-serie" data-slug="{{ pin.slug }}" data-mimetype="{{ pin.mimetype }}" data-id="{{ pin.id }}">{% trans "add to serie" %}</a></p>
 					</div>
 					<blockquote>
 						 {{ pin.abstract }}

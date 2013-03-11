@@ -6,9 +6,10 @@ from django.contrib.auth.decorators import login_required
 from django.db.models.loading import get_model
 from django.db import IntegrityError
 from django.utils.translation import ugettext as _
+from django.utils.translation import get_language
 from django.template.defaultfilters import slugify
 
-from glue import Epoxy, API_EXCEPTION_FORMERRORS, API_EXCEPTION_INTEGRITY, API_EXCEPTION_DOESNOTEXIST, API_EXCEPTION_OSERROR
+from glue import Epoxy, API_EXCEPTION_FORMERRORS, API_EXCEPTION_INTEGRITY, API_EXCEPTION_DOESNOTEXIST, API_EXCEPTION_OSERROR, API_EXCEPTION
 from glue.models import Page, Pin, Tag, Serie, Frame
 from glue.forms import AddPageForm, AddPinForm, EditPinForm, UploadPinForm, AddSerieForm, AddFrameForm
 
@@ -63,9 +64,14 @@ def page_by_slug( request, page_slug, page_language ):
 	return Epoxy( request ).single( Page, {'slug':page_slug,'language':page_language} ).json()
 
 
+def access_denied( request ):
+	return Epoxy( request ).throw_error( error="api access requires user authentification", code=API_EXCEPTION).json()
+
 @login_required( login_url=settings.GLUE_ACCESS_DENIED_URL )
 def series( request ):
 	response = Epoxy( request )
+
+	language = get_language()
 
 	if response.method =='POST':
 		form = AddSerieForm( request.REQUEST )
@@ -79,19 +85,22 @@ def series( request ):
 				serie.save()
 				serie.authors.add( request.user )
 
+				if serie.language == language :
+					response.add( 'object', serie.json() )
+
 			except IntegrityError, e:
 				return response.throw_error( error="%s" % e, code=API_EXCEPTION_INTEGRITY).json()
 
-		response.add( 'object', serie, jsonify=True )
+		
 	return response.queryset( Serie.objects.filter( authors=request.user ) ).json()
 
-@login_required
+@login_required( login_url=settings.GLUE_ACCESS_DENIED_URL )
 def serie( request, serie_id ):
 	return Epoxy( request ).single( Serie, {'id':serie_id} ).json()
 
 
 
-@login_required
+@login_required( login_url=settings.GLUE_ACCESS_DENIED_URL )
 def serie_frames( request, serie_id ):
 	response = Epoxy( request )
 
@@ -116,6 +125,8 @@ def serie_frames( request, serie_id ):
 				#	( serie.slug )
 				frame = Frame( pin=Pin.objects.get( language=series[s].language, slug=form.cleaned_data['slug'] ), sort=form.cleaned_data['sort'] )
 				frame.save()
+			except Pin.DoesNotExist, e:
+				return response.throw_error( error="%s" % e, code=API_EXCEPTION_DOESNOTEXIST ).json()
 			except IntegrityError,e:
 				return response.throw_error( error="%s" % e, code=API_EXCEPTION_INTEGRITY).json()
 
@@ -128,7 +139,7 @@ def serie_frames( request, serie_id ):
 	response.add( 'object', serie.json(load_frames=True) )
 	return response.json()
 
-@login_required
+@login_required( login_url=settings.GLUE_ACCESS_DENIED_URL )
 def frames( request, serie_id ):
 	response = Epoxy( request )
 	# add a dictonary of frame : sort
@@ -136,11 +147,11 @@ def frames( request, serie_id ):
 
 
 
-@login_required
+@login_required( login_url=settings.GLUE_ACCESS_DENIED_URL )
 def frame( request, frame_id ):
 	return Epoxy( request ).single( Frame, {'id':frame_id,'serie__authors':request.user } ).json()
 
-@login_required
+@login_required( login_url=settings.GLUE_ACCESS_DENIED_URL )
 def pins( request ):
 	response = Epoxy( request )
 	if response.method =='POST':
@@ -234,7 +245,7 @@ def pins( request ):
 
 	return response.queryset( Pin.objects.filter() ).json()
 
-@login_required
+@login_required( login_url=settings.GLUE_ACCESS_DENIED_URL )
 def pin( request, pin_id ):
 	# @todo: check pin permissions
 	response = Epoxy( request )

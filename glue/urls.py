@@ -30,4 +30,7 @@ urlpatterns = patterns('',
 
 	url(r'^frame/$', 'glue.api.frames', name='glue_api_frames'), # get list of frames per author (useless)
 	url(r'^frame/(?P<frame_id>\d+)/$', 'glue.api.frame', name='glue_api_frame'), # GET: full information 
+
+
+	url(r'^access-denied/', 'glue.api.access_denied', name='glue_api_access_denied'), 
 )

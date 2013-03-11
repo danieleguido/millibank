@@ -224,6 +224,7 @@ class Serie( PageAbstract ):
 			'abstract': self.abstract,
 			'content': self.content,
 			'language': self.language,
+			'date_last_modified': self.date_last_modified.isoformat(),
 			'type': self.type,
 			'frames':[ f.json() for f in self.frames.all() ] if load_frames else None
 		}

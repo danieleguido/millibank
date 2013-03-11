@@ -13,7 +13,7 @@ from django.template import RequestContext
 from django.utils.translation import ugettext as _
 from django.utils.translation import get_language
 
-from glue.forms import LoginForm, AddPinForm, EditPinForm
+from glue.forms import LoginForm, AddPinForm, EditPinForm, AddSerieForm
 from glue.models import Pin, Page, Serie
 
 
@@ -69,6 +69,7 @@ def sc( request, tags=[], d={}, load_walt=True, username=None ):
 	# load edit mode
 	d['login_form'] = LoginForm( auto_id="id_login_%s")
 	d['add_pin_form'] = AddPinForm( auto_id="id_add_pin_%s")
+	d['add_serie_form'] = AddSerieForm( auto_id="id_add_serie_%s")
 
 	return d
 
@@ -116,8 +117,10 @@ def logout_view( request ):
 
 def home( request ):
 	data = sc( request, tags=[ "home" ] )
-	data['series'] = Serie.objects.filter( language=data['language'] ).order_by( '-date_last_modified' )[:3]
+	data['series'] = Serie.objects.filter( language=data['language'] ).order_by( '-date_last_modified','-id' )
 
+	# has last serie
+	
 	return render_to_response(  "walt/index.html", RequestContext(request, data ) )
 
 @login_required

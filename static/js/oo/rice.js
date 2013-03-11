@@ -14,7 +14,9 @@ var oo = oo || {}; oo.rice = {};
 */
 oo.magic = oo.magic || {};
 oo.magic.serie = {}
-oo.magic.serie.add = function(){}
+oo.magic.serie.add = function( result ){
+
+}
 
 /*
 
@@ -23,15 +25,8 @@ oo.magic.serie.add = function(){}
     ===
 
 */
-oo.api.serie = {};
-oo.api.serie.add = function( params ){ oo.log( '[oo.api.serie.add]', params );
-	$.ajax( $.extend( oo.api.settings.post,{ url: oo.urls.serie.add,
-		data: params,
-		success:function(result){ oo.log( "[oo.api.pin.add] result:", result );
-			oo.api.process( result, oo.magic.serie.add, "id_add_serie" );
-		}
-	}));
-};
+
+
 
 /*
 
@@ -53,16 +48,45 @@ oo.rice.add_frame = function( event ){
 
 oo.rice.init = function(){oo.log("[oo.rice.init]");
 	
+	// compile api callers:
+	oo.api.compile( 'serie' );
+
 	// load last serie from cookie
 	oo.rice.serie = new oo.rice.Serie({ autoload:true });
 
 	// start global listeners
 	$(document).on('click','.drag-to-serie', oo.rice.add_frame  );
 
+	// reveal add new serie modal on click
+	$(document).on("click",".add-serie", function(event){ oo.trigger( oo.rice.events.serie.add ) });
+
+	// use serie
+	$(document).on("click",".change-serie", function(event){ oo.trigger( oo.rice.events.serie.change, { id: $(this).attr('data-id')});});
+	
+	// add serie on click
+	$("#add-serie").click( function(){ event.preventDefault();
+		title = $("#id_add_serie_title_en").val();
+
+		oo.api.serie.add({
+			title_en:title,
+			title_fr:title,
+			title_it:title,
+			slug:$("#id_add_serie_slug").val(),
+			type: $("#id_add_serie_type").val()
+		});
+	});
+
 }
 
 oo.rice.events = {
-	    'add_frame':'oo.rice.events.add_frame',
+	serie:{
+		add: 'oo.rice.events.serie.add',
+		change: 'oo.rice.events.serie.change' // load and use a different serie
+	},
+	frame:{
+		add: 'oo.rice.events.frame.add' 
+	},
+	'add_frame':'oo.rice.events.add_frame',
 	 'change':'oo.rice.events.change',
 	  'clean':'oo.rice.events.clean',
 	   'init':'oo.rice.events.init',
@@ -88,7 +112,8 @@ oo.rice.Serie = function( options ){
 		target_selector: '#actual-serie',
 		source_selector: '.draggable',
 		frames:[],
-		slug:'serie-slug'
+		slug:'',
+		language:''
 
 	}, options );
 
@@ -103,25 +128,64 @@ oo.rice.Serie = function( options ){
 		get current hash (md5) git like
 	*/
 	this.get_hash = function(){
-		return md5( JSON.stringify( this.settings ) )
+		return md5( JSON.stringify( serie.settings ) )
 	}
 
+	/*
+		Serie Magic callback.
+	*/
+	this.load = function( result ){
+		$( serie.settings.target_selector ).empty();
+		serie.settings.frames = []
 
-	this.html = function(){
+		oo.log( "[serie:oo.rice.Serie] load", result );
+		$("#timeline-serie .title").text( result.object.title + '(' + result.object.frames.length + ')');
 
+		serie.open();
 	}
 
 
 	this.sync = function(){
-		
+		// save and draw or
+		// draw and save
+		$( serie.settings.target_selector ).empty();
+		for( f in serie.settings.frames ){
+			$( serie.settings.target_selector ).append( this.settings.frames[f].html() );
+		}
+	}
 
+
+	this.open = function(){
+		// has a serie ?
+		
+		$("#timeline-serie").css({bottom:0});
+		
+	}
+
+	this.close = function(){
+		$("#timeline-serie").css({bottom:'-84px'});
+		
+	}
+	/*
+		Empty current timeline, load serie frames on timeline.
+		n.b. trigger a serie.changed.
+	*/
+	this.change = function( event, data ){
+		serie.close();
+		oo.log( "[serie:oo.rice.Serie] change", event, data );
+		serie.settings.slug = data.slug;
+		oo.api.serie.get({ id: data.id }, serie.load );
+	}
+
+	this.add = function( event ){
+		$('#add-serie-modal').reveal(); $("#id_add_serie_title_en").focus();
 	}
 
 	/*
 		@param frames -	
 	*/
 	this.set_frames = function( frames ){
-		oo.log( "[serie] set_frames", this.settings );
+		oo.log( "[serie:oo.rice.Serie] set_frames", this.settings );
 		// compare version. 
 
 		this.settings.frames = []
@@ -132,40 +196,44 @@ oo.rice.Serie = function( options ){
 	}
 
 	this.add_frame = function( event, frame ){
+		
+	
 		// add and send
-		oo.log( "[serie] set_frames", frame );
+		oo.log( "[serie:oo.rice.Serie] add_frame", frame );
 		serie.settings.frames.push( frame );
 		serie.sync();
 	};
 
 	this.init = function(){
-		oo.log( "[serie] init", this.settings );
+		oo.log( "[serie] init", serie.settings );
 
 		// intitialize history
-		this.history = new oo.rice.History()
+		serie.history = new oo.rice.History()
 
 		// initialize sortable
-		$( this.settings.target_selector ).sortable({
+		$( serie.settings.target_selector ).sortable({
 		    revert: true,
 		    update: function(event, ui) {
 		        if ($(ui.item).hasClass('draggable')) {
-		            $(ui.item).css({color:'red'});
+		            
 		        }
 		    }
 		});
 
-		$( this.settings.source_selector ).draggable({
-		    connectToSortable: this.settings.target_selector,
+		$( serie.settings.source_selector ).draggable({
+		    connectToSortable: serie.settings.target_selector,
 		    helper: 'clone',
-		    revert: 'invalid'
+		    revert: 'invalid',
+		    start: serie.open
 		});
 
 		$('ul, li').disableSelection();
 
 
 		// enable listeners
-		oo.on( oo.rice.events.add_frame, this.add_frame );
-
+		oo.on( oo.rice.events.add_frame, serie.add_frame );
+		oo.on( oo.rice.events.serie.change, serie.change );
+		oo.on( oo.rice.events.serie.add, serie.add )
 		
 
 	}
@@ -195,7 +263,7 @@ oo.rice.Frame = function( options ){
 
 	this.html = function(){
 		return $("<li/>",{ 'data-slug': this.settings.slug, 'class':'frame ' + this.settings.mimetype }).text(
-			"#" + this.settings.id
+			"#" + this.settings.slug
 		);
 	}
 };

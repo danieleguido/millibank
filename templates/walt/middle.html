@@ -40,9 +40,15 @@
 
 
 		<!-- ACTLUA SERIE DROP -->
-		<div  style="position:fixed; bottom: 0px; height:30px; width: 100%; background: #2bbfbd; color: white; line-height:30px; padding: 0 20px">
-			<ul id="actual-serie"></ul>
-			drag an element to start a new serie
+		<div id="timeline-serie" class="container_12">
+			<div class="grid_12 floating">
+				<div class="section">
+					{% trans "Serie"%} <span class="title"></span>
+				</div>
+				<ul id="actual-serie">
+					
+				</ul>
+			</div>
 		</div>
 
 		{% ifequal page.slug 'learn' %}
@@ -153,4 +159,29 @@
 		</div>
 		{% endifequal %}
 		
+
+		<!-- create new serie -->
+		<div id="add-serie-modal" class="reveal-modal">
+			<h1>{% trans "give it a title" %}</h1>
+			<p>Each object should have at least a <b>slug</b> and a <b>title</b>.</p>
+			
+			
+			<p>
+				<label for='id_add_serie_title_en' >{% trans "its title" %}</label>
+				<input type='text' class="span6 repeatable" data-target="id_add_serie_slug" id="id_add_serie_title_en" placeholder="title"/>
+			</p>
+			
+			<p>
+				<label for='id_add_serie_slug'>{% trans "slug" %}</label>
+				<input type='text' class="span6" id="id_add_serie_slug" placeholder="slug"/>
+			</p>
+
+			<p>
+				<label for='id_add_serie_type'>{% trans "serie type" %}</label>
+				{{ add_serie_form.type }}
+			</p>
+			<a href="#" id="add-serie">{% trans "add your serie" %}</a>
+			<a class="close-reveal-modal">&#215;</a>
+		</div>
+
 {% endblock %}
