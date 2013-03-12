@@ -12,10 +12,109 @@
     oo.urls.edit_serie = "{% url glue_api_serie 0 %}";
 {% endblock %}
 
+{% block navbar %}
+	<div class="grid_12" >
+				
+		<h2 class="grid_3 alpha">
+				<a href="{% if spiff %}{% url walt_w_spiff spiff %}{% else %}{% url walt_w %}{% endif %}">{% if spiff %} his/her {% endif %} {{ walt.wander.page.title }}
+					( {{ walt.wander.pins.count }} )
+				</a>
+				<div class="description">
+					
+				
+					{{ walt.wander.page.abstract }}
+				</div>
+			</h2>
+		<h2 class="grid_3">
+			<a href="{% if spiff %}{% url walt_a_spiff spiff %}{% else %}{% url walt_a %}{% endif %}">{% if spiff %} his/her {% endif %}  {{ walt.augment.page.title }}
+				( {{ walt.augment.pins.count }} )
+			</a>
+				<div class="description">
+					{{ walt.augment.page.abstract }} 
+				</div>
+		</h2>
+		<h2 class="grid_3" >
+			<a href="{% if spiff %}{% url walt_l_spiff spiff %}{% else %}{% url walt_l %}{% endif %}">{% if spiff %} his/her {% endif %}  {{ walt.learn.page.title }}
+				 ( {{ walt.learn.pins.count }} )
+			</a>
+			<div class="description">
+				{{ walt.learn.page.abstract }}
+			</div>
+		</h2>
+		<h2 class="grid_3 omega">
+			<a href="{% if spiff %}{% url walt_t_spiff spiff %}{% else %}{% url walt_t %}{% endif %}">{% if spiff %} his/her {% endif %}  {{ walt.try.page.title }}
+				( {{ walt.try.pins.count }} )
+			</a>
+			<div class="description">
+				{{ walt.try.page.abstract }}
+			</div>
+		</h2>
+	</div>
+
+	<div class="grid_12 shadow" >
+		<div class="grid_3 alpha">&nbsp;</div>
+		<div class="grid_3">&nbsp;</div>
+		<div class="grid_3">&nbsp;</div>
+		<div class="grid_3 omega">&nbsp;</div>
+	</div>
+{% endblock %}
+
+
+{% block footer %}
+	{% if user.is_authenticated %}
+		<div class="grid_2 alpha">
+			<h2><a href="#" class="add-serie">{% trans "start a new serie" %}</a>
+			</h2>
+		</div>
+			
+		{% if workon_serie %}
+			<div class="grid_10 omega">
+				<!-- last serie aka workon, if any -->
+				<h2>
+				{% for serie in workon_serie %}
+					<a href="{% url walt_serie serie.slug %}">{{ serie.title }}</a> ( {{ serie.type }} )
+				{% endfor %}
+				</h2>
+				
+				<!-- serie authors 
+				<p class="authors">{% trans "created by" %}
+							{% for u in serie.authors.all %}
+								<a href="{% url walt_spiff u.username %}">{{ u.username }}</a>
+								{% if not forloop.last %}, {% endif %}
+
+							{% endfor %}
+				</p>
+				-->
+
+				<div class="timeline">
+					<div class="timeline-inner">
+						<div class="frames" >
+						&rarr;
+							{% for frame in serie.frames.all %}
+								<div class="frame {{ frame.role }}">
+									<!-- div class="counter">{{ forloop.counter }}</div -->
+									<!-- a href="{% url admin:glue_frame_change frame.id %}" class="title" title="{{ frame.pin.title }}"> {{ frame.pin.title|truncatewords:3 }}</a -->
+								</div>
+							{% endfor %}
+					
+						</div>
+					</div>
+				</div>
+			</div>
+		{% endif%}
+
+	{% else %}
+
+	<h2 style="text-align: center"><a href="{% url walt_login %}">&rarr; {% trans "please login to start your serie"%} &larr;</a></h2>
+	{% endif %}
+{% endblock %}
+
+
 
 {% block page %}
-
+	{% comment %}
 	<div class="grid_12">	
+		
 		<h2>{% trans "series" %} ( {{ series.count }} )
 			<div class="description">{% trans "last serie created" %} 
 				{% if user.is_authenticated %}
@@ -53,23 +152,17 @@
 			{% endfor %}
 			
 		</div>
+		
 	</div>
+	
+	{% endcomment %}
 
 
 	<div class="grid_12">	
 		
 		<div class="grid_3 alpha">
 			
-			<h2>
-				<a href="{% if spiff %}{% url walt_w_spiff spiff %}{% else %}{% url walt_w %}{% endif %}">{% if spiff %} his/her {% endif %} {{ walt.wander.page.title }}
-					( {{ walt.wander.pins.count }} )
-				</a>
-				<div class="description">
-					
-				
-					{{ walt.wander.page.abstract }}
-				</div>
-			</h2>
+			
 			
 			<div class="items">
 				{% for pin in walt.wander.pins.all|slice:":10" %}
@@ -115,15 +208,8 @@
 			
 
 		</div>
-		<div class="grid_3 alpha">
-			<h2>
-				<a href="{% if spiff %}{% url walt_a_spiff spiff %}{% else %}{% url walt_a %}{% endif %}">{% if spiff %} his/her {% endif %}  {{ walt.augment.page.title }}
-					( {{ walt.augment.pins.count }} )
-				</a>
-					<div class="description">
-						{{ walt.augment.page.abstract }} 
-					</div>
-			</h2>
+		<div class="grid_3">
+			
 			
 			<div class="items">
 				{% for pin in walt.augment.pins %}
@@ -168,14 +254,7 @@
 
 		</div>
 		<div class="grid_3">
-			<h2>
-				<a href="{% if spiff %}{% url walt_l_spiff spiff %}{% else %}{% url walt_l %}{% endif %}">{% if spiff %} his/her {% endif %}  {{ walt.learn.page.title }}
-					 ( {{ walt.learn.pins.count }} )
-				</a>
-				<div class="description">
-					{{ walt.learn.page.abstract }}
-				</div>
-			</h2>
+			
 			<div class="items">
 				{% for pin in walt.learn.pins.all|slice:":10" %}
 				
@@ -216,14 +295,7 @@
 			</div>
 		</div>
 		<div class="grid_3 omega">
-			<h2>
-				<a href="{% if spiff %}{% url walt_t_spiff spiff %}{% else %}{% url walt_t %}{% endif %}">{% if spiff %} his/her {% endif %}  {{ walt.try.page.title }}
-					( {{ walt.try.pins.count }} )
-				</a>
-				<div class="description">
-					{{ walt.try.page.abstract }}
-				</div>
-			</h2>
+			
 			
 			<div class="items">
 				{% for pin in walt.try.pins.all|slice:":10" %}

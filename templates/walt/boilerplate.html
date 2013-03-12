@@ -68,6 +68,7 @@
         
         <script src="{{ STATIC_URL }}/js/jquery.reveal.js"></script>
         <script src="{{ STATIC_URL }}/js/jquery.toastmessage.js"></script>
+        <script src="{{ STATIC_URL }}/js/jquery.scrolltofixed.js"></script>
 
         <script src="{{ STATIC_URL }}/js/oo.js"></script>
         <script src="{{ STATIC_URL }}/js/oo/glue.js"></script>
@@ -84,9 +85,18 @@
 
           
           $(document).ready( function(){
+              {% block document_ready %}
+              $("#navbar").scrollToFixed();
+              $("footer").scrollToFixed({
+                bottom: 0
+              });
+
               oo.api.init();
               oo.glue.init();
               oo.rice.init();
+
+              
+              {% endblock %}
           });
         </script>
         <!-- Google Analytics: change UA-XXXXX-X to be your site's ID. -->

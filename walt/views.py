@@ -119,6 +119,14 @@ def home( request ):
 	data = sc( request, tags=[ "home" ] )
 	data['series'] = Serie.objects.filter( language=data['language'] ).order_by( '-date_last_modified','-id' )
 
+
+	if request.user.is_authenticated:
+		
+		serie = Serie.objects.filter( language=data['language'], authors=request.user ).order_by( '-date_last_modified','-id' )[:1]
+
+		data['workon_serie'] = serie
+	else:
+		data['workon_serie'] = None
 	# has last serie
 	
 	return render_to_response(  "walt/index.html", RequestContext(request, data ) )

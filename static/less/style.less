@@ -2,8 +2,35 @@
 @import "fonts.less";
 
 @grid-padding: 24px;
-
+@header-height: 96px;
 @red: #cc1600;
+
+
+//
+//    ================
+//    ---- mixins ----
+//    ================
+//
+@spring-width: 24px;
+@spring-height: 24px;
+
+
+.spring-position( @col:0, @row:0, @width:@spring-width,  @height:@spring-height ){
+	background-position: -( @col * @width ) -( @row * @height );
+}
+
+.spring( @col:0, @row:0, @width:1, @height:1, @url:url("../../img/spring.png") ){
+	width: @width * @spring-width;
+	height: @height * @spring-height;
+	background: @url;
+	background-repeat:no-repeat;
+	.spring-position( @col, @row, @width,  @height );
+}
+
+
+
+
+
 
 body{
 	background: white;
@@ -11,12 +38,61 @@ body{
 	.sans-serif(13px);
 	color: #383838;
 }
+
+header{
+	width: 100%;
+	background-color: white;
+	overflow: auto;
+}
+
+#navbar{
+	background-color: white;
+	
+	h2{
+		border-bottom: 0px solid transparent;
+		padding-bottom: @grid-padding / 2;
+	}
+
+	.shadow div{
+		border-top: 1px solid #999;
+		border-bottom: 1px solid #ccc;
+		height:3px;
+		overflow: hidden;
+	}
+}
+
+@footer-background-color: #eee;
+footer{
+	background: @footer-background-color;
+	border-top: 1px solid darken( @footer-background-color, 14%);
+	border-bottom: 1px solid darken( @footer-background-color, 19%);
+}
+
+#footer-inner{
+	background-color: transparent;
+	margin-top: 3px;
+	
+	h2 a{
+		color: crimson;
+	}
+	h3{
+		.serif-slant(17px);
+		color: #000;
+	}
+}
+
+#logos{
+	border-top: 1px solid darken( @footer-background-color, 18%);
+	padding-top: @grid-padding/3;	
+	padding-bottom: @grid-padding/3;	
+}
+
+
+
 h1{
 	.sans-serif(24px);
 }
 h2{
-	border-bottom: 1px solid #ccc;
-	padding-bottom: @grid-padding;
 	.mono-caps(14px);
 	color: #000;
 	.description{
@@ -88,7 +164,22 @@ h2{
 .frames{
 	overflow: auto;
 }
+
 .frame{
+	
+	float:left;
+	.spring( 0, 0, 1, 2, url("../../img/frame_types.png") );
+
+	&:hover{
+		.spring-position(1, 0);
+	}
+}
+
+
+.frame___old{
+	
+
+
 	float:left;
 	height: 50px;
 	

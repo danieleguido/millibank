@@ -3,18 +3,32 @@
 
 
 {% block body %}
-	
-		<div class="container_12" style="margin-bottom:201px">
-			<div class="grid_12">	
-				<h1><a href="{% url walt_home %}">{% block spiffing %}{% endblock %} walt.</a></h1>
+		
+		<header >
+			<div class="container_12">
+				<div class="grid_12">	
+					<h1><a href="{% url walt_home %}">{% block spiffing %}{% endblock %} walt.</a></h1>
 
-				<a href="{% url walt_home %}">flow</a> |
-				{% if user.is_authenticated %}
-					<a href="{% url walt_spiff user.username %}">{% trans "my walt"%} ( {{ user.username }} )</a> | <a href="{% url walt_logout %}">{% trans "logout" %}</a>
-				{% else %}
-					<a href="{% url walt_login %}">{% trans "login" %}</a>
-				{% endif %}
+					<a href="{% url walt_home %}">{% trans "index" %}</a> |
+					<a href="{% url walt_series %}">{% trans "series" %} ({{ series.count }})</a> |
+					{% if user.is_authenticated %}
+						<!-- <a href="{% url walt_spiff user.username %}">{% trans "my walt"%} ( {{ user.username }} )</a> | --> <a href="{% url walt_logout %}">{% trans "logout" %}</a>
+					{% else %}
+						<a href="{% url walt_login %}">{% trans "login" %}</a>
+					{% endif %}
+				</div>
 			</div>
+
+			<div class="container_12" id="navbar">
+				{% block navbar %}
+
+				{% endblock %}
+				
+			</div>
+		</header>
+
+		<div class="container_12" style="margin-bottom:201px">
+			
 			
 			{% if exception %}
 				<div class="grid_12">
@@ -26,20 +40,23 @@
 
 				{% endblock %}
 			{% endif %}
-			{% block footer %}
 			
-			<div class="grid_12">
-				language:{{ language }} {% for language in languages %} {{ language }}{%if not forloop.last %}, {%endif%}{% endfor %}
-				{{ warnings }}
-			</div>
-
-
-			
-			{% endblock %}
 		</div>
 
 
 		<!-- ACTLUA SERIE DROP -->
+		<footer>
+			<div class="container_12">
+				<div id="footer-inner" class="grid_12">
+					{% block footer %}
+					{% endblock %}
+				</div>
+
+				<div id="logos" class="grid_12">
+					sciencespo | current language: {{ language }} ( {% for language in languages %} {{ language }}{%if not forloop.last %}, {%endif%}{% endfor %} )
+				</div>
+			</div>
+			
 		<div id="timeline-serie" class="container_12">
 			<div class="grid_12 floating">
 				<div class="section">
@@ -50,6 +67,7 @@
 				</ul>
 			</div>
 		</div>
+		</footer>
 
 		{% ifequal page.slug 'learn' %}
 		<div id="add-pin-modal" class="reveal-modal">
