@@ -5,6 +5,7 @@
 
 
 {% block urls %}
+	{{ block.super }}
 	oo.urls.get_serie = "{% url glue_api_serie_frames 0 %}";
 	oo.urls.list_serie = "{% url glue_api_series %}";
 	oo.urls.remove_serie = "{% url glue_api_serie 0 %}";
@@ -19,6 +20,7 @@
 				<a href="{% if spiff %}{% url walt_w_spiff spiff %}{% else %}{% url walt_w %}{% endif %}">{% if spiff %} his/her {% endif %} {{ walt.wander.page.title }}
 					( {{ walt.wander.pins.count }} )
 				</a>
+				<a href="#add-walt-w-modal" role="button" class="btn" data-toggle="modal">{% trans "add item" %}</a>
 				<div class="description">
 					
 				

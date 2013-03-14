@@ -202,4 +202,37 @@
 			<a class="close-reveal-modal">&#215;</a>
 		</div>
 
+
+ 
+		<!-- A modal for each walt ! always available -->
+		<div id="add-walt-w-modal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+				<h2>{% trans "add item to wander list" %}</h2>
+			</div>
+			<div class="modal-body">
+				<p>Each object should have at least a <b>slug</b> and a <b>title</b>.</p>
+				
+				<p>
+					<label for='id_add_walt_w_permalink'>{% trans "permalink" %}</label>
+					<input type='text' class="span6" id="id_add_walt_w_permalink" placeholder="http://"/>
+
+				</p>
+				<p>
+					<label for='id_add_walt_w_title_en'>{% trans "its title" %}</label>
+					<input type='text' class="span6" id="id_add_walt_w_title_en" placeholder="title"/>
+				</p>
+				
+				<p>
+					<label for='id_add_walt_w_slug'>{% trans "slug" %}</label>
+					<input type='text' class="span6" id="id_add_walt_w_slug" placeholder="slug"/>
+				</p>
+
+			
+			</div>
+			<div class="modal-footer">
+			<button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
+			<button class="btn btn-primary add-walt-pin" data-page-slug="wander" data-auto-id="id_add_walt_w">Save changes</button>
+			</div>
+		</div>
 {% endblock %}

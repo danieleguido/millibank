@@ -1,4 +1,6 @@
-var oo = oo || {}; oo.vars.pin = oo.vars.pin || {}; oo.glue = {};
+var oo = oo || {}; 
+oo.vars.glue = oo.vars.glue || {}; 
+oo.glue = {};
 
 /*
 
@@ -34,91 +36,24 @@ oo.magic.pin.get = function( result ){
 /*
 
 
-    Pin/Page Ajax API
-    =================
-
-*/
-oo.api.pin = {};
-oo.api.pin.add = function( params ){ oo.log( '[oo.api.pin.add]', params );
-	$.ajax( $.extend( oo.api.settings.post,{
-		url: oo.urls.add_pin,
-		data: params, 
-		success:function(result){
-			oo.log( "[oo.api.pin.add] result:", result );
-			oo.api.process( result, oo.magic.pin.add, "id_add_pin" );
-		}
-	}));
-};
-
-oo.api.pin.get = function( pk, params, callback ){
-	$.ajax( $.extend( oo.api.settings.get,{
-		url: oo.api.urlfactory( oo.urls.get_pin, pk ),
-		data: params, 
-		success:function(result){
-			oo.log( "[oo.api.pin.get] result:", result );
-			oo.api.process( result, typeof callback == "function"? callback: oo.magic.pin.get );
-		}
-	}));
-};
-
-oo.api.pin.edit = function( pk, params, callback ){
-	$.ajax( $.extend( oo.api.settings.post,{
-		url: oo.api.urlfactory( oo.urls.edit_pin, pk ),
-		data: params, 
-		success:function(result){
-			oo.log( "[oo.api.pin.edit] result:", result );
-			oo.api.process( result, typeof callback == "function"? callback: oo.magic.reload,"id_edit_pin" );
-		}
-	}));
-};
-
-oo.api.pin.delete = function( pk, params, callback ){
-	$.ajax( $.extend( oo.api.settings.post,{
-		url: oo.api.urlfactory( oo.urls.edit_pin, pk ),
-		data: $.extend({'method':'DELETE'}, params),
-		success:function(result){
-			oo.log( "[oo.api.pin.delete] deleted : "+ pk);
-			oo.api.process( result, typeof callback == "function"? callback: oo.magic.reload);
-		}
-	}));
-};
-
-oo.api.pin.publish = function( pk, params, callback ){
-	$.ajax( $.extend( oo.api.settings.post,{
-		url: oo.api.urlfactory( oo.urls.publish_pin, pk ),
-		data:  params,
-		success:function(result){
-			//oo.log( "[oo.api.pin.publish] pin #"+ pk+"new status is : "+params.new_status);
-			oo.api.process( result, typeof callback == "function"? callback: oo.magic.reload);
-		}
-	}));
-};
-
-
-oo.api.page = {};
-oo.api.page.add = function( params ){
-	oo.log("[oo.api.page.add]");
-	$.ajax( $.extend( oo.api.settings.post,{
-		url: oo.urls.add_page,
-		data: params, 
-		success:function(result){
-			oo.log( "[oo.api.page.add] result:", result );
-			oo.api.process( result, oo.magic.page.add, "id_add_page" );
-		}
-	}));
-}
-
-/*
-
-
-    Pin/Page Init
-    =============
+    Glue Init
+    =========
 
 	Require wysihtml5 plugin
 
 */
 oo.glue = {};
+oo.glue.resize = function(){
+	var h = $(window).height();
+	$(".modal-body").height( h - 160 );
+}
 oo.glue.init = function(){ oo.log("[oo.glue.init]");
+	
+	// compile pin api
+	oo.api.compile( 'pin' );
+
+	// bib text parser init
+	oo.glue.bibtex.init();
 
 	// input.repeatable: copy $.val() to targeted data-target element
 	$(document).on('keyup', 'input.repeatable', function(event){ var $this = $(this); $( '#' + $this.attr('data-target') ).val( oo.fn.slug( $this.val() ) );});
@@ -126,31 +61,36 @@ oo.glue.init = function(){ oo.log("[oo.glue.init]");
 	// remove invalid elements
 	$(document).click( function(event){ $(".invalid").removeClass('invalid');});
 
+	// modal max height
+	oo.on('resize', oo.glue.resize );
+	oo.glue.resize()
 
-
-
-	$("#add-page").on("click", function(event){ event.preventDefault(); oo.api.page.add({
-		title_en:$("#id_add_page_title_en").val(),
-		title_fr:$("#id_add_page_title_fr").val(),
-		slug:$("#id_add_page_slug").val()
-	});});
-
-	$("#add-pin").on("click", function(event){ event.preventDefault(); 
+	// generic pin adder to walt page, with error control
+	$(".add-walt-pin").on("click", function(event){ event.preventDefault(); 
 		var el = $(this);
-		var permalink = $("#id_add_pin_permalink").val();
-		var page_slug = el.attr("data-page-slug");
-		var pin_slug = el.attr("data-pin-slug");
-		var content = $("#id_add_pin_content").val();
-		var mimetype = $("#id_add_pin_mimetype").val();
+
+		// get django form auto_id
+		var auto_id = el.attr("data-auto-id"); // eg "id_add_walt_w" or "id_add_walt_l"
+
+		oo.log("[oo.glue.init:$('.add-walt-pin'):click] form namespace 'auto_id' : ", auto_id)
+
+		// build stuff
+		var permalink = $("#" + auto_id + "_permalink").val();
+		var page_slug = el.attr("data-page-slug"); // page parent slug. It could be undefined
+		var pin_slug = el.attr("data-pin-slug"); // pin parent slug. It could be undefined.
+
+		var content = $("#" + auto_id + "_content").val();
+		var mimetype = $("#" + auto_id + "_mimetype").val();
 		
 
 		oo.log("[oo.glue.init:click] #add-pin, page-slug:", page_slug, ", parent-pin-slug:", pin_slug );
 
 		var params = {
-			title_en:$("#id_add_pin_title_en").val(),
-			title_fr:$("#id_add_pin_title_en").val(),
-			title_it:$("#id_add_pin_title_en").val(),
-			slug:$("#id_add_pin_slug").val()
+			title_en:$("#" + auto_id + "_title_en").val(),
+			title_fr:$("#" + auto_id + "_title_en").val(),
+			title_it:$("#" + auto_id + "_title_en").val(),
+			slug:$("#" + auto_id + "_slug").val(),
+			auto_id: auto_id
 		}
 
 
@@ -173,84 +113,16 @@ oo.glue.init = function(){ oo.log("[oo.glue.init]");
 		if ( typeof pin_slug != "undefined" && pin_slug.length ){
 			$.extend(params,{parent_pin_slug:pin_slug});
 		}
+
+		// procede to api
 		oo.api.pin.add( params );
 	});
-		
 
-	$("#edit-pin").on("click", function(event){ event.preventDefault(); oo.api.pin.edit( $(this).attr("data-pin-id"),{
-		title:$("#id_edit_pin_title").val(),
-		content:$("#id_edit_pin_content").val(),
-		abstract:$("#id_edit_pin_abstract").val()
-	});});
 
-	$("#id_add_page_title_en").on('keyup', function( event ){ $("#id_add_page_slug").val( oo.fn.slug( $("#id_add_page_title_en").val() ) ) });
-	$("#id_add_pin_title_en").on('keyup', function( event ){ $("#id_add_pin_slug").val( oo.fn.slug( $("#id_add_pin_title_en").val() ) ) });
 
 	
 
 
-
-	// html5 pin editor
-	try{
-		var editor = new wysihtml5.Editor("id_edit_pin_content", { // id of textarea element
-			toolbar:      "wysihtml5-toolbar", // id of toolbar element
-			parserRules:  wysihtml5ParserRules // defined in parser rules set 
-		});
-	} catch(e){
-		oo.log("[oo.glue.init:exception]",e);
-	}
-	
-	// ADD PIN
-	$(document).on("click",".add-pin", function(event){
-		var el = $(this);
-		oo.log("[oo.glue.init:click] .add-pin", el.attr("data-page-slug"),  el.attr('data-parent-pin-slug') );
-		// $('#add-pin-modal').modal('show');
-		$('#add-pin-modal').reveal();
-
-		if( typeof el.attr('data-parent-pin-slug') == "undefined"){
-			$('#parent-pin-slug').empty();
-		} else {
-			$('#parent-pin-slug').html( "&rarr;" + el.attr('data-parent-pin-slug') )
-		}
-
-		if( typeof el.attr('data-page-slug') == "undefined"){
-			$('#parent-page-slug').empty();	// news!
-		} else {
-			$('#parent-page-slug').html( "&rarr;" + el.attr('data-parent-slug') )
-		}
-
-		$('#add-pin').attr("data-parent-pin-slug", el.attr('data-parent-pin-slug') );
-		$('#add-pin').attr("data-page-slug", el.attr('data-page-slug') );
-
-	});
-
-	$(document).on("click",".edit-pin", function(event){ 
-		// load content before all
-		oo.api.pin.get( $(this).attr('data-pin-id'), {}, function(result){
-			// $('#edit-pin-modal').modal('show');
-			$('#id_edit_pin_title').val( result.object.title )
-			$('#id_edit_pin_abstract').val( result.object.abstract )
-			$('#id_edit_pin_content').val( result.object.content )
-			editor.setValue( result.object.content );
-			// $('#edit-pin-modal').result.object.title
-			$('#edit-pin').attr("data-pin-id",result.object.id );
-		});
-		oo.log("eeee");
-	});
-	
-	// Delete PIN
-	$(document).on("click",".delete-pin", function(event){
-		oo.api.pin.delete($(this).attr('data-pin-id'),{});
-	});
-	
-	//Publish PIN
-	$(document).on("click",".publish-pin", function(event){
-		oo.api.pin.publish($(this).attr('data-pin-id'),{'new_status':$(this).attr('new-status')});
-	});
-	
-
-	// bib text
-	oo.glue.bibtex.init();
 };
 
 oo.glue.bibtex = { timer:0 }

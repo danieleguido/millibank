@@ -111,6 +111,8 @@ oo.api.Builder = function( model ){
 	this.methods = [ 'get', 'list', 'add', 'remove', 'edit' ];
 	this.model = model;
 
+
+
 	this.get = function( params, callback ){
 
 		instance.ajax( 'get', 'get', params, oo.api.urlfactory( oo.urls[ 'get_' + instance.model ], params.id ), callback  );
@@ -129,13 +131,18 @@ oo.api.Builder = function( model ){
 	}
 
 	this.ajax = function( http_method, method, params, url, callback ){
-		oo.log( '[oo.api.' + instance.model + '.' + method + '] url :', url );
+		oo.log( '[oo.api.' + instance.model + '.' + method + '] url :', url, ", params :",params );
 		$.ajax( $.extend( oo.api.settings[ http_method ],{
 			url: url,
 			data: params,
 			success:function(result){ oo.log( '[oo.api.' + instance.model + '.' + method + '] result :', result );
-				oo.api.process( result, typeof callback == "undefined" ? oo.magic[ instance.model ][ method ]: callback, "id_" + method + "_" + instance.model );
+				oo.api.process( result, typeof callback == "undefined" ? oo.magic[ instance.model ][ method ]: callback, typeof params.auto_id == "undefined"? "id_" + method + "_" + instance.model: params.auto_id );
 		}}));
+	}
+
+	// check urls availability
+	for( i in instance.methods ){
+		oo.log('[oo.api.Builder:' + instance.model +']', 'urls ', instance.methods[i] + '_' + instance.model, ":", typeof oo.urls[ instance.methods[i] + '_' + instance.model ] != "undefined" )
 	}
 
 }
