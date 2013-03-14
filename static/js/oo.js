@@ -234,6 +234,12 @@ oo.fn.get_cookie = function (e){
 	var t=null;if(document.cookie&&document.cookie!=""){var n=document.cookie.split(";");for(var r=0;r<n.length;r++){var i=jQuery.trim(n[r]);if(i.substring(0,e.length+1)==e+"="){t=decodeURIComponent(i.substring(e.length+1));break}}}return t
 };
 
+oo.fn.wait = function( fn, delay ){
+	var timer = md5( fn.toString() + delay );
+	clearTimeout( oo.vars[  timer ] );
+	oo.vars[  timer ] = setTimeout( fn, delay ); 
+
+}
 
 /*
 
@@ -295,7 +301,8 @@ oo.i18n.dict = {
 
 */
 oo.fn.bibtex = function ( bibtex ){
-	var bibjson = bibtex.replace(/(\w+)\s*=\s*\{+/g,"\"$1\": \"")
+	var bibjson = bibtex.replace(/^\s+|\s+$/g,'')
+		.replace(/(\w+)\s*=\s*\{+/g,"\"$1\": \"")
 		.replace(/\}+(?=\s*[,\}+])/g,"\"")
 		.replace(/@(\w+)\s*\{([^,]*)/,"{\"bibtext_key\":\"$1\",\"$1\": \"$2\"");
 	oo.log( bibjson )

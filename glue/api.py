@@ -1,4 +1,4 @@
-import logging, os, mimetypes
+import logging, os, mimetypes, json
 import datetime as dt
 
 from django.conf import settings
@@ -9,7 +9,7 @@ from django.utils.translation import ugettext as _
 from django.utils.translation import get_language
 from django.template.defaultfilters import slugify
 
-from glue import Epoxy, API_EXCEPTION_FORMERRORS, API_EXCEPTION_INTEGRITY, API_EXCEPTION_DOESNOTEXIST, API_EXCEPTION_OSERROR, API_EXCEPTION
+from glue import Epoxy, API_EXCEPTION_FORMERRORS, API_EXCEPTION_INTEGRITY, API_EXCEPTION_DOESNOTEXIST, API_EXCEPTION_OSERROR, API_EXCEPTION, API_EXCEPTION_VALUE
 from glue.models import Page, Pin, Tag, Serie, Frame
 from glue.forms import AddPageForm, AddPinForm, EditPinForm, UploadPinForm, AddSerieForm, AddFrameForm
 
@@ -98,50 +98,77 @@ def series( request ):
 def serie( request, serie_id ):
 	return Epoxy( request ).single( Serie, {'id':serie_id} ).json()
 
+from django.db import transaction
 
 
 @login_required( login_url=settings.GLUE_ACCESS_DENIED_URL )
+@transaction.commit_manually
 def serie_frames( request, serie_id ):
 	response = Epoxy( request )
 
 	try:
 		serie = Serie.objects.get( id=serie_id )
 
-		# gimme series !
+		# gimme every language series !
 		series = dict([(s.language,s) for s in Serie.objects.filter( slug=serie.slug ) ])
 
 	except Serie.DoesNotExist, e:
+		transaction.rollback()
 		return response.throw_error( error="%s" % e, code=API_EXCEPTION_DOESNOTEXIST ).json()
+	
 
 	if response.method == 'POST':
-		form = AddFrameForm( request.REQUEST )
-		if not form.is_valid():
-			return response.throw_error( error=form.errors, code=API_EXCEPTION_FORMERRORS).json()
 
-		# check exhistence 
-		for s in series:
+		frames = request.REQUEST.get('frames','')
+		try:
+			frames = response.add( 'frames', json.loads(frames ) );
+		except ValueError, e:
+			transaction.rollback() # no json found!
+			return response.throw_error( error="%s" % e, code=API_EXCEPTION_VALUE).json()
 
-			try:
-				#	( serie.slug )
-				frame = Frame( pin=Pin.objects.get( language=series[s].language, slug=form.cleaned_data['slug'] ), sort=form.cleaned_data['sort'] )
+		# matching slug: no other control needed
+		matching_slugs = Pin.objects.filter( slug__in=[f['slug'] for f in frames ], language=settings.LANGUAGES[0][0] ).count()
+		response.add( 'matching slugs',matching_slugs )
+
+		if matching_slugs != len( frames ):
+			transaction.rollback()
+			return response.throw_error( error="some pin does not exist", code=API_EXCEPTION_DOESNOTEXIST ).json()
+			
+
+
+		for language in series:
+			l = language
+			for f in frames:
+				try:
+					frame = Frame.objects.get( serie=series[ language ], pin__slug=f['slug' ], pin__language=language )
+				except Frame.DoesNotExist, e:
+
+					frame = Frame( pin=Pin.objects.get( slug=f[ 'slug' ], language=language ) )
+					frame.save()
+					series[ language ].frames.add( frame )
+				else:
+					transaction.commit()
+
+				frame.sort = f['sort']
 				frame.save()
-			except Pin.DoesNotExist, e:
-				return response.throw_error( error="%s" % e, code=API_EXCEPTION_DOESNOTEXIST ).json()
-			except IntegrityError,e:
-				return response.throw_error( error="%s" % e, code=API_EXCEPTION_INTEGRITY).json()
 
-
-			series[s].frames.add( frame )
-			series[s].save()
-
-		response.add( 'object', frame.json() )
+		transaction.commit()
+		
 	
 	response.add( 'object', serie.json(load_frames=True) )
+	transaction.commit()
 	return response.json()
 
 @login_required( login_url=settings.GLUE_ACCESS_DENIED_URL )
 def frames( request, serie_id ):
 	response = Epoxy( request )
+
+	if response.method == 'POST':
+		# json with sorting mechanism {}
+
+		lista = json.load( request.REQUEST.get('frames') )
+
+		response.add( 'object', lista);
 	# add a dictonary of frame : sort
 	return response.queryset( Frame.objects.filter( serie__authors=request.user ) ).json()
 

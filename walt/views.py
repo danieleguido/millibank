@@ -40,7 +40,7 @@ def sc( request, tags=[], d={}, load_walt=True, username=None ):
 	
 	# startup
 	d['tags'] = tags
-	d['language'] = get_language()
+	d['language'] = 'fr' # get_language()
 	d['languages'] = dict( settings.LANGUAGES )
 	d['warnings'] = {}
 	d['exception'] = False
@@ -133,7 +133,7 @@ def home( request ):
 
 @login_required
 def spiff( request, username ):
-	data = sc( request, tags=[ "home" ], username=username )
+	data = sc( request, tags=([ "my-walt" ] if request.user.username == username else ['their-walt']), username=username )
 
 	
 

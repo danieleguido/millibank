@@ -43,6 +43,12 @@ header{
 	width: 100%;
 	background-color: white;
 	overflow: auto;
+	a{
+		line-height: 20px;
+	}
+	a.active{
+		border-top: 1px solid #08c;
+	}
 }
 
 #navbar{
@@ -50,6 +56,11 @@ header{
 	
 	h2{
 		border-bottom: 0px solid transparent;
+
+		
+		margin-top: 0;
+		padding-top:  @grid-padding / 2;
+		margin-bottom: 0;
 		padding-bottom: @grid-padding / 2;
 	}
 
@@ -98,6 +109,12 @@ h2{
 	.description{
 		.mono(12px, lowercase);
 	}
+}
+
+.items{
+	// height: 200px;
+	// min-height: 200px;
+	// overflow-y:auto;
 }
 
 .item{
@@ -169,9 +186,18 @@ h2{
 	
 	float:left;
 	.spring( 0, 0, 1, 2, url("../../img/frame_types.png") );
-
-	&:hover{
-		.spring-position(1, 0);
+	
+	&.augment{
+		.spring-position(0, 2);
+		&:hover{
+			.spring-position(1, 2);
+		}
+	}
+	
+	&.wander{
+		&:hover{
+			.spring-position(1, 0);
+		}
 	}
 }
 
@@ -264,9 +290,8 @@ input[type="text"]{
 	-moz-border-radius: 0px;
 	border-radius: 0px
 }
-
-input, button, select, textarea {
-	.mono(16px)
+select, button, textarea, input[type="text"], input[type="password"], input[type="datetime"], input[type="datetime-local"], input[type="date"], input[type="month"], input[type="time"], input[type="week"], input[type="number"], input[type="email"], input[type="url"], input[type="search"], input[type="tel"], input[type="color"], .uneditable-input {
+	.mono(13px)
 }
 
 

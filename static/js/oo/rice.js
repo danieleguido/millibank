@@ -178,7 +178,7 @@ oo.rice.Serie = function( options ){
 	}
 
 	this.add = function( event ){
-		$('#add-serie-modal').reveal(); $("#id_add_serie_title_en").focus();
+		$("#id_add_serie_title_en").focus();
 	}
 
 	/*

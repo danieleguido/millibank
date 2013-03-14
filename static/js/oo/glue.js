@@ -45,7 +45,22 @@ oo.magic.pin.get = function( result ){
 oo.glue = {};
 oo.glue.resize = function(){
 	var h = $(window).height();
+
+	if ( h < 600){
+		$("#navbar .description").hide();
+	} else {
+		$("#navbar .description").show();
+	}
+
+	var hh = $("header").height();
+	var fh = $("footer").height();
+
+
 	$(".modal-body").height( h - 160 );
+
+	//$(".items").height(
+	//	h - hh - fh
+	//);
 }
 oo.glue.init = function(){ oo.log("[oo.glue.init]");
 	
@@ -58,11 +73,16 @@ oo.glue.init = function(){ oo.log("[oo.glue.init]");
 	// input.repeatable: copy $.val() to targeted data-target element
 	$(document).on('keyup', 'input.repeatable', function(event){ var $this = $(this); $( '#' + $this.attr('data-target') ).val( oo.fn.slug( $this.val() ) );});
 
+
+	$(document).on('keyup', 'textarea.embeddable', oo.glue.embed.keyup );
+	
+
+
 	// remove invalid elements
 	$(document).click( function(event){ $(".invalid").removeClass('invalid');});
 
 	// modal max height
-	oo.on('resize', oo.glue.resize );
+	oo.on('resize', function(){ oo.fn.wait( oo.glue.resize, 100 );});
 	oo.glue.resize()
 
 	// generic pin adder to walt page, with error control
@@ -125,6 +145,35 @@ oo.glue.init = function(){ oo.log("[oo.glue.init]");
 
 };
 
+oo.glue.embed = {};
+// clean a textarea
+oo.glue.embed.keyup = function( event ){
+	var el = $(this);
+	var content = el.val().replace(/^\s+|\s+$/g,'');
+	var url = "";
+
+
+
+	try{
+		url = content.match(/src=(?!\s)['"]?(.+?)[\s"']/).pop()
+	} catch( e ){
+		el.val( content );
+		oo.toast()
+		return;
+	}
+
+
+	// replave numeric pixel width 100%
+	el.val( content.replace(/width=(?!\s)["']?([\dpx\%]+)[\s'"]/g,'width="100%"') );
+	
+	//
+	$('#' + el.attr('data-target-permalink')).val( url );
+
+
+};
+
+
+
 oo.glue.bibtex = { timer:0 }
 oo.glue.bibtex.wait = function( event ){
 	clearTimeout( oo.glue.bibtex.timer );
@@ -133,9 +182,10 @@ oo.glue.bibtex.wait = function( event ){
 
 oo.glue.bibtex.parse = function(){
 	try{	
-		var bib = oo.fn.bibtex( $("#id_add_pin_content").val() );
-		$("#id_add_pin_title_en").val( bib.title );
-		$("#id_add_pin_slug").val( oo.fn.slug( bib[ bib.bibtext_key ] ) );
+		var bib = oo.fn.bibtex( $("#id_add_walt_l_content").val() );
+		oo.log( bib );
+		$("#id_add_walt_l_title_en").val( bib.title );
+		$("#id_add_walt_l_slug").val( oo.fn.slug( bib[ bib.bibtext_key ] ) );
 	} catch( e ){
 		oo.log( e );
 	}
@@ -143,7 +193,7 @@ oo.glue.bibtex.parse = function(){
 
 oo.glue.bibtex.init = function(){
 	// content as bibtext parser !@!
-	$("#id_add_pin_content").on("keyup", oo.glue.bibtex.wait );
+	$("#id_add_walt_l_content").on("keyup", oo.glue.bibtex.wait );
 
 }
 

@@ -17,28 +17,36 @@
 	<div class="grid_12" >
 				
 		<h2 class="grid_3 alpha">
-				<a href="{% if spiff %}{% url walt_w_spiff spiff %}{% else %}{% url walt_w %}{% endif %}">{% if spiff %} his/her {% endif %} {{ walt.wander.page.title }}
-					( {{ walt.wander.pins.count }} )
-				</a>
-				<a href="#add-walt-w-modal" role="button" class="btn" data-toggle="modal">{% trans "add item" %}</a>
-				<div class="description">
-					
+			<a href="{% if spiff %}{% url walt_w_spiff spiff %}{% else %}{% url walt_w %}{% endif %}">{% if spiff %} his/her {% endif %} {{ walt.wander.page.title }}
+				( {{ walt.wander.pins.count }} )
+			</a>
+			{% if user.is_authenticated %}
+				<a href="#add-walt-w-modal" role="button" data-toggle="modal" style="color: crimson">+ {% trans "add bookmark" %}</a>
+			{% endif %}
+			<div class="description">
 				
-					{{ walt.wander.page.abstract }}
-				</div>
-			</h2>
+			
+				{{ walt.wander.page.abstract }}
+			</div>
+		</h2>
 		<h2 class="grid_3">
 			<a href="{% if spiff %}{% url walt_a_spiff spiff %}{% else %}{% url walt_a %}{% endif %}">{% if spiff %} his/her {% endif %}  {{ walt.augment.page.title }}
 				( {{ walt.augment.pins.count }} )
 			</a>
-				<div class="description">
-					{{ walt.augment.page.abstract }} 
-				</div>
+			{% if user.is_authenticated %}
+				<a href="#add-walt-a-modal" role="button" data-toggle="modal" style="color: crimson">+ {% trans "add object" %}</a>
+			{% endif %}
+			<div class="description">
+				{{ walt.augment.page.abstract }} 
+			</div>
 		</h2>
 		<h2 class="grid_3" >
 			<a href="{% if spiff %}{% url walt_l_spiff spiff %}{% else %}{% url walt_l %}{% endif %}">{% if spiff %} his/her {% endif %}  {{ walt.learn.page.title }}
 				 ( {{ walt.learn.pins.count }} )
 			</a>
+			{% if user.is_authenticated %}
+				<a href="#add-walt-l-modal" role="button" data-toggle="modal" style="color: crimson">+ {% trans "add publication" %}</a>
+			{% endif %}
 			<div class="description">
 				{{ walt.learn.page.abstract }}
 			</div>
@@ -47,6 +55,9 @@
 			<a href="{% if spiff %}{% url walt_t_spiff spiff %}{% else %}{% url walt_t %}{% endif %}">{% if spiff %} his/her {% endif %}  {{ walt.try.page.title }}
 				( {{ walt.try.pins.count }} )
 			</a>
+			{% if user.is_authenticated %}
+				<a href="#add-walt-t-modal" role="button" data-toggle="modal" style="color: crimson">+ {% trans "add tool" %}</a>
+			{% endif %}
 			<div class="description">
 				{{ walt.try.page.abstract }}
 			</div>
@@ -65,17 +76,18 @@
 {% block footer %}
 	{% if user.is_authenticated %}
 		<div class="grid_2 alpha">
-			<h2><a href="#" class="add-serie">{% trans "start a new serie" %}</a>
+			<h2><a href="#add-serie-modal" data-toggle="modal" role="button">{% trans "start a new serie" %}</a>
 			</h2>
 		</div>
 			
 		{% if workon_serie %}
 			<div class="grid_10 omega">
 				<!-- last serie aka workon, if any -->
-				<h2>
 				{% for serie in workon_serie %}
-					<a href="{% url walt_serie serie.slug %}">{{ serie.title }}</a> ( {{ serie.type }} )
-				{% endfor %}
+				<h2>
+				
+					<a href="{% url walt_serie serie.slug %}">{{ serie.title }}</a> ( {{ serie.type }} ) {% trans "frames" %} : {{ serie.frames.count }}
+				
 				</h2>
 				
 				<!-- serie authors 
@@ -91,17 +103,20 @@
 				<div class="timeline">
 					<div class="timeline-inner">
 						<div class="frames" >
-						&rarr;
+					
 							{% for frame in serie.frames.all %}
-								<div class="frame {{ frame.role }}">
+								<div title="{{ frame.pin.title }}" class="frame {% for frame_page in frame.pin.page.all %}{{frame_page.slug}}{%if not forloop.last %}-{%endif%}{% endfor %} {{ frame.role }}">
+
 									<!-- div class="counter">{{ forloop.counter }}</div -->
 									<!-- a href="{% url admin:glue_frame_change frame.id %}" class="title" title="{{ frame.pin.title }}"> {{ frame.pin.title|truncatewords:3 }}</a -->
 								</div>
+								{{ frame.pin.title }}
 							{% endfor %}
 					
 						</div>
 					</div>
 				</div>
+				{% endfor %}
 			</div>
 		{% endif%}
 
@@ -207,7 +222,7 @@
 				{% endfor %}
 
 			</div>
-			
+			&nbsp;
 
 		</div>
 		<div class="grid_3">
@@ -252,7 +267,7 @@
 				{% endfor %}
 
 			</div>
-			
+			&nbsp;
 
 		</div>
 		<div class="grid_3">
@@ -295,6 +310,7 @@
 				{% endfor %}
 				
 			</div>
+			&nbsp;
 		</div>
 		<div class="grid_3 omega">
 			
