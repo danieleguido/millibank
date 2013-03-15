@@ -215,8 +215,9 @@
 						 {{ pin.abstract }}
 
 					</blockquote>
-					
+					{% if pin.permalink %}
 					<a class="external" href="{{ pin.permalink}}">&rarr; {{ pin.permalink}}</a>
+					{% endif %}
 
 					{% for child in pin.children.all|slice:":10" %}
 					<div class="comment">

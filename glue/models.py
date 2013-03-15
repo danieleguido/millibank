@@ -101,7 +101,8 @@ class Pin( models.Model ):
 			'abstract': self.abstract,
 			'content': self.content,
 			'language': self.language,
-			'mimetype': self.mimetype
+			'mimetype': self.mimetype,
+			'permalink': self.permalink
 		}
 
 

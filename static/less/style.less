@@ -120,7 +120,7 @@ h2{
 .item{
 	margin-bottom: @grid-padding;
 
-	padding-bottom: @grid-padding;
+	padding-bottom: @grid-padding / 2;
 	border-bottom: 1px solid #ccc;
 	h3{
 		.serif-slant(17px);
@@ -131,7 +131,7 @@ h2{
 		color: #000;
 	}
 	blockquote{
-		padding: @grid-padding/2 0;
+		padding: @grid-padding/2 0 0 @grid-padding/2;
 		margin:0;
 
 	}
@@ -435,4 +435,9 @@ input.invalid, textarea.invalid{
 }
 .modal-body{
 	max-height: 600px;
+}
+
+blockquote{
+	border-left: 0px solid transparent;
+
 }

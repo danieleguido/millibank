@@ -69,9 +69,10 @@ oo.glue.resize = function(){
 oo.glue.pin.listeners.edit = function( event ){
 	var pin_id = $(this).attr("data-id");
 	oo.log("[oo.glue.pin.listeners.edit] pin id :", pin_id);
-
+	oo.toast( oo.i18n.translate('loading') );
 	// get pin and activate modal
 	oo.api.pin.get({id:pin_id}, function( result ){
+		$().toastmessage("cleanToast");
 		oo.log("[oo.api.pin.get:callback]", result);
 		$("#id_edit_pin_id").val( pin_id );
 		$("#id_edit_pin_title").val( result.object.title );
@@ -88,6 +89,9 @@ oo.glue.pin.listeners.edit = function( event ){
 
 oo.glue.pin.listeners.update = function(event){ event.preventDefault(); 
 	var el = $(this);
+
+
+
 	// get django form auto_id
 	var auto_id = el.attr("data-auto-id");
 	oo.log("[oo.glue.init:$('.update-pin'):click] form namespace 'auto_id' : ", auto_id);
