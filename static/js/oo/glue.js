@@ -43,6 +43,9 @@ oo.magic.pin.get = function( result ){
 
 */
 oo.glue = {};
+oo.glue.pin = {};
+oo.glue.pin.listeners = {};
+
 oo.glue.resize = function(){
 	var h = $(window).height();
 
@@ -62,6 +65,99 @@ oo.glue.resize = function(){
 	//	h - hh - fh
 	//);
 }
+
+oo.glue.pin.listeners.edit = function( event ){
+	var pin_id = $(this).attr("data-id");
+	oo.log("[oo.glue.pin.listeners.edit] pin id :", pin_id);
+
+	// get pin and activate modal
+	oo.api.pin.get({id:pin_id}, function( result ){
+		oo.log("[oo.api.pin.get:callback]", result);
+		$("#id_edit_pin_id").val( pin_id );
+		$("#id_edit_pin_title").val( result.object.title );
+		$("#id_edit_pin_permalink").val( result.object.permalink );
+		$("#id_edit_pin_abstract").val( result.object.abstract );
+		$("#id_edit_pin_content").val( result.object.content );
+		$("#edit-pin-modal").modal({show:true});
+		
+	});
+
+	// load and callback to oo.glue.pin.edit
+};
+
+
+oo.glue.pin.listeners.update = function(event){ event.preventDefault(); 
+	var el = $(this);
+	// get django form auto_id
+	var auto_id = el.attr("data-auto-id");
+	oo.log("[oo.glue.init:$('.update-pin'):click] form namespace 'auto_id' : ", auto_id);
+
+
+	var params = {
+		id:$("#" + auto_id + "_id").val(),
+		title:$("#" + auto_id + "_title").val(),
+		content:$("#" + auto_id + "_content").val(),
+		abstract:$("#" + auto_id + "_abstract").val(),
+		permalink:$("#" + auto_id + "_permalink").val(),
+		auto_id: auto_id
+	}
+
+	oo.log("[oo.glue.init:$('.update-pin'):click] edit pin : ", params.id );
+	oo.api.pin.edit( params );
+}
+
+oo.glue.pin.listeners.add = function(event){ event.preventDefault(); 
+	var el = $(this);
+
+	// get django form auto_id
+	var auto_id = el.attr("data-auto-id"); // eg "id_add_walt_w" or "id_add_walt_l"
+
+	oo.log("[oo.glue.init:$('.add-walt-pin'):click] form namespace 'auto_id' : ", auto_id)
+
+	// build stuff
+	var permalink = $("#" + auto_id + "_permalink").val();
+	var page_slug = el.attr("data-page-slug"); // page parent slug. It could be undefined
+	var pin_slug = el.attr("data-pin-slug"); // pin parent slug. It could be undefined.
+
+	var content = $("#" + auto_id + "_content").val();
+	var mimetype = $("#" + auto_id + "_mimetype").val();
+	
+
+	oo.log("[oo.glue.init:click] #add-pin, page-slug:", page_slug, ", parent-pin-slug:", pin_slug );
+
+	var params = {
+		title_en:$("#" + auto_id + "_title_en").val(),
+		title_fr:$("#" + auto_id + "_title_en").val(),
+		title_it:$("#" + auto_id + "_title_en").val(),
+		slug:$("#" + auto_id + "_slug").val(),
+		auto_id: auto_id
+	}
+
+
+	if ( typeof permalink != "undefined" && permalink.length ){
+		$.extend(params,{permalink:permalink});
+	}
+
+	if ( typeof content != "undefined" && content.length ){
+		$.extend(params,{content:content});
+	}
+
+	if ( typeof mimetype != "undefined" && mimetype.length ){
+		$.extend(params,{mimetype:mimetype});
+	}
+
+	if ( typeof page_slug != "undefined" && page_slug.length ){
+		$.extend(params,{page_slug:page_slug});
+	}
+
+	if ( typeof pin_slug != "undefined" && pin_slug.length ){
+		$.extend(params,{parent_pin_slug:pin_slug});
+	}
+
+	// procede to api
+	oo.api.pin.add( params );
+}
+
 oo.glue.init = function(){ oo.log("[oo.glue.init]");
 	
 	// compile pin api
@@ -76,72 +172,27 @@ oo.glue.init = function(){ oo.log("[oo.glue.init]");
 
 	$(document).on('keyup', 'textarea.embeddable', oo.glue.embed.keyup );
 	
-
-
 	// remove invalid elements
 	$(document).click( function(event){ $(".invalid").removeClass('invalid');});
 
-	// modal max height
-	oo.on('resize', function(){ oo.fn.wait( oo.glue.resize, 100 );});
-	oo.glue.resize()
-
-	// generic pin adder to walt page, with error control
-	$(".add-walt-pin").on("click", function(event){ event.preventDefault(); 
-		var el = $(this);
-
-		// get django form auto_id
-		var auto_id = el.attr("data-auto-id"); // eg "id_add_walt_w" or "id_add_walt_l"
-
-		oo.log("[oo.glue.init:$('.add-walt-pin'):click] form namespace 'auto_id' : ", auto_id)
-
-		// build stuff
-		var permalink = $("#" + auto_id + "_permalink").val();
-		var page_slug = el.attr("data-page-slug"); // page parent slug. It could be undefined
-		var pin_slug = el.attr("data-pin-slug"); // pin parent slug. It could be undefined.
-
-		var content = $("#" + auto_id + "_content").val();
-		var mimetype = $("#" + auto_id + "_mimetype").val();
-		
-
-		oo.log("[oo.glue.init:click] #add-pin, page-slug:", page_slug, ", parent-pin-slug:", pin_slug );
-
-		var params = {
-			title_en:$("#" + auto_id + "_title_en").val(),
-			title_fr:$("#" + auto_id + "_title_en").val(),
-			title_it:$("#" + auto_id + "_title_en").val(),
-			slug:$("#" + auto_id + "_slug").val(),
-			auto_id: auto_id
-		}
-
-
-		if ( typeof permalink != "undefined" && permalink.length ){
-			$.extend(params,{permalink:permalink});
-		}
-
-		if ( typeof content != "undefined" && content.length ){
-			$.extend(params,{content:content});
-		}
-
-		if ( typeof mimetype != "undefined" && mimetype.length ){
-			$.extend(params,{mimetype:mimetype});
-		}
-
-		if ( typeof page_slug != "undefined" && page_slug.length ){
-			$.extend(params,{page_slug:page_slug});
-		}
-
-		if ( typeof pin_slug != "undefined" && pin_slug.length ){
-			$.extend(params,{parent_pin_slug:pin_slug});
-		}
-
-		// procede to api
-		oo.api.pin.add( params );
+	$(document).on('shown', function () {
+		oo.log( "ehi" );
+	  $('input:text:visible:first', this).focus();
 	});
 
+	// modal max height
+	oo.on('resize', function(){ oo.fn.wait( oo.glue.resize, 100 );});
+	oo.glue.resize();
 
 
-	
+	// open generic pin editor (ajax load the pin)
+	$(".edit-pin").on("click", oo.glue.pin.listeners.edit );
 
+	// save edited pin
+	$(".update-pin").on("click", oo.glue.pin.listeners.update );
+
+	// generic pin adder to walt page, with error control
+	$(".add-walt-pin").on("click", oo.glue.pin.listeners.add );
 
 };
 

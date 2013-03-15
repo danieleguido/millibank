@@ -280,10 +280,11 @@ def pin( request, pin_id ):
 		form = EditPinForm( request.REQUEST )
 		if form.is_valid():
 			try:
-				pin = Pin.objects.get( id=pin_id )
+				pin = Pin.objects.get( id=pin_id, authors=request.user )
 				pin.title = form.cleaned_data['title']
 				pin.abstract = form.cleaned_data['abstract']
 				pin.content = form.cleaned_data['content']
+				pin.permalink = form.cleaned_data['permalink']
 				pin.save()
 			except Pin.DoesNotExist, e:
 				return response.throw_error( error="%s" % e, code=API_EXCEPTION_DOESNOTEXIST).json()

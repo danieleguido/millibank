@@ -6,11 +6,19 @@
 
 {% block urls %}
 	{{ block.super }}
+	{% if user.is_authenticated %}
 	oo.urls.get_serie = "{% url glue_api_serie_frames 0 %}";
 	oo.urls.list_serie = "{% url glue_api_series %}";
 	oo.urls.remove_serie = "{% url glue_api_serie 0 %}";
 	oo.urls.add_serie = "{% url glue_api_series %}";
     oo.urls.edit_serie = "{% url glue_api_serie 0 %}";
+
+
+	oo.urls.get_pin = "{% url glue_api_pin 0 %}";
+	oo.urls.list_pin = "{% url glue_api_pins %}";
+	oo.urls.edit_pin = "{% url glue_api_pin 0 %}";
+
+	{% endif %}
 {% endblock %}
 
 {% block navbar %}
@@ -191,19 +199,17 @@
 							<a href="{% url walt_tag tag.type|lower tag.slug %}" class="tag" alt="{{ tag.name }} ( {{ tag.type }} )">{{ tag.name }}</a>
 							{% if not forloop.last %},{%endif %} 
 						{% endfor %}
-						<p class="authors">
-							{%trans "posted by" %}
+						<span class="authors">
+							&middot; {%trans "posted by" %}
 							{% for u in pin.authors.all %}
 								<a href="{% url walt_spiff u.username %}">{{ u.username }}</a>
 								{% if not forloop.last %}, {% endif %}
 							{% endfor %}
-						</p>
-						<p>
-							<a href="{% url admin:glue_pin_change pin.id %}">&rarr; {% trans "edit" %}</a>
-							<ul>
-							<li style="float:left" class="drag-to-serie draggable" data-slug="{{ pin.slug }}" data-mimetype="{{ pin.mimetype }}" data-id="{{ pin.id }}">{% trans "drag" %}</li>
-							</ul>
-						</p>
+						</span>
+						<span>
+							<a href="#{% url admin:glue_pin_change pin.id %}" class="edit-pin" data-id="{{ pin.id }}">&rarr; {% trans "edit" %}</a>
+							
+						</span>
 					</div>
 					<blockquote>
 						 {{ pin.abstract }}
@@ -238,17 +244,16 @@
 							<a href="{% url walt_tag tag.type|lower tag.slug %}" class="tag" alt="{{ tag.name }} ( {{ tag.type }} )">{{ tag.name }}</a>
 							{% if not forloop.last %},{%endif %} 
 						{% endfor %}
-						<p class="authors">
-							{%trans "posted by" %}
+						<span class="authors">
+							&middot; {%trans "posted by" %}
 							{% for u in pin.authors.all %}
 								<a href="{% url walt_spiff u.username %}">{{ u.username }}</a>
 								{% if not forloop.last %}, {% endif %}
 							{% endfor %}
-						</p>
-						<p>
-							<a href="{% url admin:glue_pin_change pin.id %}">&rarr; {% trans "edit" %}</a>,
-							<a href="#" class="drag-to-serie" data-slug="{{ pin.slug }}" data-mimetype="{{ pin.mimetype }}" data-id="{{ pin.id }}">{% trans "add to serie" %}</a>
-						</p>
+						</span>
+						<span>
+							<a href="#{% url admin:glue_pin_change pin.id %}" class="edit-pin" data-id="{{ pin.id }}">&rarr; {% trans "edit" %}</a>
+						</span>
 					</div>
 					<blockquote>
 						 {{ pin.abstract }}
@@ -286,15 +291,17 @@
 									<a href="#" class="tag" alt="{{ tag }}">{{ tag }}</a>
 									{% if not forloop.last %},{%endif %}
 								{% endfor %}
-								<p class="authors">
-									{%trans "posted by" %}
+								<span class="authors">
+									&middot; {%trans "posted by" %}
 									{% for u in pin.authors.all %}
 										<a href="{% url walt_spiff u.username %}">{{ u.username }}</a>
 										{% if not forloop.last %}, {% endif %}
 									{% endfor %}
-								</p>
-								<p><a href="{% url admin:glue_pin_change pin.id %}">&rarr; {% trans "edit" %}</a>,
-							<a href="#" class="drag-to-serie" data-slug="{{ pin.slug }}" data-mimetype="{{ pin.mimetype }}" data-id="{{ pin.id }}">{% trans "add to serie" %}</a></p>
+								</span>
+								<span>
+									<a href="#{% url admin:glue_pin_change pin.id %}" class="edit-pin" data-id="{{ pin.id }}">&rarr; {% trans "edit" %}</a>
+									
+								</span>
 							</div>
 							<blockquote>
 								{% if bibtex.abstract %} {{ bibtex.abstract }} {% endif %}
@@ -325,15 +332,17 @@
 							<a href="{% url walt_tag tag.type|lower tag.slug %}" class="tag" alt="{{ tag.name }} ( {{ tag.type }} )">{{ tag.name }}</a>
 							{% if not forloop.last %},{%endif %} 
 						{% endfor %}
-						<p class="authors">
-							{%trans "posted by" %}
+						<span class="authors">
+							&middot; {%trans "posted by" %}
 							{% for u in pin.authors.all %}
 								<a href="{% url walt_spiff u.username %}">{{ u.username }}</a>
 								{% if not forloop.last %}, {% endif %}
 							{% endfor %}
-						</p>
-						<p><a href="{% url admin:glue_pin_change pin.id %}">&rarr; {% trans "edit" %}</a>,
-							<a href="#" class="drag-to-serie" data-slug="{{ pin.slug }}" data-mimetype="{{ pin.mimetype }}" data-id="{{ pin.id }}">{% trans "add to serie" %}</a></p>
+						</span>
+						<span>
+							<a href="#{% url admin:glue_pin_change pin.id %}" class="edit-pin" data-id="{{ pin.id }}">&rarr; {% trans "edit" %}</a>
+							
+						</span>
 					</div>
 					<blockquote>
 						 {{ pin.abstract }}

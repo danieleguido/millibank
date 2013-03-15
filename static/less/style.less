@@ -369,7 +369,7 @@ p.invalid{
 	.border-radius(2px);
 }
 
-input.invalid{
+input.invalid, textarea.invalid{
 	border: 1px solid #cc1400;
 }
 
@@ -417,8 +417,22 @@ input.invalid{
 .modal{
 	width: 492px;
 	margin-left: -246px;
+	margin-top: 2px;
 	.border-radius(0);
 	&.fade.in {
 		top: 0;
 	}
+
+	&.fade{
+		top: -100%;
+		opacity: 1;
+	}
+}
+.modal-backdrop{
+	&.fade.in{
+		opacity: .12;
+	}
+}
+.modal-body{
+	max-height: 600px;
 }

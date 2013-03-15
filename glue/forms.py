@@ -59,8 +59,9 @@ class AddPinForm(forms.Form):
 
 class EditPinForm(forms.Form):
 	title = forms.CharField( label=_("title"),required=True )
-	abstract = forms.CharField( label=_("abstract"), required=True, widget=forms.Textarea )
-	content = forms.CharField( label=_("content"), required=True, widget=forms.Textarea )
+	abstract = forms.CharField( label=_("abstract"), required=False, widget=forms.Textarea )
+	content = forms.CharField( label=_("content"), required=False, widget=forms.Textarea )
+	permalink = forms.URLField( required=False )
 
 class UploadPinForm(forms.Form): # an upload form without file :D (upload via ajax)
 	page_slug = forms.SlugField( required=False, widget=forms.HiddenInput )
