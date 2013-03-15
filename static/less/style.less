@@ -72,6 +72,11 @@ header{
 	}
 }
 
+a[role="button"]{
+	color: crimson;
+	.mono-caps(14px);
+}
+
 @footer-background-color: #eee;
 footer{
 	background: @footer-background-color;
@@ -83,14 +88,23 @@ footer{
 	background-color: transparent;
 	margin-top: 3px;
 	
-	h2 a{
-		color: crimson;
+	
+	h2 a {
+		.serif-slant(17px);
+	}
+}
+
+.serie{
+		padding-bottom: 10px;
+	h3, h2{
+		display:inline;
+	
 	}
 	h3{
 		.serif-slant(17px);
-		color: #000;
 	}
 }
+
 
 #logos{
 	border-top: 1px solid darken( @footer-background-color, 18%);
@@ -178,18 +192,54 @@ h2{
 	}
 }
 
+#timeline-inner{
+	
+}
+
+
+
+
 .frames{
 	overflow: auto;
+	border-left: 1px solid #999;
+	padding-left:2px;
+	margin-bottom: 10px;
 }
 
 .frame{
-	
+	border: 1px solid #eee;
+	background-color: #eee;
+
 	float:left;
-	.spring( 0, 0, 1, 2, url("../../img/frame_types.png") );
-	
+	.icon{
+		float:left;
+		.spring( 0, 0, 1, 2, url("../../img/frame_types.png") );
+	}
+	&:first-child{
+		border-left: 1px solid #999;
+	}
+	.title{
+		border-bottom: 1px solid #ccc;
+		float: left;
+		height: 24px;
+		.serif-slant(13px);
+		line-height: 24px;
+		padding: 0 16px 0 4px;
+	}
+	&:hover{
+		border-bottom: 1px solid crimson;
+
+		.title{
+			border-bottom: 1px solid #08c;
+
+			color: #08c
+		}
+	}
 	&.augment{
-		.spring-position(0, 2);
-		&:hover{
+		.icon{
+			.spring-position(0, 2);
+		}
+		&:hover .icon{
 			.spring-position(1, 2);
 		}
 	}
@@ -199,6 +249,22 @@ h2{
 			.spring-position(1, 0);
 		}
 	}
+
+	.counter-wrapper{
+		position: absolute;
+		.counter{
+			position: absolute;
+			
+			top: 24px;
+left: 30px;
+			text-align:left;
+			.mono(11px);
+		}
+
+
+	}
+
+	&.ui-sortable-placeholder { border: 1px dashed crimson; visibility: visible !important;  }
 }
 
 

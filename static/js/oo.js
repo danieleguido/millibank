@@ -111,8 +111,6 @@ oo.api.Builder = function( model ){
 	this.methods = [ 'get', 'list', 'add', 'remove', 'edit' ];
 	this.model = model;
 
-
-
 	this.get = function( params, callback ){
 
 		instance.ajax( 'get', 'get', params, oo.api.urlfactory( oo.urls[ 'get_' + instance.model ], params.id ), callback  );

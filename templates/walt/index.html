@@ -12,7 +12,7 @@
 	oo.urls.remove_serie = "{% url glue_api_serie 0 %}";
 	oo.urls.add_serie = "{% url glue_api_series %}";
     oo.urls.edit_serie = "{% url glue_api_serie 0 %}";
-
+    oo.urls.sync_serie = "{% url glue_api_serie_frames 0 %}";
 
 	oo.urls.get_pin = "{% url glue_api_pin 0 %}";
 	oo.urls.list_pin = "{% url glue_api_pins %}";
@@ -83,53 +83,55 @@
 
 {% block footer %}
 	{% if user.is_authenticated %}
-		<div class="grid_2 alpha">
-			<h2><a href="#add-serie-modal" data-toggle="modal" role="button">{% trans "start a new serie" %}</a>
-			</h2>
-		</div>
-			
+
+		<!-- last serie aka workon, if any -->
 		{% if workon_serie %}
-			<div class="grid_10 omega">
-				<!-- last serie aka workon, if any -->
-				{% for serie in workon_serie %}
-				<h2>
-				
-					<a href="{% url walt_serie serie.slug %}">{{ serie.title }}</a> ( {{ serie.type }} ) {% trans "frames" %} : {{ serie.frames.count }}
-				
-				</h2>
-				
-				<!-- serie authors 
-				<p class="authors">{% trans "created by" %}
-							{% for u in serie.authors.all %}
-								<a href="{% url walt_spiff u.username %}">{{ u.username }}</a>
-								{% if not forloop.last %}, {% endif %}
+			{% for serie in workon_serie %}
 
-							{% endfor %}
-				</p>
-				-->
+				<div class="serie">
 
-				<div class="timeline">
+					<h3>
+						<a href="{% url walt_serie serie.slug %}">{{ serie.title }}</a></h3>
+
+					<h2>
+						( {{ serie.frames.count }} {% trans "frames" %}, {% trans "type" %} {{ serie.type }} )</h2>
+
+					&mdash;
+					<a href="#add-serie-modal" data-toggle="modal" role="button"> {% trans "start a new serie" %} </a>
+					&mdash;
+					<a href="#add-serie-modal" data-toggle="modal" role="button"> {% trans "load serie" %} </a>
+					
+				</div>
+
+				<div class="">
 					<div class="timeline-inner">
-						<div class="frames" >
+						<div class="frames" data-serie-id="{{ serie.id }}" >
 					
 							{% for frame in serie.frames.all %}
 								<div title="{{ frame.pin.title }}" class="frame {% for frame_page in frame.pin.page.all %}{{frame_page.slug}}{%if not forloop.last %}-{%endif%}{% endfor %} {{ frame.role }}">
-
-									<!-- div class="counter">{{ forloop.counter }}</div -->
+									<div class="icon"></div>
+									<div class="title">
+										{{ frame.pin.title }}
+									</div>
+									<div class="counter-wrapper"><div class="counter">{{ forloop.counter }}</div></div>
 									<!-- a href="{% url admin:glue_frame_change frame.id %}" class="title" title="{{ frame.pin.title }}"> {{ frame.pin.title|truncatewords:3 }}</a -->
 								</div>
-								{{ frame.pin.title }}
+								
 							{% endfor %}
 					
 						</div>
 					</div>
 				</div>
-				{% endfor %}
+
+			{% endfor %}
+		{% else %}
+			<div class="grid_12">
+				you have no series yet. What are you waiting for ? <h2><a href="#add-serie-modal" data-toggle="modal" role="button">start a new serie now</a></h2>
 			</div>
 		{% endif%}
-
+	
 	{% else %}
-
+	<!-- user is not authenticated -->
 	<h2 style="text-align: center"><a href="{% url walt_login %}">&rarr; {% trans "please login to start your serie"%} &larr;</a></h2>
 	{% endif %}
 {% endblock %}
@@ -137,50 +139,7 @@
 
 
 {% block page %}
-	{% comment %}
-	<div class="grid_12">	
-		
-		<h2>{% trans "series" %} ( {{ series.count }} )
-			<div class="description">{% trans "last serie created" %} 
-				{% if user.is_authenticated %}
-					<a href="#" class="add-serie">{% trans "start a new serie" %}</a>
-				{% else %}
-					{% trans "in order to start a new serie, you need to be logged in" %} (<a href="{% url walt_login %}">{% trans "login" %}</a>)
-				{% endif %}
-			</div>
-		</h2>
 
-		<div class="series" style="border-bottom: 1px solid #ccc">
-			
-			{% for serie in series|slice:"3" %}
-			<div class="serie change-serie" data-id="{{ serie.id }}" data-slug="{{ serie.slug }}" >
-				<div class="title">{{ serie.title }}. <span><a href="{% url walt_serie serie.slug %}">play #{{ serie.id }}</a></span></div>
-
-				<p class="authors">{% trans "created by" %}
-					{% for u in serie.authors.all %}
-						<a href="{% url walt_spiff u.username %}">{{ u.username }}</a>
-						{% if not forloop.last %}, {% endif %}
-
-					{% endfor %}
-				<div class="frames" >
-					&rarr;
-					{% for frame in serie.frames.all %}
-						<div class="frame {{ frame.role }}">
-							<div class="counter">{{ forloop.counter }}</div>
-							<a href="{% url admin:glue_frame_change frame.id %}" class="title" title="{{ frame.pin.title }}"> {{ frame.pin.title|truncatewords:3 }}</a>
-						</div>
-					{% endfor %}
-					
-				</div>
-				
-			</div>
-			{% endfor %}
-			
-		</div>
-		
-	</div>
-	
-	{% endcomment %}
 
 
 	<div class="grid_12">	
@@ -208,7 +167,10 @@
 						</span>
 						<span>
 							<a href="#{% url admin:glue_pin_change pin.id %}" class="edit-pin" data-id="{{ pin.id }}">&rarr; {% trans "edit" %}</a>
-							
+							{% if workon_serie  %}
+							<a href="#{% url admin:glue_pin_change pin.id %}"
+								class="append-frame" data-slug="{{ pin.slug }}" data-title="{{ pin.title }}" data-page-slug="wander" data-id="{{ pin.id }}" >&rarr; {% trans "add to current serie" %}</a>
+							{% endif %}
 						</span>
 					</div>
 					<blockquote>

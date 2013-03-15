@@ -36,15 +36,25 @@ oo.magic.serie.add = function( result ){
 
 */
 oo.rice = oo.rice || {};
+oo.rice.listeners = {};
+
+
+oo.rice.listeners.append_frame = function( event ){
+	var frame = $(this);
+	oo.trigger( oo.rice.events.frame.append, new oo.rice.Frame({
+		id: frame.attr('data-id'),
+		title: frame.attr('data-title'),
+		mimetype: frame.attr('data-mimetype'),
+		page_slug: [ frame.attr('data-page-slug') ],
+		slug: frame.attr('data-slug')
+	}));
+};
 
 oo.rice.dragstart = function( event ){
 	$("#actual-serie").height( 40 );
 }
 
-oo.rice.add_frame = function( event ){
-	var frame = $(this);
-	oo.trigger( oo.rice.events.add_frame, new oo.rice.Frame({ id: frame.attr('data-id'), mimetype: frame.attr('data-mimetype'), slug: frame.attr('data-slug') }) );
-}
+
 
 oo.rice.init = function(){oo.log("[oo.rice.init]");
 	
@@ -52,13 +62,13 @@ oo.rice.init = function(){oo.log("[oo.rice.init]");
 	oo.api.compile( 'serie' );
 
 	// load last serie from cookie
-	oo.rice.serie = new oo.rice.Serie({ autoload:true });
+	oo.rice.serie = new oo.rice.Serie({ 
+		autoload:true,
+		id: $( ".frames" ).attr("data-serie-id")
+	});
 
-	// start global listeners
-	$(document).on('click','.drag-to-serie', oo.rice.add_frame  );
-
-	// reveal add new serie modal on click
-	$(document).on("click",".add-serie", function(event){ oo.trigger( oo.rice.events.serie.add ) });
+	// start global listeners: append frame
+	$(document).on("click",".append-frame", oo.rice.listeners.append_frame );
 
 	// use serie
 	$(document).on("click",".change-serie", function(event){ oo.trigger( oo.rice.events.serie.change, { id: $(this).attr('data-id')});});
@@ -84,16 +94,9 @@ oo.rice.events = {
 		change: 'oo.rice.events.serie.change' // load and use a different serie
 	},
 	frame:{
+		append:'oo.rice.events.frame.append',
 		add: 'oo.rice.events.frame.add' 
-	},
-	'add_frame':'oo.rice.events.add_frame',
-	 'change':'oo.rice.events.change',
-	  'clean':'oo.rice.events.clean',
-	   'init':'oo.rice.events.init',
-	'replace':'oo.rice.events.replace',
-	 'remove':'oo.rice.events.remove',
-	  'reset':'oo.rice.events.reset',
-	  'inscribe':'oo.rice.events.inscribe'
+	}
 };
 
 /*
@@ -109,12 +112,12 @@ oo.rice.Serie = function( options ){
 
 	this.settings = $.extend({
 		autoload: false,
-		target_selector: '#actual-serie',
+		collection: '.frames',
 		source_selector: '.draggable',
 		frames:[],
 		slug:'',
-		language:''
-
+		language:'',
+		id: 0
 	}, options );
 
 	/*
@@ -128,32 +131,68 @@ oo.rice.Serie = function( options ){
 		get current hash (md5) git like
 	*/
 	this.get_hash = function(){
-		return md5( JSON.stringify( serie.settings ) )
-	}
+		return md5( JSON.stringify( serie.settings ) );
+	};
 
 	/*
 		Serie Magic callback.
 	*/
 	this.load = function( result ){
-		$( serie.settings.target_selector ).empty();
-		serie.settings.frames = []
+		serie.settings.frames = [];
 
 		oo.log( "[serie:oo.rice.Serie] load", result );
 		$("#timeline-serie .title").text( result.object.title + '(' + result.object.frames.length + ')');
 
 		serie.open();
-	}
+	};
 
-
-	this.sync = function(){
-		// save and draw or
-		// draw and save
-		$( serie.settings.target_selector ).empty();
-		for( f in serie.settings.frames ){
-			$( serie.settings.target_selector ).append( this.settings.frames[f].html() );
+	/*
+		Listener for oo.rice.events.frame.append event
+		It expects an object of type oo.rice.Frame to be delivered.
+	*/
+	this.append_frame = function( event, frame ){
+		// add and send
+		oo.log( "[serie:oo.rice.Serie] append_frame to ", frame, serie.settings.collection );
+		serie.settings.frames.push( frame );
+		
+		for (i in serie.settings.frames){
+			serie.settings.frames[i].settings.sort = i;
 		}
-	}
 
+		$( serie.settings.collection ).append( frame.html() );
+
+		// draw directly at the very end
+		oo.fn.wait( serie.sync, 1000 );
+
+	};
+
+	/*
+		This function export to the REST api the current set of frames.
+
+	*/
+	this.sync = function(){
+		var url = oo.api.urlfactory( oo.urls.sync_serie, serie.settings.id );
+		oo.log("[serie:oo.rice.Serie] sync: ", url);
+		
+		
+
+		// oo.urloo.urls.sync_serie()
+		$.ajax( $.extend( oo.api.settings.post,{
+			url: url,
+			data:{
+				frames:'[' + oo.rice.serie.settings.frames.join(',') +']'
+			},
+			success:function(result){
+				oo.log( '[serie:oo.rice.Serie]', result );
+				oo.api.process( result, serie.update );
+			}
+		}));
+
+	};
+
+	this.update = function( result ){
+
+	}
 
 	this.open = function(){
 		// has a serie ?
@@ -177,10 +216,7 @@ oo.rice.Serie = function( options ){
 		oo.api.serie.get({ id: data.id }, serie.load );
 	}
 
-	this.add = function( event ){
-		$("#id_add_serie_title_en").focus();
-	}
-
+	
 	/*
 		@param frames -	
 	*/
@@ -195,14 +231,8 @@ oo.rice.Serie = function( options ){
 		}
 	}
 
-	this.add_frame = function( event, frame ){
-		
+
 	
-		// add and send
-		oo.log( "[serie:oo.rice.Serie] add_frame", frame );
-		serie.settings.frames.push( frame );
-		serie.sync();
-	};
 
 	this.init = function(){
 		oo.log( "[serie] init", serie.settings );
@@ -210,31 +240,17 @@ oo.rice.Serie = function( options ){
 		// intitialize history
 		serie.history = new oo.rice.History()
 
-		// initialize sortable
-		$( serie.settings.target_selector ).sortable({
-		    revert: true,
-		    update: function(event, ui) {
-		        if ($(ui.item).hasClass('draggable')) {
-		            
-		        }
-		    }
-		});
-
-		$( serie.settings.source_selector ).draggable({
-		    connectToSortable: serie.settings.target_selector,
-		    helper: 'clone',
-		    revert: 'invalid',
-		    start: serie.open
-		});
-
-		$('ul, li').disableSelection();
+		// 
 
 
-		// enable listeners
-		oo.on( oo.rice.events.add_frame, serie.add_frame );
-		oo.on( oo.rice.events.serie.change, serie.change );
-		oo.on( oo.rice.events.serie.add, serie.add )
-		
+		// start sortable plugin
+		$( serie.settings.collection ).sortable();
+
+
+
+		// start listeners
+		oo.on( oo.rice.events.frame.append, serie.append_frame );
+
 
 	}
 
@@ -251,20 +267,40 @@ oo.rice.Serie = function( options ){
 */
 oo.rice.Frame = function( options ){
 	
+	var frame = this;
+
 	this.settings = $.extend({
 		id:0,
 		mimetype: 'text/plain',
 		slug: '', // frame object as it comes from api/frame
+		page_slug:[],
+		title:'',
+		role:'Te',
+		sort:0
 	}, options );
 
 	this.props = function(){
 		return this.settings
 	}
 
+	
+
 	this.html = function(){
-		return $("<li/>",{ 'data-slug': this.settings.slug, 'class':'frame ' + this.settings.mimetype }).text(
-			"#" + this.settings.slug
-		);
+		if( typeof frame.el == "undefined" ){
+
+		
+
+			frame.el = $("<div/>",{ 'class':'frame ' + frame.settings.role + ' ' + frame.settings.page_slug.join('-') }).append(
+				'<div class="icon"></div>',
+				'<div class="title">' + frame.settings.title +'</div>',
+				'<div class="counter-wrapper"><div class="counter">' + frame.settings.sort + '</div></div>'
+			);
+		};
+		return frame.el;
+	}
+
+	this.toString = function(){
+		return JSON.stringify( frame.settings );
 	}
 };
 
