@@ -293,7 +293,7 @@ def pin( request, pin_id ):
 
 	elif response.method=='DELETE':
 		try:
-			Pin.objects.filter(slug=Pin.objects.get(id=pin_id).slug).delete()
+			Pin.objects.filter(slug=Pin.objects.get(id=pin_id).slug, authors=request.user ).delete()
 		except Pin.DoesNotExist, e:
 			return response.throw_error( error="%s" % e, code=API_EXCEPTION_DOESNOTEXIST).json()
 		return response.json()

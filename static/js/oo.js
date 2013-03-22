@@ -130,6 +130,7 @@ oo.api.Builder = function( model ){
 	}
 
 	this.remove = function( params ){
+		params['method'] = 'DELETE'
 		instance.ajax( 'delete', 'remove', params, oo.api.urlfactory( oo.urls[ 'remove_' + instance.model ], params.id ) );
 	}
 

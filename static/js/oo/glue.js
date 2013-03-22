@@ -30,7 +30,12 @@ oo.magic.pin.get = function( result ){
 	oo.log("[oo.magic.pin.get]", result);
 	// window.location.reload();
 }
+oo.magic.pin.remove = function( result ){
+	oo.log("[oo.magic.pin.remove]", result);
+	window.location.reload();
+	// remove item
 
+}
 
 
 /*
@@ -110,6 +115,16 @@ oo.glue.pin.listeners.update = function(event){ event.preventDefault();
 	oo.api.pin.edit( params );
 }
 
+oo.glue.pin.listeners.remove = function(event){ event.preventDefault(); 
+	var el = $(this);
+
+	
+	var pin_id = el.attr("data-id");
+	oo.log("[oo.glue.init:$('.remove-pin'):click] with id 'pin_id' : ", pin_id);
+
+	oo.api.pin.remove({id:pin_id});
+}
+
 oo.glue.pin.listeners.add = function(event){ event.preventDefault(); 
 	var el = $(this);
 
@@ -124,6 +139,7 @@ oo.glue.pin.listeners.add = function(event){ event.preventDefault();
 	var pin_slug = el.attr("data-pin-slug"); // pin parent slug. It could be undefined.
 
 	var content = $("#" + auto_id + "_content").val();
+	var abstract = $("#" + auto_id + "_abstract").val();
 	var mimetype = $("#" + auto_id + "_mimetype").val();
 	
 
@@ -144,6 +160,10 @@ oo.glue.pin.listeners.add = function(event){ event.preventDefault();
 
 	if ( typeof content != "undefined" && content.length ){
 		$.extend(params,{content:content});
+	}
+
+	if ( typeof abstract != "undefined" && abstract.length ){
+		$.extend(params,{abstract:abstract});
 	}
 
 	if ( typeof mimetype != "undefined" && mimetype.length ){
@@ -194,6 +214,10 @@ oo.glue.init = function(){ oo.log("[oo.glue.init]");
 
 	// save edited pin
 	$(".update-pin").on("click", oo.glue.pin.listeners.update );
+
+	// remove pin with the same slug as pin given (remove from all languages)
+	// user should be the object author, an the object shound.nt be used into frames
+	$(".remove-pin").on("click", oo.glue.pin.listeners.remove );
 
 	// generic pin adder to walt page, with error control
 	$(".add-walt-pin").on("click", oo.glue.pin.listeners.add );

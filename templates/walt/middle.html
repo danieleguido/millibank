@@ -261,17 +261,27 @@
 		
 
 		<!-- TRY -->
+		{% if user.is_staff %}
 		<div id="add-walt-t-modal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
 			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
 				<h2>{% trans "add a tool" %}</h2>
 			</div>
 			<div class="modal-body">
-				<p>A short description of your tool
-				Each object should have at least a <b>slug</b> and a <b>title</b>.</p>
+				<p>Please provide a short description of your tool, its <b>title</b> and its <b>slug</b>(the url representation of the title).
+				
+				</p>
 			
 				<p>
-					<label for='id_add_pin_content'>{% trans "description" %}</label>
+					<label for='id_add_walt_t_abstract'>{% trans "short description" %}</label>
+					<textarea class="span6" id="id_add_walt_t_abstract">
+
+
+					</textarea>
+					<input type='hidden' id="id_add_walt_t_mimetype" value="text/html"/>
+				</p>
+				<p>
+					<label for='id_add_walt_t_content'>{% trans "long description" %}</label>
 					<textarea class="span6" id="id_add_walt_t_content">
 
 
@@ -287,12 +297,18 @@
 					<label for='id_add_walt_t_slug'>{% trans "slug" %}</label>
 					<input type='text' class="span6" id="id_add_walt_t_slug" placeholder="slug"/>
 				</p>
+
+				<p>
+					<label for='id_add_walt_t_permalink'>{% trans "code source location (e.g github url)" %}</label>
+					<input type='text' class="span6" id="id_add_walt_t_permalink" placeholder="http://"/>
+				</p>
 			
 			</div>
 			<div class="modal-footer">
 				<button class="btn" data-dismiss="modal" aria-hidden="true">{% trans "close" %}</button>
-				<button class="btn btn-primary add-walt-pin" data-page-slug="learn" data-auto-id="id_add_walt_t">{% trans "add publication" %}</button>
+				<button class="btn btn-primary add-walt-pin" data-page-slug="try" data-auto-id="id_add_walt_t">{% trans "add tool" %}</button>
 			</div>
 		</div>
+		{% endif %}
 	{% endif %}
 {% endblock %}
