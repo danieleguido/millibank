@@ -11,7 +11,7 @@ from django.template.defaultfilters import slugify
 
 from glue import Epoxy, API_EXCEPTION_FORMERRORS, API_EXCEPTION_INTEGRITY, API_EXCEPTION_DOESNOTEXIST, API_EXCEPTION_OSERROR, API_EXCEPTION, API_EXCEPTION_VALUE
 from glue.models import Page, Pin, Tag, Serie, Frame
-from glue.forms import AddPageForm, AddPinForm, EditPinForm, UploadPinForm, AddSerieForm, AddFrameForm
+from glue.forms import AddPageForm, AddPinForm, EditPinForm, UploadPinForm, AddSerieForm, AddFrameForm, AddTagForm
 
 
 logger = logging.getLogger(__name__)
@@ -177,6 +177,67 @@ def frames( request, serie_id ):
 @login_required( login_url=settings.GLUE_ACCESS_DENIED_URL )
 def frame( request, frame_id ):
 	return Epoxy( request ).single( Frame, {'id':frame_id,'serie__authors':request.user } ).json()
+
+#
+#
+#	TAGs
+#
+#
+@login_required( login_url=settings.GLUE_ACCESS_DENIED_URL )
+def tags( request ):
+	response =  Epoxy( request )
+
+	if response.method == 'POST':
+		response.meta('types', Tag.TYPE_CHOICES )
+		form = AddTagForm( request.REQUEST )
+		if not form.is_valid():
+			return response.throw_error(error=form.errors, code=API_EXCEPTION_FORMERRORS ).json()
+		try:
+			tag = Tag(
+				name = form.cleaned_data['name'], 
+				slug = form.cleaned_data['slug'],
+				type = form.cleaned_data['type']
+			)
+			tag.save()
+		except IntegrityError, e:
+
+			tag = Tag.objects.get(
+				type = form.cleaned_data['type'],
+				slug = form.cleaned_data['slug']
+			)
+
+		response.add( 'object', tag, jsonify=True )
+		
+		if len(form.cleaned_data['pin_slug']) > 0:
+			# attacch tag to a selected pin
+			for p in Pin.objects.filter( slug=form.cleaned_data['pin_slug']  ):
+				p.tags.add( tag )
+				p.save()
+			
+			response.add('pin_slug',form.cleaned_data['pin_slug'])
+
+		return response.json()
+
+
+	return response.queryset( Tag.objects.filter() ).json()
+
+@login_required( login_url=settings.GLUE_ACCESS_DENIED_URL )
+def tag( request, tag_id ):
+	response =  Epoxy( request )
+
+
+
+	return response.single( Frame, {'id':tag_id } ).json()
+
+
+
+
+
+#	
+#
+#	PINs
+#
+#
 
 @login_required( login_url=settings.GLUE_ACCESS_DENIED_URL )
 def pins( request ):

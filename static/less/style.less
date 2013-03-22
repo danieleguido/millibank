@@ -105,11 +105,16 @@ a[role="button"]{
 @footer-background-color: #eee;
 footer{
 	background: @footer-background-color;
-	border-top: 1px solid darken( @footer-background-color, 14%);
+	// border-top: 1px solid darken( @footer-background-color, 14%);
 	border-bottom: 1px solid darken( @footer-background-color, 19%);
+
+	#logos{
+		//color: white;
+	}
 }
 
 #footer-inner{
+display:none;
 	background-color: transparent;
 	margin-top: 3px;
 	
@@ -188,6 +193,7 @@ h2{
 	.metadata{
 		margin-bottom: @grid-padding/2;
 	}
+
 	.actions{
 		border-top: 1px solid #e1e1e1;
 		margin: @grid-padding/2 0;
@@ -204,6 +210,11 @@ h2{
 
 			}
 		}
+	}
+	border: 1px solid white;
+	&:hover{
+		// .box-shadow( 0 0px 2px @blue );
+		border: 1px solid @blue;
 	}
 }	
 

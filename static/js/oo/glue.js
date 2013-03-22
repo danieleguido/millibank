@@ -37,6 +37,11 @@ oo.magic.pin.remove = function( result ){
 
 }
 
+oo.magic.tag = oo.magic.tag || {};
+oo.magic.tag.add = function( result ){
+	oo.log("[oo.magic.pin.add]", result);
+	window.location.reload();
+}
 
 /*
 
@@ -91,6 +96,22 @@ oo.glue.pin.listeners.edit = function( event ){
 	// load and callback to oo.glue.pin.edit
 };
 
+oo.glue.pin.listeners.open_attach_tag = function( event ){
+	var el = $(this);
+	var pin_slug = el.attr( "data-pin-slug" );
+	var auto_id = el.attr( "data-auto-id" );
+	$("#id_attach_tag_pin_slug").val( pin_slug );
+	$( "#attach-tag-modal" ).modal({ show:true });
+}
+
+oo.glue.pin.listeners.attach_tag = function( event ){
+	oo.api.tag.add({
+		name:$("#id_attach_tag_name").val(),
+		type:$("#id_attach_tag_type").val(),
+		slug:$("#id_attach_tag_slug").val(),
+		pin_slug:$("#id_attach_tag_pin_slug").val()
+	});
+}
 
 oo.glue.pin.listeners.update = function(event){ event.preventDefault(); 
 	var el = $(this);
@@ -187,6 +208,9 @@ oo.glue.init = function(){ oo.log("[oo.glue.init]");
 	// compile pin api
 	oo.api.compile( 'pin' );
 
+	// compile tag api
+	oo.api.compile( 'tag' );
+
 	// bib text parser init
 	oo.glue.bibtex.init();
 
@@ -215,6 +239,9 @@ oo.glue.init = function(){ oo.log("[oo.glue.init]");
 	// save edited pin
 	$(".update-pin").on("click", oo.glue.pin.listeners.update );
 
+	// attach tag to a pin
+	$(".open-attach-tag").on("click", oo.glue.pin.listeners.open_attach_tag );
+	$(".attach-tag").on("click", oo.glue.pin.listeners.attach_tag );
 	// remove pin with the same slug as pin given (remove from all languages)
 	// user should be the object author, an the object shound.nt be used into frames
 	$(".remove-pin").on("click", oo.glue.pin.listeners.remove );

@@ -18,6 +18,8 @@
 	oo.urls.list_pin = "{% url glue_api_pins %}";
 	oo.urls.edit_pin = "{% url glue_api_pin 0 %}";
 	oo.urls.remove_pin = "{% url glue_api_pin 0 %}";
+
+	oo.urls.add_tag = "{% url glue_api_tags %}";
 	{% endif %}
 {% endblock %}
 
@@ -29,7 +31,7 @@
 				( {{ walt.wander.pins.count }} )
 			</a>
 			{% if user.is_authenticated %}
-				<a href="#add-walt-w-modal" role="button" data-toggle="modal" style="color: crimson">+ {% trans "add bookmark" %}</a>
+				| <a href="#add-walt-w-modal" role="button" data-toggle="modal">+ {% trans "add bookmark" %}</a>
 			{% endif %}
 			{% comment %}<div class="description">
 				
@@ -43,7 +45,7 @@
 				( {{ walt.augment.pins.count }} )
 			</a>
 			{% if user.is_authenticated %}
-				<a href="#add-walt-a-modal" role="button" data-toggle="modal" style="color: crimson">+ {% trans "add object" %}</a>
+				| <a href="#add-walt-a-modal" role="button" data-toggle="modal">+ {% trans "add object" %}</a>
 			{% endif %}
 			{% comment %}<div class="description">
 				{{ walt.augment.page.abstract }} 
@@ -54,7 +56,7 @@
 				 ( {{ walt.learn.pins.count }} )
 			</a>
 			{% if user.is_authenticated %}
-				<a href="#add-walt-l-modal" role="button" data-toggle="modal" style="color: crimson">+ {% trans "add publication" %}</a>
+				| <a href="#add-walt-l-modal" role="button" data-toggle="modal">+ {% trans "add publication" %}</a>
 			{% endif %}
 			{% comment %}<div class="description">
 				{{ walt.learn.page.abstract }}
@@ -65,7 +67,7 @@
 				( {{ walt.try.pins.count }} )
 			</a>
 			{% if user.is_authenticated %}
-				<a href="#add-walt-t-modal" role="button" data-toggle="modal" style="color: crimson">+ {% trans "add tool" %}</a>
+				| <a href="#add-walt-t-modal" role="button" data-toggle="modal">+ {% trans "add tool" %}</a>
 			{% endif %}
 			{% comment %}<div class="description">
 				{{ walt.try.page.abstract }}
@@ -185,7 +187,7 @@
 					</span>
 
 					<div class="actions">
-						<a href="#{% url admin:glue_pin_change pin.id %}" class="edit-pin action" data-id="{{ pin.id }}" title="{% trans "edit" %}">{% trans "modify" %}</a>
+						<a href="#{% url admin:glue_pin_change pin.id %}" class="edit-pin action" data-id="{{ pin.id }}" title="{% trans "edit" %}">{% trans "edit" %}</a>
 						
 						{% if pin.permalink %}
 						<a class="external action" href="{{ pin.permalink}}">{% trans "link" %}</a>
@@ -235,7 +237,7 @@
 							<a href="{% url walt_tag tag.type|lower tag.slug %}" class="tag" alt="{{ tag.name }} ( {{ tag.type }} )">{{ tag.name }}</a>
 							{% if not forloop.last %},{%endif %} 
 						{% endfor %}
-						
+							<a href="#" class="open-attach-tag" data-pin-slug="{{ pin.slug }}" alt="attach tag">+</a>
 					</div>
 					<div>
 						{{ pin.content|safe }}
@@ -254,7 +256,7 @@
 						</span>
 
 					<div class="actions">
-						<a href="#{% url admin:glue_pin_change pin.id %}" class="edit-pin action" data-id="{{ pin.id }}" title="{% trans "edit" %}">{% trans "modify" %}</a>
+						<a href="#{% url admin:glue_pin_change pin.id %}" class="edit-pin action" data-id="{{ pin.id }}" title="{% trans "edit" %}">{% trans "edit" %}</a>
 						
 						<a class="external action" href="{{ pin.permalink}}">{% trans "link" %}</a>
 						{% if user in authors %}
@@ -316,7 +318,7 @@
 							</span>
 
 							<div class="actions">
-								<a href="#{% url admin:glue_pin_change pin.id %}" class="edit-pin action" data-id="{{ pin.id }}" title="{% trans "edit" %}">{% trans "modify" %}</a>
+								<a href="#{% url admin:glue_pin_change pin.id %}" class="edit-pin action" data-id="{{ pin.id }}" title="{% trans "edit" %}">{% trans "edit" %}</a>
 								
 								{% if pin.permalink %}
 								<a class="external action" href="{{ pin.permalink}}">{% trans "link" %}</a>
@@ -374,7 +376,7 @@
 					</span>
 
 					<div class="actions">
-						<a href="#{% url admin:glue_pin_change pin.id %}" class="edit-pin action" data-id="{{ pin.id }}" title="{% trans "edit" %}">{% trans "modify" %}</a>
+						<a href="#{% url admin:glue_pin_change pin.id %}" class="edit-pin action" data-id="{{ pin.id }}" title="{% trans "edit" %}">{% trans "edit" %}</a>
 						
 						{% if pin.permalink %}
 						<a class="external action" href="{{ pin.permalink}}">{% trans "link" %}</a>

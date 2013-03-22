@@ -28,6 +28,9 @@ urlpatterns = patterns('',
 	url(r'^serie/(?P<serie_id>\d+)/$', 'glue.api.serie', name='glue_api_serie'), # get a signle serie WITHOUT its frame collection. POST to edit serie Data
 	url(r'^serie/(?P<serie_id>\d+)/frames/$', 'glue.api.serie_frames', name='glue_api_serie_frames'), # get a signle serie along wiht its frame collection. POST to add frame...
 
+	url(r'^tag/$', 'glue.api.tags', name='glue_api_tags'), # get list, post single page
+	url(r'^tag/(?P<tag_id>\d+)/$', 'glue.api.tag', name='glue_api_tag'),
+
 	url(r'^frame/$', 'glue.api.frames', name='glue_api_frames'), # get list of frames per author (useless)
 	url(r'^frame/(?P<frame_id>\d+)/$', 'glue.api.frame', name='glue_api_frame'), # GET: full information 
 

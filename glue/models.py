@@ -45,6 +45,13 @@ class Tag(models.Model):
 		ordering = ["type", "slug" ]
 		unique_together = ("type", "slug")
 
+	def json( self ):
+		return{
+			'id': self.id,
+			'slug':self.slug,
+			'name':self.name,
+			'type':self.get_type_display()
+		}
 class Pin( models.Model ):
 	PUBLISHED='P'
 	DRAFT = 'D'

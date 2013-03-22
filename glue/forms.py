@@ -70,4 +70,5 @@ class UploadPinForm(forms.Form): # an upload form without file :D (upload via aj
 class AddTagForm(forms.Form):
 	name = forms.CharField( label=_("tag name"),required=True )
 	slug = forms.SlugField( required=True )
-	type = forms.CharField( label=_("type"), required=True, widget = forms.ChoiceField( widget=forms.Select, choices=Tag.TYPE_CHOICES ) )
+	type = forms.ChoiceField(  required=True, widget=forms.Select(attrs={'class':'span6'}), choices=Tag.TYPE_CHOICES )
+	pin_slug = forms.SlugField( required=False, widget=forms.HiddenInput )

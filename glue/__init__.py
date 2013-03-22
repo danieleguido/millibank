@@ -202,6 +202,10 @@ class Epoxy:
 		self.response[ key ] = value.json() if jsonify else value
 		return value
 
+	def meta( self, key, value ):
+		self.response['meta'][ key ] = value
+		return value
+
 	def throw_error( self, error="", code=API_EXCEPTION ):
 		self.response[ 'status' ] = 'error'
 		self.response[ 'error' ] = error

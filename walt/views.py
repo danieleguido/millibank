@@ -13,7 +13,7 @@ from django.template import RequestContext
 from django.utils.translation import ugettext as _
 from django.utils.translation import get_language
 
-from glue.forms import LoginForm, AddPinForm, EditPinForm, AddSerieForm
+from glue.forms import LoginForm, AddPinForm, EditPinForm, AddSerieForm, AddTagForm
 from glue.models import Pin, Page, Serie
 
 
@@ -70,6 +70,7 @@ def sc( request, tags=[], d={}, load_walt=True, username=None ):
 	d['login_form'] = LoginForm( auto_id="id_login_%s")
 	d['add_pin_form'] = AddPinForm( auto_id="id_add_pin_%s")
 	d['add_serie_form'] = AddSerieForm( auto_id="id_add_serie_%s")
+	d['attach_tag_form'] = AddTagForm( auto_id="id_attach_tag_%s")
 
 	return d
 
