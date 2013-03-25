@@ -121,8 +121,8 @@ oo.api.Builder = function( model ){
 		instance.ajax( 'post', 'edit', params, oo.api.urlfactory( oo.urls[ 'edit_' + instance.model ], params.id ), callback  );
 	}
 
-	this.list = function( params ){
-		instance.ajax( 'get', 'list', params, oo.urls[ 'list_' + instance.model ] );
+	this.list = function( params, callback ){
+		instance.ajax( 'get', 'list', params, oo.urls[ 'list_' + instance.model ], callback );
 	}
 
 	this.add = function( params ){
