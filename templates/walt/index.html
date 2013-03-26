@@ -14,6 +14,9 @@
     oo.urls.edit_serie = "{% url glue_api_serie 0 %}";
     oo.urls.sync_serie = "{% url glue_api_serie_frames 0 %}";
 
+    oo.urls.serie_stack = "{% url walt_serie_stack 0 %}";
+
+
 	oo.urls.get_pin = "{% url glue_api_pin 0 %}";
 	oo.urls.list_pin = "{% url glue_api_pins %}";
 	oo.urls.edit_pin = "{% url glue_api_pin 0 %}";
@@ -75,12 +78,12 @@
 		</h2>
 	</div>
 
-	<!-- div class="grid_12 shadow" >
+	<div class="grid_12 shadow" >
 		<div class="grid_3 alpha">&nbsp;</div>
 		<div class="grid_3">&nbsp;</div>
 		<div class="grid_3">&nbsp;</div>
 		<div class="grid_3 omega">&nbsp;</div>
-	</div -->
+	</div>
 {% endblock %}
 
 
@@ -166,7 +169,7 @@
 							<a href="{% url walt_tag tag.type|lower tag.slug %}" class="tag" alt="{{ tag.name }} ( {{ tag.type }} )">{{ tag.name }}</a>
 							{% if not forloop.last %},{%endif %} 
 						{% endfor %}
-						
+						<a href="#" class="open-attach-tag" data-pin-slug="{{ pin.slug }}" alt="attach tag"><div class="icon"></div></a>
 						
 					</div>
 					<blockquote>
@@ -237,7 +240,7 @@
 							<a href="{% url walt_tag tag.type|lower tag.slug %}" class="tag" alt="{{ tag.name }} ( {{ tag.type }} )">{{ tag.name }}</a>
 							{% if not forloop.last %},{%endif %} 
 						{% endfor %}
-							<a href="#" class="open-attach-tag" data-pin-slug="{{ pin.slug }}" alt="attach tag">+</a>
+							<a href="#" class="open-attach-tag" data-pin-slug="{{ pin.slug }}" alt="attach tag"></a>
 					</div>
 					<div>
 						{{ pin.content|safe }}
@@ -256,11 +259,11 @@
 						</span>
 
 					<div class="actions">
-						<a href="#{% url admin:glue_pin_change pin.id %}" class="edit-pin action" data-id="{{ pin.id }}" title="{% trans "edit" %}">{% trans "edit" %}</a>
+						<a href="#{% url admin:glue_pin_change pin.id %}" class="edit-pin action" data-id="{{ pin.id }}" title="{% trans "edit" %}"><div class="icon edit"></div></a>
 						
-						<a class="external action" href="{{ pin.permalink}}">{% trans "link" %}</a>
+						<a class="external action" href="{{ pin.permalink}}" title="{% trans "link" %}"><div class="icon link"></div></a>
 						{% if user in authors %}
-							<a class="remove-pin action warning" data-id="{{ pin.id }}">{% trans "delete" %}</a>
+							<a class="remove-pin action warning" data-id="{{ pin.id }}" title="{% trans "delete" %}"><div class="icon remove"></div></a>
 						{% endif %}
 					</div>
 					{% endwith %}

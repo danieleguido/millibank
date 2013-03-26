@@ -1,45 +1,34 @@
 {% extends "walt/middle.html" %}
 {% load i18n %}
 {% load extras %}
+
+
+{% block navbar %}
+	<div class="grid_12" >
+				
+		<h2 class="grid_6 alpha">
+			<a href="#">{{ page.title }} ( {{ pins.count }} )</a>
+			{% if user.is_authenticated %}
+				| <a href="#add-walt-{{ page.slug|slice:":1" }}-modal" role="button" data-toggle="modal">+ {% trans "add bookmark" %}</a>
+			{% endif %}
+
+		</h2>
+
+		<h2 class="grid_6 omega crimson">
+			{% trans "series using" %} {{ page.title }} ( {{ series.count }} )
+		</h2>
+	</div>
+	<div class="grid_12 shadow" >
+		<div class="grid_6 alpha">&nbsp;</div>
+		<div class="grid_6 omega crimson">&nbsp;</div>
+	</div>
+{% endblock %}
+
 {% block page %}
-
-	<!-- div class="grid_12">	
-		<h2 style="border-width:0px">Protocols</h2>
-
-		<div class="stories">
-			<div class="story">
-				<div class="title">Grimm fairy tale analysis. <span><a href="#">play</a></span></div>
-				<div class="timeline">
-					<div class="inner">
-						<div class="start">1867 &rarr;</div>
-
-						<div class="end">2013</div>
-					
-					</div>
-				</div>
-			</div>
-
-			<div class="story">
-				<div class="title">Learn how to get more value out of metadata easily <span><a href="#">play</a></span></div>
-				<div class="timeline">
-					<div class="inner">
-						<div class="start">2005 &rarr;</div>
-
-						<div class="end">2013</div>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div -->
-
 
 	<div class="grid_12">
 		<div class="grid_6 alpha">
-			<h2>{{ page.title }}
-				<div class="description">
-				{{ page.abstract }} ( {{ pins.count }} ) <a href="#" class="add-pin">add</a>
-				</div>
-			</h2>
+			
 
 			<div class="items">
 				{% for pin in page.pins.all|slice:":10" %}
@@ -66,59 +55,81 @@
 						</div>
 						{% endwith %}
 					{% else %}
-
 						<div class="item">
-							
-							<h3><a href="{% url walt_pin pin.slug%}"><!-- #{{ pin.id }} --> {{ pin.title }} </a></h3>
-							<div class="metadata"><span class="date">{% if pin.date %}{{ pin.date }}{% else %}{{ pin.date_last_modified }}{% endif %}</span>
-								{% for tag in pin.tags.all %}
-									<a href="{% url walt_tag tag.type|lower tag.slug %}" class="tag" alt="{{ tag.name }} ( {{ tag.type }} )">{{ tag.name }}</a>
-									{% if not forloop.last %},{%endif %} 
-								{% endfor %}
+					
+					<h3><a href="{% url walt_pin pin.slug %}"><!-- #{{ pin.id }} --> {{ pin.title }} </a></h3>
+					<div class="metadata"><span class="date">{% if pin.date %}{{ pin.date }}{% else %}{{ pin.date_last_modified }}{% endif %}</span>
+						{% for tag in pin.tags.all %}
+							<a href="{% url walt_tag tag.type|lower tag.slug %}" class="tag" alt="{{ tag.name }} ( {{ tag.type }} )">{{ tag.name }}</a>
+							{% if not forloop.last %},{%endif %} 
+						{% endfor %}
+						
+						
+					</div>
+					<blockquote>
+						 {{ pin.abstract }}
+					</blockquote>
+					<div class="content">
+						 {{ pin.content|safe }}
+					</div>
 
-								{% for u in pin.authors.all %}
-	
-									<a href="{% url walt_spiff u.username %}">{{ u.username }}</a>
-								{% endfor %}
-								<p><a href="{% url admin:glue_pin_change pin.id %}">&rarr; {% trans "edit" %}</a></p>
-							</div>
-							<blockquote>
-								 {{ pin.abstract }}
+					{% with authors=pin.authors.all %}
 
-							</blockquote>
-							 {{ pin.content|safe }}
-							 {% if pin.permalink %}
-							<a class="external" href="{{ pin.permalink}}">&rarr; {{ pin.permalink}}</a>
-							{% endif %}
+					<span class="authors">
+						{%trans "posted by" %}
+						{% for u in authors %}
+							<a href="{% url walt_spiff u.username %}">{{ u.username }}</a>
+							{% if not forloop.last %}, {% endif %}
+						{% endfor %}
+					</span>
 
-							{% for child in pin.children.all|slice:":10" %}
-							<div class="comment">
-								<a href="#" class="author"> </a> {{ child.abstract }}
-							</div>
-							{% endfor %}
-							
-						</div>
+					<div class="actions">
+						<a href="#{% url admin:glue_pin_change pin.id %}" class="edit-pin action" data-id="{{ pin.id }}" title="{% trans "edit" %}">{% trans "edit" %}</a>
+						
+						{% if pin.permalink %}
+						<a class="external action" href="{{ pin.permalink}}">{% trans "link" %}</a>
+						{% endif %}
+
+						{% if workon_serie  %}
+						<a href="#{% url admin:glue_pin_change pin.id %}"
+							class="append-frame action" data-slug="{{ pin.slug }}" data-title="{{ pin.title }}" data-page-slug="wander" data-id="{{ pin.id }}" >{% trans "use in serie" %}</a>
+						{% endif %}
+
+						{% if user in authors %}
+							<a class="remove-pin action warning" data-id="{{ pin.id }}">{% trans "delete" %}</a>
+						{% endif %}
+					</div>
+
+					{% endwith %}
+
+					
+
+					{% for child in pin.children.all|slice:":10" %}
+					<div class="comment">
+						<a href="#" class="author"> </a> {{ child.abstract }}
+					</div>
+					{% endfor %}
+					
+				</div>
+
 					{% endifequal %}
 				{% endfor %}
 
 			</div>
 		</div>
 		<div class="grid_6 omega">
-			<h2>{% trans "series" %}( {{ series.count }} )
-				<div class="description">
-					series or protocols using 'wander' items
-				</div>
-
-
-			</h2>
-
 			<div class="items">
 				{% for serie in series %}
-					<div class="item">
-						<h3>{{ serie.title }}</h3>
+					<div class="item serie">
+						<h3><a href="{% url walt_serie serie.slug %}">{{ serie.title }}</a></h3>
 						<div class="abstract">
 							{{ serie.abstract }}
 						</div>
+						<a href="{% url walt_serie_stack serie.slug %}">{% trans "view as stack" %}</a>
+
+						{% for frame in serie.frames.all %}
+						<div>{{frame.pin.id}}</div>
+						{% endfor %}
 					</div>
 				{% endfor %}
 			</div>

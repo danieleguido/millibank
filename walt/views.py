@@ -157,6 +157,13 @@ def pin( request, pin_slug ):
 	return render_to_response(  "walt/pin.html", RequestContext(request, data ) )
 
 @login_required
+def series( request ):
+	data = sc( request, tags=[ "serie" ] )
+	data['series'] = Serie.objects.filter( language=data['language'] )
+	
+	return render_to_response(  "walt/series.html", RequestContext(request, data ) )
+
+@login_required
 def serie( request, serie_slug ):
 	data = sc( request, tags=[ "serie" ] )
 	data['serie'] = get_object_or_404( Serie, slug=serie_slug, language=data['language'] )
@@ -164,14 +171,29 @@ def serie( request, serie_slug ):
 	return render_to_response(  "walt/serie.html", RequestContext(request, data ) )
 
 
+@login_required
+def serie_stack( request, serie_slug ):
+	data = sc( request, tags=[ "serie" ] )
+	data['serie'] = get_object_or_404( Serie, slug=serie_slug, language=data['language'] )
+	
+	return render_to_response(  "walt/stack.html", RequestContext(request, data ) )
+
+
+
+
 def _walt( data, slug, username ):
+	"""
+	This loader is a common walt-page loader; it should be used as view helper
+	and not as standalone view.
+	(n.b. function name starts with an underscore )
+	"""
 	data['page'] = get_object_or_404( Page, language=data['language'], slug=slug )
 	
 	data['pins'] = Pin.objects.filter(  language=data['language'], page__slug=slug ).filter( **data['filters'] )
 
 	# top series (series using )
 
-	data['series'] = Serie.objects.filter( frames__pin__page__slug=slug ).distinct()
+	data['series'] = Serie.objects.filter( frames__pin__page__slug=slug, language=data['language'] ).distinct()
 	
 	return data
 

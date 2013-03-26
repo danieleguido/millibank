@@ -64,7 +64,7 @@ oo.rice.init = function(){oo.log("[oo.rice.init]");
 	// load last serie from cookie
 	oo.rice.serie = new oo.rice.Serie({ 
 		autoload:true,
-		id: $( ".frames" ).attr("data-serie-id")
+		id: 0
 	});
 
 	// start global listeners: append frame
@@ -73,6 +73,9 @@ oo.rice.init = function(){oo.log("[oo.rice.init]");
 	// use serie
 	$(document).on("click",".change-serie", function(event){ oo.trigger( oo.rice.events.serie.change, { id: $(this).attr('data-id')});});
 	
+
+	$("*[data-make-small=parent]").click( function(){ $(this).parent().css("left","-40%"); });
+
 	// add serie on click
 	$("#add-serie").click( function(){ event.preventDefault();
 		title = $("#id_add_serie_title_en").val();
@@ -113,12 +116,14 @@ oo.rice.Serie = function( options ){
 	this.settings = $.extend({
 		autoload: false,
 		collection: '.frames',
-		source_selector: '.draggable',
+		modal: '#serie-viewer',
 		frames:[],
 		slug:'',
 		language:'',
 		id: 0
 	}, options );
+
+	this.quasi_frames = [];
 
 	/*
 		Expose publicly serie frames
@@ -139,10 +144,14 @@ oo.rice.Serie = function( options ){
 	*/
 	this.load = function( result ){
 		serie.settings.frames = [];
+		// when here, result.status = "ok"
+		
 
-		oo.log( "[serie:oo.rice.Serie] load", result );
-		$("#timeline-serie .title").text( result.object.title + '(' + result.object.frames.length + ')');
 
+		oo.grain.transform( $(serie.settings.modal), result['objects'][0] )
+
+
+		
 		serie.open();
 	};
 
@@ -151,6 +160,17 @@ oo.rice.Serie = function( options ){
 		It expects an object of type oo.rice.Frame to be delivered.
 	*/
 	this.append_frame = function( event, frame ){
+
+		oo.log( serie.settings.id);
+		if (serie.settings.id == 0){
+			// load last saved serie
+			oo.api.serie.list({limit:1, order_by:'["-date_last_modified"]'}, serie.load );
+			serie.quasi_frames.push( frame );
+			return
+		}
+
+		$(serie.settings.modal).show();
+
 		// add and send
 		oo.log( "[serie:oo.rice.Serie] append_frame to ", frame, serie.settings.collection );
 		serie.settings.frames.push( frame );
@@ -195,9 +215,8 @@ oo.rice.Serie = function( options ){
 	}
 
 	this.open = function(){
-		// has a serie ?
-		
-		$("#timeline-serie").css({bottom:0});
+		$(serie.settings.modal).show().draggable();
+		$(serie.settings.modal + " .frames").sortable();
 		
 	}
 
@@ -240,12 +259,14 @@ oo.rice.Serie = function( options ){
 		// intitialize history
 		serie.history = new oo.rice.History()
 
-		// 
-
+		
 
 		// start sortable plugin
 		$( serie.settings.collection ).sortable();
 
+
+		// autoload!
+		// http://127.0.0.1:8000/api/serie/?limit=1&order_by=[%22-date_last_modified%22]
 
 
 		// start listeners

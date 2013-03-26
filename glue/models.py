@@ -99,6 +99,18 @@ class Pin( models.Model ):
 	def bib( self ):
 		return bibtex( self.content )
 		
+	def plaintext( self ):
+		return """
+			|
+
+			%s
+			===
+
+				#%s %s
+				language: %s
+				mimetype: %s
+
+			___""" %( self.title, self.id, self.slug, self.language, self.mimetype )
 
 	def json( self ):
 		return{
@@ -186,8 +198,10 @@ class Frame( models.Model ):
 			'duration': self.duration,
 			'sort': self.sort,
 			'abstract': self.abstract,
-			'pin': self.pin.json(),
+			'title': self.pin.title,
 			'role': self.role,
+
+			'mimetype': self.pin.mimetype,
 			'type': self.type
 		}
 
@@ -223,7 +237,7 @@ class Serie( PageAbstract ):
 	
 	tags = models.ManyToManyField( Tag, blank=True, null=True ) # add tags !
 
-	def json( self, load_frames=False ):
+	def json( self, load_frames=True ):
 		# when load frames is True return the list. otherwise null
 		return{
 			'id': self.id,

@@ -1,11 +1,17 @@
 {% extends "walt/middle.html" %}
 {% load i18n %}
 {% load extras %}
+{% block navbar %}
+	
+	
+	<div class="grid_6 push_3 shadow" >
+		<div class="grid_6 alpha omega">&nbsp;</div>
+	</div>
+
+{% endblock %}
 {% block page %}
 	<div class="grid_12">
-		<div class="grid_3 alpha">
-			<h2>{% trans "previous in serie" %}</h2>
-		</div>
+		<div class="grid_3 alpha">&nbsp;</div>
 		<div class="grid_6">
 			{% ifequal pin.mimetype "text/x-bibtex" %}
 				{% with bibtex=pin.bib %}
@@ -42,7 +48,7 @@
 						<p><a href="{% url admin:glue_pin_change pin.id %}">&rarr; {% trans "edit" %}</a></p>
 					</div>
 					<blockquote>
-						 {{ pin.abstract }}
+						{{ pin.abstract }}
 
 					</blockquote>
 					 {{ pin.content|safe }}
@@ -58,7 +64,7 @@
 			{% endifequal %}
 		</div>
 		<div class="grid_3 omega">
-			<h2>{% trans "next in serie" %}</h2>
+			
 		</div>
 	</div>
 {% endblock %}

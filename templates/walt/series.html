@@ -1,0 +1,57 @@
+{% extends "walt/middle.html" %}
+{% load i18n %}
+{% load extras %}
+
+{% block navbar %}
+	<h2 class="grid_6 push_3 crimson">
+				
+		
+			<a href="{% if spiff %}{% url walt_w_spiff spiff %}{% else %}{% url walt_w %}{% endif %}">{% if spiff %} his/her {% endif %} {% trans "series" %}
+				( {{ series.count }} )
+			</a>
+			{% if user.is_authenticated %}
+				| <a href="#add-serie-modal" role="button" data-toggle="modal">+ {% trans "add serie" %}</a>
+			{% endif %}
+			
+
+	</h2>
+
+	<div class="grid_12 shadow" >
+		<div class="grid_6 push_3 crimson alpha">&nbsp;</div>
+	</div>
+{% endblock %}
+
+
+{% block page %}
+	<div class="grid_12">
+		<div class="grid_3 alpha">
+			&nbsp;
+			
+		</div>
+		<div class="grid_6">
+			<div class="items">
+			{% for serie in series %}
+			<div class="item serie">
+				<h2>{{ serie.title }}
+						
+				</h2>
+				<blockquote class="abstract">{{ serie.abstract }}</blockquote>
+				
+				<a href="{% url walt_serie_stack serie.slug %}">{% trans "view as stack" %}</a>
+
+				{% for frame in serie.frames.all %}
+				<div>{{frame.pin.id}}</div>
+				{% endfor %}
+				
+				<div class="actions">
+				</div>
+				
+			</div>
+			{% endfor %}
+		</div>
+
+		<div class="grid_3 omega">
+			
+		</div>
+	</div>
+{% endblock %}

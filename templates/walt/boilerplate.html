@@ -56,10 +56,10 @@
         <![endif]-->
 
         <!-- Add your site or application content here -->
-        {% block body %}
+        {% block body %}{% endblock %}
 
-        {% endblock %}
-
+        <!-- all ajax magic templates -->
+        {% block grain %}{% endblock %}
 
         <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
         <script>window.jQuery || document.write('<script src="{{ STATIC_URL }}/js/vendor/jquery-1.9.0.min.js"><\/script>')</script>
@@ -76,7 +76,8 @@
         <script src="{{ STATIC_URL }}/js/oo.js"></script>
         <script src="{{ STATIC_URL }}/js/oo/glue.js"></script>
         <script src="{{ STATIC_URL }}/js/oo/rice.js"></script>
-        <script src="{{ STATIC_URL }}/js/walt.js"></script>
+        <script src="{{ STATIC_URL }}/js/oo/grain.js"></script>
+        
 
         <script>
           {% block urls %}
@@ -97,7 +98,7 @@
               oo.api.init();
               oo.glue.init();
               oo.rice.init();
-
+              oo.grain.init();
               
               {% endblock %}
           });
