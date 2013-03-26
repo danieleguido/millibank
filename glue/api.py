@@ -5,6 +5,7 @@ from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.db.models.loading import get_model
 from django.db import IntegrityError
+from django.http import HttpResponse
 from django.utils.translation import ugettext as _
 from django.utils.translation import get_language
 from django.template.defaultfilters import slugify
@@ -361,6 +362,13 @@ def pin( request, pin_id ):
 	
 	return response.single( Pin, {'id':pin_id} ).json()
 
+
+def pins_plaintext( request ):
+	response = Epoxy(request)
+	return HttpResponse( "".join( [p.plaintext() for p in Pin.objects.filter( **response.filters )]) , content_type="text/plain")
+
+def pin_plaintext( request, pin_id ):
+	return HttpResponse( Pin.objects.get( id=pin_id ).plaintext(), content_type="text/plain")
 
 
 def pin_by_slug( request, pin_slug, pin_language ):

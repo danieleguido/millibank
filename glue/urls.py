@@ -15,13 +15,15 @@ urlpatterns = patterns('',
 	url(r'^page/(?P<page_slug>[a-zA-Z\d\-]+)/(?P<page_language>[a-zA-Z]{2})/$', 'glue.api.page_by_slug', name='glue_api_page_by_slug'),
 
 	url(r'^pin/$', 'glue.api.pins', name='glue_api_pins'), # get list, post single page
+	url(r'^pin/plaintext/$', 'glue.api.pins_plaintext', name='glue_api_pins_plaintext'), # get list, post single page
 	url(r'^pin/(?P<pin_id>\d+)/$', 'glue.api.pin', name='glue_api_pin'),
+	url(r'^pin/(?P<pin_id>\d+)/plaintext/$', 'glue.api.pin_plaintext', name='glue_api_pin_plaintext'),
 	url(r'^pin/(?P<pin_id>\d+)/tag/$', 'glue.api.pin_tags', name='glue_api_pin_tags'), 
 	url(r'^pin/(?P<pin_id>\d+)/alchemy/$', 'glue.api.pin_alchemy', name='glue_api_pin_alchemy'), 
 	url(r'^pin/(?P<pin_slug>[a-zA-Z\d\-]+)/(?P<pin_language>[a-zA-Z]{2})/$', 'glue.api.pin_by_slug', name='glue_api_pin_by_slug'), 
 	url(r'^pin/(?P<pin_id>\d+)/publish/$', 'glue.api.publish_pin', name='glue_api_publish_pin'), 
 	url(r'^pin/(?P<pin_id>\d+)/clean/$', 'glue.api.pin_clean', name='glue_api_pin_clean'), 
-	url(r'^pin/upload/$', 'glue.api.pin_upload', name='glue_api_pin_upload'), 
+	url(r'^pin/upload/$', 'glue.api.pin_upload', name='glue_api_pin_upload'),
 
 
 	url(r'^serie/$', 'glue.api.series', name='glue_api_series'), # get list, post single serie
