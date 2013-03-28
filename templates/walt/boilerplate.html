@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+{% load verbatim %}<!DOCTYPE html>
 <!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
 <!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
 <!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
@@ -47,6 +47,25 @@
         <script src="{{ STATIC_URL }}/js/vendor/md5.min.js"></script>
         <script src="{{ STATIC_URL }}/js/vendor/modernizr-2.6.2.min.js"></script>
 
+        <!--
+            ember.js templates.
+            cfr. http://emberjs.com/
+        -->
+        {% verbatim %}
+        <script type="text/x-handlebars" data-template-name="index">
+          <h2>Welcome to Ember.js</h2>
+          <ul>
+          {{#each item in content}}
+              <li>{{item}}</li>
+          {{/each}}
+           </ul>
+        </script>
+        {% endverbatim %}
+
+        <script src="{{ STATIC_URL }}/js/vendor/handlebars-1.0.0-rc.3.js"></script>
+        <script src="{{ STATIC_URL }}/js/vendor/ember-1.0.0-rc.1.min.js"></script>
+
+
 
 
     </head>
@@ -86,8 +105,25 @@
             }
           
           {% endblock %}
-
           
+          $(document).on('mouseenter','[data-rel=tooltip]', function(){
+              $(this).tooltip('show');
+          });
+
+          $(document).on('mouseleave click','[data-rel=tooltip]', function(){
+              $(this).tooltip('hide');
+          });
+
+          $(document).on('mouseenter','[data-toggle=tooltip]', function(){
+              $(this).tooltip('show');
+          });
+
+          $(document).on('mouseleave click','[data-toggle=tooltip]', function(){
+              $(this).tooltip('hide');
+          });
+          
+          
+
           $(document).ready( function(){
               {% block document_ready %}
               $("#navbar").scrollToFixed();
@@ -97,8 +133,11 @@
 
               oo.api.init();
               oo.glue.init();
+              oo.glue.tag.init();
               oo.rice.init();
               oo.grain.init();
+
+
               
               {% endblock %}
           });

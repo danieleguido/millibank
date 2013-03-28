@@ -6,10 +6,15 @@
 @red: #cc1600;
 
 
-@grigio-0: lighten(#3E454C, 60%);
-@grigio-1: lighten(@grigio-0, 2%);
-@grigio-2: darken(#FFF6E5, 10%);
-@grigio-3: #FFF6E5;
+@grigio-0: desaturate( #EDEDE1, 1%);
+
+@bianco-0: lighten(@grigio-0, 20%);
+@bianco-1: lighten(@grigio-0, 6%);
+@bianco-2: lighten(@grigio-0, 1%);
+
+@grigio-1: darken(@grigio-0, 2%);
+@grigio-2: darken(@grigio-0, 8%);
+@grigio-3: darken(@grigio-0, 12%);
 
 @blue: #2185C5;
 @crimson: #cc1600;
@@ -40,19 +45,12 @@ a.crimson{
 	color: crimson;
 }
 
-a.open-attach-tag{
-	height:16px;
-	width: 16px;
-	background: url( ../img/tag.png);
-	
-
-}
-
 
 
 body{
 	background: @grigio-0;
-	
+
+
 	height: 100%;
 	.sans-serif(13px);
 	color: #383838;
@@ -65,7 +63,7 @@ p{
 
 header{
 	width: 100%;
-	background-color: @grigio-0;
+	background-color: @bianco-1;
 	overflow: auto;
 	a{
 		line-height: 20px;
@@ -80,16 +78,21 @@ header{
 	text-align: center
 }
 #navbar{
-	background-color: @grigio-0;
-	
-	h2{
-		border-bottom: 0px solid transparent;
+	background-color: @grigio-1;
+	border-top: 1px solid fade(#292929, 15%);
+	border-bottom: 1px solid @grigio-2;
 
-		background:@grigio-0;
+	h2{
+		
+
+		
+		border-bottom: 1px solid @blue;
+
 		
 		margin-top: 0;
 		padding-top:  @grid-padding / 2;
-		margin-bottom: 0;
+		margin-bottom: 0px;
+		margin-bottom: -1px;
 		padding-bottom: @grid-padding / 1.5;
 
 
@@ -111,9 +114,10 @@ header{
 	}
 
 	.shadow div{
-		border-top: 2px solid @blue;
-		border-bottom: 1px solid @blue;
-		height:3px;
+	display:none;
+		border-top: 1px solid @blue;
+		// border-bottom: 1px solid @grigio-3;
+		height:1px;
 		overflow: hidden;
 
 		&.crimson{
@@ -129,13 +133,14 @@ a[role="button"]{
 	.mono-caps(14px);
 }
 
-@footer-background-color: #eee;
+@footer-background-color: @grigio-1;
 footer{
 	background: @footer-background-color;
-	// border-top: 1px solid darken( @footer-background-color, 14%);
-	border-bottom: 1px solid darken( @footer-background-color, 19%);
+	border-top: 1px solid darken( @footer-background-color, 14%);
+	border-bottom: 2px solid @red;
 
 	#logos{
+	display: none;
 		//color: white;
 	}
 }
@@ -164,7 +169,6 @@ display:none;
 
 
 #logos{
-	border-top: 1px solid darken( @footer-background-color, 18%);
 	padding-top: @grid-padding/3;	
 	padding-bottom: @grid-padding/3;	
 }
@@ -196,9 +200,16 @@ h2{
 	padding: @grid-padding/4 @grid-padding/2;
 	padding: 0;
 
-	// .border-distribute( #ababab );
+	
 	background-color: #fff;
-	// .box-shadow( 0 1px 3px fade(#999, 65%) );
+	
+	border: 1px solid @grigio-0;
+	.border-distribute( #bbb );
+	.box-shadow( 0 1px 3px rgba(27,28,29, .2) );
+	
+	
+	
+
 	h3{
 		.serif-slant(16px);
 		margin: @grid-padding/4 @grid-padding/2;
@@ -222,8 +233,15 @@ h2{
 	>.content{
 		margin: @grid-padding/4 @grid-padding/2;
 	}
+	>.iframe{
+		p{
+			margin: @grid-padding/4 @grid-padding/2;
+		}
+	}
 	>.authors{
-		margin: @grid-padding/4 @grid-padding/2;
+		padding: 5px 10px 9px 10px;
+		background:  @bianco-1;
+		border-top: 1px solid @bianco-2;
 	}
 	>.metadata{
 		margin: @grid-padding/4 @grid-padding/2;
@@ -231,9 +249,9 @@ h2{
 
 	.actions{
 		background: @grigio-1;
-		border: 1px solid darken( @grigio-1, 5% );
+		border-top: 1px solid darken( @grigio-1, 5% );
 
-		margin: @grid-padding/2;
+		margin: 0;
 		padding: 0;
 		overflow:auto;
 		a.action{
@@ -265,6 +283,9 @@ h2{
 				&.tag{
 					background: url( ../img/tag.png);
 				}
+				&.commit{
+					background: url( ../img/commit.png);
+				}
 			}
 
 			&:hover{
@@ -272,7 +293,7 @@ h2{
 			}
 		}
 	}
-	border: 1px solid @grigio-0;
+	
 	&:hover{
 		// .box-shadow( 0 0px 2px @blue );
 		border: 1px solid @blue;
@@ -629,11 +650,22 @@ input.invalid, textarea.invalid{
 }
 .modal-body{
 	max-height: 600px;
+	overflow-x:visible;
+	overflow-y:visible;
+	overflow:visible;
+	&.resizable{
+		overflow: auto;
+	}
 }
 
 blockquote{
 	border-left: 0px solid transparent;
 
+}
+
+
+ul.typeahead dropdown-menu{
+	z-index:99999999999;
 }
 
 

@@ -15,6 +15,7 @@ from django.utils.translation import get_language
 
 from glue.forms import LoginForm, AddPinForm, EditPinForm, AddSerieForm, AddTagForm
 from glue.models import Pin, Page, Serie
+from glue import Epoxy
 
 
 logger = logging.getLogger('glue')
@@ -36,8 +37,9 @@ WALT_PAGES_ABSTRACT ={
 # 
 #	SHARED, commont context (tags, language, user availability...)
 #
-def sc( request, tags=[], d={}, load_walt=True, username=None ):
-	
+def sc( request, tags=[], d={}, load_walt=True, username=None, view_filters={} ):
+	epoxy = Epoxy( request )
+
 	# startup
 	d['tags'] = tags
 	d['language'] = 'fr' # get_language()
@@ -47,7 +49,7 @@ def sc( request, tags=[], d={}, load_walt=True, username=None ):
 	d['walt'] = {}
 	d['spiff'] = ""
 	
-	d['filters'] = {}
+	d['filters'] = epoxy.filters
 	if username is not None:
 		d['spiff'] = username
 		d['filters']['authors__username'] = username
@@ -58,7 +60,7 @@ def sc( request, tags=[], d={}, load_walt=True, username=None ):
 
 				d['walt'][ page_slug ] = {
 					'page': Page.objects.get( language=d['language'], slug=page_slug ),
-					'pins': Pin.objects.filter(  language=d['language'], page__slug=page_slug ).filter( **d['filters'] )
+					'pins': Pin.objects.filter( **view_filters ).filter(  language=d['language'], page__slug=page_slug ).filter( **d['filters'] )
 				}
 	except Page.DoesNotExist,e:
 		d['exception'] = e
@@ -115,7 +117,7 @@ def logout_view( request ):
 	return redirect( 'walt_home' )
 
 
-
+@login_required
 def home( request ):
 	data = sc( request, tags=[ "home" ] )
 	data['series'] = Serie.objects.filter( language=data['language'] ).order_by( '-date_last_modified','-id' )
@@ -144,8 +146,9 @@ def spiff( request, username ):
 
 @login_required
 def tag( request, tag_type, tag_slug ):
-	data = sc( request, tags=[ "tags" ] )
+	data = sc( request, tags=[ "tags" ], view_filters={'tags__slug':tag_slug} )
 	
+
 	return render_to_response(  "walt/index.html", RequestContext(request, data ) )
 
 @login_required

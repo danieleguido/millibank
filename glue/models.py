@@ -50,7 +50,8 @@ class Tag(models.Model):
 			'id': self.id,
 			'slug':self.slug,
 			'name':self.name,
-			'type':self.get_type_display()
+			'type':self.type,
+			'type_label':self.get_type_display()
 		}
 class Pin( models.Model ):
 	PUBLISHED='P'

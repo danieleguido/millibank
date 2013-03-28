@@ -4,37 +4,16 @@
 {% block spiffing %}{% if spiff %} {{ spiff }}'s {% endif %}{% endblock %}
 
 
-{% block urls %}
-	{{ block.super }}
-	{% if user.is_authenticated %}
-	oo.urls.get_serie = "{% url glue_api_serie_frames 0 %}";
-	oo.urls.list_serie = "{% url glue_api_series %}";
-	oo.urls.remove_serie = "{% url glue_api_serie 0 %}";
-	oo.urls.add_serie = "{% url glue_api_series %}";
-    oo.urls.edit_serie = "{% url glue_api_serie 0 %}";
-    oo.urls.sync_serie = "{% url glue_api_serie_frames 0 %}";
 
-    oo.urls.serie_stack = "{% url walt_serie_stack 0 %}";
-
-
-	oo.urls.get_pin = "{% url glue_api_pin 0 %}";
-	oo.urls.list_pin = "{% url glue_api_pins %}";
-	oo.urls.edit_pin = "{% url glue_api_pin 0 %}";
-	oo.urls.remove_pin = "{% url glue_api_pin 0 %}";
-
-	oo.urls.add_tag = "{% url glue_api_tags %}";
-	{% endif %}
-{% endblock %}
 
 {% block navbar %}
 	<div class="grid_12" >
-				
 		<h2 class="grid_3 alpha">
 			<a href="{% if spiff %}{% url walt_w_spiff spiff %}{% else %}{% url walt_w %}{% endif %}">{% if spiff %} his/her {% endif %} {{ walt.wander.page.title }}
 				( {{ walt.wander.pins.count }} )
 			</a>
 			{% if user.is_authenticated %}
-				| <a href="#add-walt-w-modal" role="button" data-toggle="modal">+ {% trans "add bookmark" %}</a>
+				| <a href="#add-walt-w-modal" role="button" data-toggle="modal" data-rel="tooltip" data-animation="false" title="{% trans "add bookmark or your own note" %}">+</a>
 			{% endif %}
 			{% comment %}<div class="description">
 				
@@ -48,7 +27,7 @@
 				( {{ walt.augment.pins.count }} )
 			</a>
 			{% if user.is_authenticated %}
-				| <a href="#add-walt-a-modal" role="button" data-toggle="modal">+ {% trans "add object" %}</a>
+				| <a href="#add-walt-a-modal" role="button" data-toggle="modal" data-rel="tooltip" data-animation="false" title="{% trans "add embed object, like video or audio iframes" %}">+</a>
 			{% endif %}
 			{% comment %}<div class="description">
 				{{ walt.augment.page.abstract }} 
@@ -59,7 +38,7 @@
 				 ( {{ walt.learn.pins.count }} )
 			</a>
 			{% if user.is_authenticated %}
-				| <a href="#add-walt-l-modal" role="button" data-toggle="modal">+ {% trans "add publication" %}</a>
+				| <a href="#add-walt-l-modal" role="button" data-toggle="modal"  data-rel="tooltip" data-animation="false" title="{% trans "add publication using bibtex format" %}">+</a>
 			{% endif %}
 			{% comment %}<div class="description">
 				{{ walt.learn.page.abstract }}
@@ -69,8 +48,8 @@
 			<a href="{% if spiff %}{% url walt_t_spiff spiff %}{% else %}{% url walt_t %}{% endif %}">{% if spiff %} his/her {% endif %}  {{ walt.try.page.title }}
 				( {{ walt.try.pins.count }} )
 			</a>
-			{% if user.is_authenticated %}
-				| <a href="#add-walt-t-modal" role="button" data-toggle="modal">+ {% trans "add tool" %}</a>
+			{% if user.is_staff %}
+				| <a href="#add-walt-t-modal" role="button" data-toggle="modal"  data-rel="tooltip" data-animation="false" title="{% trans "add tools and methodologies" %}">+</a>
 			{% endif %}
 			{% comment %}<div class="description">
 				{{ walt.try.page.abstract }}
@@ -160,7 +139,7 @@
 
 			-->
 			<div class="items">
-				{% for pin in walt.wander.pins.all|slice:":10" %}
+				{% for pin in walt.wander.pins %}
 				<div class="item">
 					
 					<h3><a href="{% url walt_pin pin.slug %}"><!-- #{{ pin.id }} --> {{ pin.title }} </a></h3>
@@ -169,47 +148,40 @@
 							<a href="{% url walt_tag tag.type|lower tag.slug %}" class="tag" alt="{{ tag.name }} ( {{ tag.type }} )">{{ tag.name }}</a>
 							{% if not forloop.last %},{%endif %} 
 						{% endfor %}
-						<a href="#" class="open-attach-tag" data-pin-slug="{{ pin.slug }}" alt="attach tag"><div class="icon"></div></a>
-						
+							<a href="#" class="open-attach-tag" data-pin-slug="{{ pin.slug }}" alt="attach tag"></a>
 					</div>
+					<div class="content">
+						{{ pin.content|safe }}
+					</div>
+
 					<blockquote>
 						 {{ pin.abstract }}
 					</blockquote>
-					<div class="content">
-						 {{ pin.content }}
-					</div>
-
 					{% with authors=pin.authors.all %}
+					<div class="authors">
+							{%trans "posted by" %}
+							{% for u in authors %}
+								<a href="{% url walt_spiff u.username %}">{{ u.username }}</a>
+								{% if not forloop.last %}, {% endif %}
+							{% endfor %}
+						</div>
 
-					<span class="authors">
-						{%trans "posted by" %}
-						{% for u in authors %}
-							<a href="{% url walt_spiff u.username %}">{{ u.username }}</a>
-							{% if not forloop.last %}, {% endif %}
-						{% endfor %}
-					</span>
+					{% if user.is_authenticated %}
+						<div class="actions">
+							{% if user in authors %}
+							<a href="#" data-toggle="tooltip" data-animation="false" class="edit-pin action" data-id="{{ pin.id }}" title="{% trans "edit" %}"><div class="icon edit"></div></a>
+							<a href="#" data-toggle="tooltip" data-animation="false" class="append-frame action" data-id="{{ pin.id }}" title="{% trans "add to serie" %}"><div class="icon commit"></div></a>
+							<a href="#" data-toggle="tooltip" data-animation="false" class="open-attach-tag action" data-pin-slug="{{ pin.slug }}" data-id="{{ pin.id }}" title="{% trans "attach tag" %}"><div class="icon tag"></div></a>
 
-					<div class="actions">
-						<a href="#{% url admin:glue_pin_change pin.id %}" class="edit-pin action" data-id="{{ pin.id }}" title="{% trans "edit" %}">{% trans "edit" %}</a>
-						
-						{% if pin.permalink %}
-						<a class="external action" href="{{ pin.permalink}}">{% trans "link" %}</a>
-						{% endif %}
-
-						{% if workon_serie  %}
-						<a href="#{% url admin:glue_pin_change pin.id %}"
-							class="append-frame action" data-slug="{{ pin.slug }}" data-title="{{ pin.title }}" data-page-slug="wander" data-id="{{ pin.id }}" >{% trans "use in serie" %}</a>
-						{% endif %}
-
-						{% if user in authors %}
-							<a class="remove-pin action warning" data-id="{{ pin.id }}">{% trans "delete" %}</a>
-						{% endif %}
-					</div>
+							{% endif %}
+							<a class="external action" data-toggle="tooltip" data-animation="false" href="{{ pin.permalink}}" title="{% trans "link" %}"><div class="icon link"></div></a>
+							{% if user in authors and authors|length == 1 %}
+								<a class="remove-pin action warning" data-toggle="tooltip" data-animation="false" data-id="{{ pin.id }}" title="{% trans "delete" %}"><div class="icon remove"></div></a>
+							{% endif %}
+						</div>
+					{% endif %}
 
 					{% endwith %}
-
-					
-
 					{% for child in pin.children.all|slice:":10" %}
 					<div class="comment">
 						<a href="#" class="author"> </a> {{ child.abstract }}
@@ -242,7 +214,7 @@
 						{% endfor %}
 							<a href="#" class="open-attach-tag" data-pin-slug="{{ pin.slug }}" alt="attach tag"></a>
 					</div>
-					<div>
+					<div class="iframe">
 						{{ pin.content|safe }}
 					</div>
 
@@ -250,22 +222,29 @@
 						 {{ pin.abstract }}
 					</blockquote>
 					{% with authors=pin.authors.all %}
-					<span class="authors">
+					<div class="authors">
 							{%trans "posted by" %}
 							{% for u in authors %}
 								<a href="{% url walt_spiff u.username %}">{{ u.username }}</a>
 								{% if not forloop.last %}, {% endif %}
 							{% endfor %}
-						</span>
+						</div>
 
-					<div class="actions">
-						<a href="#{% url admin:glue_pin_change pin.id %}" class="edit-pin action" data-id="{{ pin.id }}" title="{% trans "edit" %}"><div class="icon edit"></div></a>
-						
-						<a class="external action" href="{{ pin.permalink}}" title="{% trans "link" %}"><div class="icon link"></div></a>
-						{% if user in authors %}
-							<a class="remove-pin action warning" data-id="{{ pin.id }}" title="{% trans "delete" %}"><div class="icon remove"></div></a>
-						{% endif %}
-					</div>
+					{% if user.is_authenticated %}
+						<div class="actions">
+							{% if user in authors %}
+							<a href="#"  data-toggle="tooltip" data-animation="false" class="edit-pin action" data-id="{{ pin.id }}" title="{% trans "edit" %}"><div class="icon edit"></div></a>
+							<a href="#"  data-toggle="tooltip" data-animation="false" class="append-frame action" data-id="{{ pin.id }}" title="{% trans "add to serie" %}"><div class="icon commit"></div></a>
+							<a href="#" data-toggle="tooltip" data-animation="false" class="open-attach-tag action" data-pin-slug="{{ pin.slug }}" data-id="{{ pin.id }}" title="{% trans "attach tag" %}"><div class="icon tag"></div></a>
+
+							{% endif %}
+							<a class="external action" data-toggle="tooltip" data-animation="false" href="{{ pin.permalink}}" title="{% trans "link" %}"><div class="icon link"></div></a>
+							{% if user in authors and authors|length == 1 %}
+								<a class="remove-pin action warning" data-toggle="tooltip" data-animation="false" data-id="{{ pin.id }}" title="{% trans "delete" %}"><div class="icon remove"></div></a>
+							{% endif %}
+						</div>
+					{% endif %}
+
 					{% endwith %}
 					{% for child in pin.children.all|slice:":10" %}
 					<div class="comment">
@@ -288,59 +267,67 @@
 
 			-->
 			<div class="items">
-				{% for pin in walt.learn.pins.all|slice:":10" %}
-				
-					{% ifequal pin.mimetype "text/x-bibtex" %}
-						{% with bibtex=pin.bib %}
-						<div class="item">
-							<h4>{{ bibtex.author }}</h4>
-							<h3><a href="{% url walt_pin pin.slug %}"><!-- #{{ pin.id  }}-->{{ bibtex.title }}</a></h3>
-							<div class="metadata">
-								<p>{{ bibtex.publisher }}, {{ bibtex.year }}</p>
-								{% for tag in bibtex.keywords|split %}
-									<a href="#" class="tag" alt="{{ tag }}">{{ tag }}</a>
-									{% if not forloop.last %},{%endif %}
-								{% endfor %}
-								
-							</div>
-							<blockquote>
-								{% if bibtex.abstract %} {{ bibtex.abstract }} {% endif %}
+				{% for pin in walt.learn.pins %}
 
-								{{ pin.abstract }}
-								
-							</blockquote>
-
-							{% with authors=pin.authors.all %}
-
-							<span class="authors">
-								{%trans "posted by" %}
-								{% for u in authors %}
-									<a href="{% url walt_spiff u.username %}">{{ u.username }}</a>
-									{% if not forloop.last %}, {% endif %}
-								{% endfor %}
-							</span>
-
-							<div class="actions">
-								<a href="#{% url admin:glue_pin_change pin.id %}" class="edit-pin action" data-id="{{ pin.id }}" title="{% trans "edit" %}">{% trans "edit" %}</a>
-								
-								{% if pin.permalink %}
-								<a class="external action" href="{{ pin.permalink}}">{% trans "link" %}</a>
-								{% endif %}
-
-								{% if workon_serie  %}
-								<a href="#{% url admin:glue_pin_change pin.id %}"
-									class="append-frame action" data-slug="{{ pin.slug }}" data-title="{{ pin.title }}" data-page-slug="wander" data-id="{{ pin.id }}" >{% trans "use in serie" %}</a>
-								{% endif %}
-
-								{% if user in authors %}
-									<a class="remove-pin action warning" data-id="{{ pin.id }}">{% trans "delete" %}</a>
-								{% endif %}
-							</div>
-
-							{% endwith %}
+				{% ifequal pin.mimetype "text/x-bibtex" %}
+					{% with bibtex=pin.bib %}
+					<div class="item">
+						<h4>{{ bibtex.author }}</h4>
+						<h3><a href="{% url walt_pin pin.slug %}"><!-- #{{ pin.id }} --> {{ pin.title }} </a></h3>
+						<div class="metadata"><span class="date">{% if pin.date %}{{ pin.date }}{% else %}{{ pin.date_last_modified }}{% endif %}</span>
+							<p>{{ bibtex.publisher }}, {{ bibtex.year }}</p>
+							{% for tag in bibtex.keywords|split %}
+										<a href="#" class="tag" alt="{{ tag }}">{{ tag }}</a>
+										{% if not forloop.last %},{%endif %}
+									{% endfor %}
+							{% for tag in pin.tags.all %}
+								<a href="{% url walt_tag tag.type|lower tag.slug %}" class="tag" alt="{{ tag.name }} ( {{ tag.type }} )">{{ tag.name }}</a>
+								{% if not forloop.last %},{%endif %} 
+							{% endfor %}
+								<a href="#" class="open-attach-tag" data-pin-slug="{{ pin.slug }}" alt="attach tag"></a>
 						</div>
+						
+						<blockquote>
+							 {% if bibtex.abstract %} {{ bibtex.abstract }} {% endif %}
+
+									{{ pin.abstract }}
+						</blockquote>
+
+						{% with authors=pin.authors.all %}
+						<div class="authors">
+							{%trans "posted by" %}
+							{% for u in authors %}
+								<a href="{% url walt_spiff u.username %}">{{ u.username }}</a>
+								{% if not forloop.last %}, {% endif %}
+							{% endfor %}
+						</div>
+
+						{% if user.is_authenticated %}
+							<div class="actions">
+								{% if user in authors %}
+								<a href="#" data-toggle="tooltip" data-animation="false" class="edit-pin action" data-id="{{ pin.id }}" title="{% trans "edit" %}"><div class="icon edit"></div></a>
+								<a href="#" data-toggle="tooltip" data-animation="false" class="append-frame action" data-id="{{ pin.id }}" title="{% trans "add to serie" %}"><div class="icon commit"></div></a>
+							<a href="#" data-toggle="tooltip" data-animation="false" class="open-attach-tag action" data-pin-slug="{{ pin.slug }}" data-id="{{ pin.id }}" title="{% trans "attach tag" %}"><div class="icon tag"></div></a>
+
+							{% endif %}
+							<a class="external action" data-toggle="tooltip" data-animation="false" href="{{ pin.permalink}}" title="{% trans "link" %}"><div class="icon link"></div></a>
+							{% if user in authors and authors|length == 1 %}
+								<a class="remove-pin action warning" data-toggle="tooltip" data-animation="false" data-id="{{ pin.id }}" title="{% trans "delete" %}"><div class="icon remove"></div></a>
+							{% endif %}
+							</div>
+						{% endif %}
+
 						{% endwith %}
-					{% endifequal %}
+						{% for child in pin.children.all|slice:":10" %}
+						<div class="comment">
+							<a href="#" class="author"> </a> {{ child.abstract }}
+						</div>
+						{% endfor %}
+					{% endwith %}
+					</div>
+				{% else %}
+					<!-- Learn elements not bib text ! -->
+				{% endifequal %}
 				
 				{% endfor %}
 				
@@ -351,53 +338,47 @@
 			
 			
 			<div class="items">
-				{% for pin in walt.try.pins.all|slice:":10" %}
+				{% for pin in walt.try.pins %}
 				<div class="item">
 					
-					<h3><a href="{% url walt_pin pin.slug %}"><!-- #{{ pin.id }} -->{{ pin.title }} </a></h3>
-					<div class="metadata"><!-- span class="date">{% if pin.date %}{{ pin.date }}{% else %}{{ pin.date_last_modified }}{% endif %}</span -->
+					<h3><a href="{% url walt_pin pin.slug %}"><!-- #{{ pin.id }} --> {{ pin.title }} </a></h3>
+					<div class="metadata">
 						{% for tag in pin.tags.all %}
 							<a href="{% url walt_tag tag.type|lower tag.slug %}" class="tag" alt="{{ tag.name }} ( {{ tag.type }} )">{{ tag.name }}</a>
 							{% if not forloop.last %},{%endif %} 
 						{% endfor %}
+							<a href="#" class="open-attach-tag" data-pin-slug="{{ pin.slug }}" alt="attach tag"></a>
+					</div>
 					
-					</div>
-					<div class="content">
-						 {{ pin.abstract|safe }}
-					</div>
 
-					<!-- tools does not manifest their content in index page. -->
-
+					<blockquote>
+						 {{ pin.abstract }}
+					</blockquote>
 					{% with authors=pin.authors.all %}
+						<div class="authors">
+							{%trans "posted by" %}
+							{% for u in authors %}
+								<a href="{% url walt_spiff u.username %}">{{ u.username }}</a>
+								{% if not forloop.last %}, {% endif %}
+							{% endfor %}
+						</div>
 
-					<span class="authors">
-						{%trans "posted by" %}
-						{% for u in authors %}
-							<a href="{% url walt_spiff u.username %}">{{ u.username }}</a>
-							{% if not forloop.last %}, {% endif %}
-						{% endfor %}
-					</span>
+						{% if user.is_authenticated %}
+						<div class="actions">
+							{% if user in authors %}
+							<a href="#"  data-toggle="tooltip" data-animation="false" class="edit-pin action" data-id="{{ pin.id }}" title="{% trans "edit" %}"><div class="icon edit"></div></a>
+							<a href="#" data-toggle="tooltip" data-animation="false" class="action append-frame" data-id="{{ pin.id }}" title="{% trans "add to serie" %}"><div class="icon commit"></div></a>
+							<a href="#" data-toggle="tooltip" data-animation="false" class="open-attach-tag action" data-pin-slug="{{ pin.slug }}" data-id="{{ pin.id }}" title="{% trans "attach tag" %}"><div class="icon tag"></div></a>
 
-					<div class="actions">
-						<a href="#{% url admin:glue_pin_change pin.id %}" class="edit-pin action" data-id="{{ pin.id }}" title="{% trans "edit" %}">{% trans "edit" %}</a>
-						
-						{% if pin.permalink %}
-						<a class="external action" href="{{ pin.permalink}}">{% trans "link" %}</a>
+							{% endif %}
+							<a class="external action" data-toggle="tooltip" data-animation="false" href="{{ pin.permalink}}" title="{% trans "link" %}"><div class="icon link"></div></a>
+							{% if user in authors and authors|length == 1 %}
+								<a class="remove-pin action warning" data-toggle="tooltip" data-animation="false" data-id="{{ pin.id }}" title="{% trans "delete" %}"><div class="icon remove"></div></a>
+							{% endif %}
+						</div>
 						{% endif %}
-
-						{% if workon_serie  %}
-						<a href="#{% url admin:glue_pin_change pin.id %}"
-							class="append-frame action" data-slug="{{ pin.slug }}" data-title="{{ pin.title }}" data-page-slug="wander" data-id="{{ pin.id }}" >{% trans "use in serie" %}</a>
-						{% endif %}
-
-						{% if user in authors %}
-							<a class="remove-pin action warning" data-id="{{ pin.id }}">{% trans "delete" %}</a>
-						{% endif %}
-					</div>
 
 					{% endwith %}
-
-
 					{% for child in pin.children.all|slice:":10" %}
 					<div class="comment">
 						<a href="#" class="author"> </a> {{ child.abstract }}

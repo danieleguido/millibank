@@ -1,6 +1,28 @@
 {% extends "walt/boilerplate.html" %}
 {% load i18n %}
 
+{% block urls %}
+	{{ block.super }}
+	{% if user.is_authenticated %}
+	oo.urls.get_serie = "{% url glue_api_serie_frames 0 %}";
+	oo.urls.list_serie = "{% url glue_api_series %}";
+	oo.urls.remove_serie = "{% url glue_api_serie 0 %}";
+	oo.urls.add_serie = "{% url glue_api_series %}";
+    oo.urls.edit_serie = "{% url glue_api_serie 0 %}";
+    oo.urls.sync_serie = "{% url glue_api_serie_frames 0 %}";
+
+    oo.urls.serie_stack = "{% url walt_serie_stack 0 %}";
+
+
+	oo.urls.get_pin = "{% url glue_api_pin 0 %}";
+	oo.urls.list_pin = "{% url glue_api_pins %}";
+	oo.urls.edit_pin = "{% url glue_api_pin 0 %}";
+	oo.urls.remove_pin = "{% url glue_api_pin 0 %}";
+
+	oo.urls.add_tag = "{% url glue_api_tags %}";
+	oo.urls.list_tag = "{% url glue_api_tags %}";
+	{% endif %}
+{% endblock %}
 
 {% block body %}
 		
@@ -9,8 +31,9 @@
 				<div id="menu" class="grid_12">	
 					<h1><a href="{% url walt_home %}">walt.</a></h1>
 					<div style="margin:12px 0 ">
+						{% comment %}
 						<a href="{% url walt_series %}" class="crimson">{% trans "series" %} </a> |
-					
+						{% endcomment %}
 					<!-- a href="{% url walt_home %}" {% if 'home' in tags %}class="active"{% endif %}>{% trans "all walts" %}</a> |
 					{% if user.is_authenticated %}
 						<a href="{% url walt_spiff user.username %}" {% if 'my-walt' in tags %}class="active"{% endif %}>{% trans "my walt"%} ( {{ user.username }} )</a> || 
@@ -32,12 +55,12 @@
 				</div>
 			</div>
 
-			<div class="container_12" id="navbar">
-
+			<div  id="navbar">
+				<div class="container_12">
 				{% block navbar %}
 
 				{% endblock %}
-				
+				</div>
 			</div>
 		</header>
 
@@ -155,12 +178,12 @@
 		<!-- A modal for each walt ! always available -->
 		
 		<!-- WANDER -->
-		<div id="add-walt-w-modal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+		<div id="add-walt-w-modal" class="modal hide fade " tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
 			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
 				<h2>{% trans "add item to wander list" %}</h2>
 			</div>
-			<div class="modal-body">
+			<div class="modal-body resizable">
 				<p>Each object should have at least a <b>slug</b> and a <b>title</b>.</p>
 				
 				
@@ -202,7 +225,7 @@
 				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
 				<h2>{% trans "add item to augment list" %}</h2>
 			</div>
-			<div class="modal-body">
+			<div class="modal-body resizable">
 				<p>Augmented items are items which allow object embedding</p>
 				
 				<p>
@@ -329,24 +352,20 @@
 				<h2>{% trans "attach a tagl" %}</h2>
 			</div>
 			<div class="modal-body">
+				<form>
 				<p>
 					<label for='id_attach_tag_name'>{% trans "tag it" %}</label>
-					<input type='text' class="span6 repeatable" data-target="id_attach_tag_slug" id="id_attach_tag_name" placeholder="tag"/>
+					<input type='text' class="span6 typeahead" data-source="oo.glue.tag.typeahead" id="id_attach_tag_name" placeholder="tag"/>
 					<input type='hidden' id="id_attach_tag_pin_slug" value="0" />
-				</p>
-				<p>
-					<label for='id_attach_tag_slug'>{% trans "unique tag identifier" %}</label>
-					<input type='text' class="span6" id="id_attach_tag_slug" placeholder="tag"/>
+					<input type='hidden' class="span6" id="id_attach_tag_slug" placeholder="tag"/>
 				</p>
 				<p>
 					<label for='id_attach_tag_type'>{% trans "tag type" %}</label>
 					{{ attach_tag_form.type }}
 				</p>
-
-			</div>
-			<div class="modal-footer">
-				<button class="btn" data-dismiss="modal" aria-hidden="true">{% trans "close" %}</button>
-				<button class="btn btn-primary attach-tag" data-page-slug="" data-auto-id="id_attach_tag">{% trans "attach tag" %}</button>
+				<a class="btn" data-dismiss="modal" aria-hidden="true">{% trans "close" %}</a>
+				<button class="btn btn-primary attach-tag" data-page-slug="" data-auto-id="id_attach_tag">{% trans "attach tag" %}"</button>
+				</form>
 			</div>
 		</div>
 

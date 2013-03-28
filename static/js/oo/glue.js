@@ -69,7 +69,7 @@ oo.glue.resize = function(){
 	var fh = $("footer").height();
 
 
-	$(".modal-body").height( h - 160 );
+	$(".modal-body.resizable").height( h - 160 );
 
 	//$(".items").height(
 	//	h - hh - fh
@@ -97,6 +97,7 @@ oo.glue.pin.listeners.edit = function( event ){
 };
 
 oo.glue.pin.listeners.open_attach_tag = function( event ){
+	event.preventDefault();
 	var el = $(this);
 	var pin_slug = el.attr( "data-pin-slug" );
 	var auto_id = el.attr( "data-auto-id" );
@@ -218,13 +219,13 @@ oo.glue.init = function(){ oo.log("[oo.glue.init]");
 	$(document).on('keyup', 'input.repeatable', function(event){ var $this = $(this); $( '#' + $this.attr('data-target') ).val( oo.fn.slug( $this.val() ) );});
 
 
+
 	$(document).on('keyup', 'textarea.embeddable', oo.glue.embed.keyup );
 	
 	// remove invalid elements
 	$(document).click( function(event){ $(".invalid").removeClass('invalid');});
 
 	$(document).on('shown', function () {
-		oo.log( "ehi" );
 	  $('input:text:visible:first', this).focus();
 	});
 
@@ -365,5 +366,50 @@ oo.glue.upload.init = function(){
 	// enabled by default, or comment
 	// oo.glue.upload.disable();
 };
+
+
+oo.glue.typeahead = {}
+oo.glue.typeahead.source = function( query, process ){
+	oo.api.tag.list({ filters:'{"name__icontains":"' + query + '"}'}, function( result ){
+		oo.glue.tag.map = {}
+		var data = []
+		for (var i in result.objects ){
+			var label = result.objects[i].name + " - <i>" + result.objects[i].type_label.toLowerCase() + "</i>"; // label is index as well
+			data.push( label );
+			oo.glue.tag.map[ label ] = result.objects[i];
+		}
+
+		if( data.length == 0){
+			oo.log( data);
+			$("#id_attach_tag_slug").val( oo.fn.slug( query ) );
+		}
+
+		return process( data );
+	})
+};
+oo.glue.typeahead.updater = function( item ){
+	$("#id_attach_tag_slug").val(oo.glue.tag.map[ item ].slug);
+	$("#id_attach_tag_type").val(oo.glue.tag.map[ item ].type);
+	return  oo.glue.tag.map[ item ].name;
+}
+oo.glue.typeahead.change = function(){
+	oo.log( arguments );
+}
+
+oo.glue.tag ={}
+
+oo.glue.tag.init = function(){oo.log("[oo.glue.tag.init]");
+	$('.typeahead').typeahead({
+		source:oo.glue.typeahead.source, 
+		updater: oo.glue.typeahead.updater
+	}).on('change', oo.glue.typeahead.change );
+}
+oo.glue.tag.typeahead = function( query, process ){
+	oo.log( arguments);
+	
+		
+
+	return [ query ]
+}
 
 
