@@ -1,5 +1,5 @@
-# Django settings for walt project.
 import local_settings
+# Django settings for walt project.
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
@@ -14,15 +14,16 @@ DATABASES = {
     'default': {
         'ENGINE': local_settings.DB_BACKEND, # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
         'NAME': local_settings.DB_NAME,                      # Or path to database file if using sqlite3.
-        'USER': local_settings.DB_USER,                      # Not used with sqlite3.
-        'PASSWORD': local_settings.DB_PASS,                  # Not used with sqlite3.
-        'HOST': local_settings.DB_HOST,                      # Set to empty string for localhost. Not used with sqlite3.
-        'PORT': local_settings.DB_PORT,                      # Set to empty string for default. Not used with sqlite3.
+        # The following settings are not used with sqlite3:
+        'USER': local_settings.DB_USER,
+        'PASSWORD': local_settings.DB_PASS,
+        'HOST': local_settings.DB_HOST,                      # Empty for localhost through domain sockets or '127.0.0.1' for localhost through TCP.
+        'PORT': local_settings.DB_PORT,                      # Set to empty string for default.
     }
 }
 
 # Hosts/domain names that are valid for this site; required if DEBUG is False
-# See https://docs.djangoproject.com/en/1.4/ref/settings/#allowed-hosts
+# See https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
 ALLOWED_HOSTS = []
 
 # Local time zone for this installation. Choices can be found here:
@@ -33,7 +34,7 @@ TIME_ZONE = 'Europe/Rome'
 
 # Language code for this installation. All choices can be found here:
 # http://www.i18nguy.com/unicode/language-identifiers.html
-LANGUAGE_CODE = 'it-it'
+LANGUAGE_CODE = 'en-us'
 
 SITE_ID = 1
 
@@ -49,23 +50,23 @@ USE_L10N = True
 USE_TZ = True
 
 # Absolute filesystem path to the directory that will hold user-uploaded files.
-# Example: "/home/media/media.lawrence.com/media/"
-MEDIA_ROOT = local_settings.MEDIA_ROOT
+# Example: "/var/www/example.com/media/"
+MEDIA_ROOT = ''
 
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash.
-# Examples: "http://media.lawrence.com/media/", "http://example.com/media/"
+# Examples: "http://example.com/media/", "http://media.example.com/"
 MEDIA_URL = ''
 
 # Absolute path to the directory static files should be collected to.
 # Don't put anything in this directory yourself; store your static files
 # in apps' "static/" subdirectories and in STATICFILES_DIRS.
-# Example: "/home/media/media.lawrence.com/static/"
-STATIC_ROOT = local_settings.STATIC_ROOT
+# Example: "/var/www/example.com/static/"
+STATIC_ROOT = ''
 
 # URL prefix for static files.
-# Example: "http://media.lawrence.com/static/"
-STATIC_URL = '/walt/static/'
+# Example: "http://example.com/static/", "http://static.example.com/"
+STATIC_URL = '/static/'
 
 # Additional locations of static files
 STATICFILES_DIRS = local_settings.STATICFILES_DIRS
@@ -92,7 +93,6 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
-    'django.middleware.locale.LocaleMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     # Uncomment the next line for simple clickjacking protection:
@@ -113,12 +113,14 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'walt',
     # Uncomment the next line to enable the admin:
     'django.contrib.admin',
     # Uncomment the next line to enable admin documentation:
-    # 'django.contrib.admindocs',
-    'glue'
+    'django.contrib.admindocs',
 )
+
+SESSION_SERIALIZER = 'django.contrib.sessions.serializers.JSONSerializer'
 
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to
@@ -133,24 +135,12 @@ LOGGING = {
             '()': 'django.utils.log.RequireDebugFalse'
         }
     },
-    'formatters': {
-        'verbose': {
-            'format': '%(levelname)s %(asctime)s %(module)s.%(funcName)s(%(lineno)d) %(message)s'
-        },
-    },
     'handlers': {
         'mail_admins': {
             'level': 'ERROR',
             'filters': ['require_debug_false'],
             'class': 'django.utils.log.AdminEmailHandler'
-        },
-        'glue':{
-            'level': 'DEBUG',
-            'class': 'logging.handlers.RotatingFileHandler',
-            'filename': local_settings.GLUE_LOG_PATH,
-            'maxBytes': '16777216', # 16 megabytes
-            'formatter': 'verbose'
-        },
+        }
     },
     'loggers': {
         'django.request': {
@@ -158,19 +148,5 @@ LOGGING = {
             'level': 'ERROR',
             'propagate': True,
         },
-        'glue':{ # glue content management app
-            'handlers': ['glue'],
-            'level': 'INFO',
-            'propagate': True
-        }
     }
 }
-
-LOGIN_URL = local_settings.LOGIN_URL
-LOGOUT_URL = local_settings.LOGOUT_URL
-GLUE_ACCESS_DENIED_URL = local_settings.GLUE_ACCESS_DENIED_URL
-
-# walt ad hoc settings
-LOCALE_PATHS = local_settings.LOCALE_PATHS
-LANGUAGES = local_settings.LANGUAGES
-ALCHEMY_API_KEY = local_settings.ALCHEMY_API_KEY

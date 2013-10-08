@@ -1,271 +1,133 @@
-import logging
+import logging, os, urllib
 
-from django.db.models import Q
 from django.conf import settings
+from django.db.models import Q
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import Group
-
 from django.http import HttpResponse, HttpRequest, HttpResponseRedirect
 from django.shortcuts import render_to_response, redirect, get_object_or_404
 from django.template import RequestContext
 from django.utils.translation import ugettext as _
 from django.utils.translation import get_language
 
-from glue.forms import LoginForm, AddPinForm, EditPinForm, AddSerieForm, AddTagForm
-from glue.models import Pin, Page, Serie
-from glue import Epoxy
+from walt.forms import LoginForm
+from walt.models import Document, Tag
+
+from walt import local_settings
+
+logger = logging.getLogger(__name__)
 
 
-logger = logging.getLogger('glue')
-
-# slugs of walt pages.
-WALT_W = 'wander'
-WALT_A = 'augment'
-WALT_L = 'learn'
-WALT_T = 'try'
-WALT_PAGES = [ WALT_W, WALT_A, WALT_L, WALT_T ]
-
-WALT_PAGES_ABSTRACT ={
-	WALT_W: _('put here random element, usually blog posts or your own content'),
-	WALT_A: _('put here content having iframe, like vimeo videos or soundcloud audio'),
-	WALT_L: _('put here articles, papers and books'),
-	WALT_T: _('put here tools and applications'),
-}
-
-# 
-#	SHARED, commont context (tags, language, user availability...)
-#
-def sc( request, tags=[], d={}, load_walt=True, username=None, view_filters={} ):
-	epoxy = Epoxy( request )
-
-	# startup
-	d['tags'] = tags
-	d['language'] = 'fr' # get_language()
-	d['languages'] = dict( settings.LANGUAGES )
-	d['warnings'] = {}
-	d['exception'] = False
-	d['walt'] = {}
-	d['spiff'] = ""
-	
-	d['filters'] = epoxy.filters
-	if username is not None:
-		d['spiff'] = username
-		d['filters']['authors__username'] = username
-
-	try:
-		if load_walt:
-			for page_slug in WALT_PAGES:
-
-				d['walt'][ page_slug ] = {
-					'page': Page.objects.get( language=d['language'], slug=page_slug ),
-					'pins': Pin.objects.filter( **view_filters ).filter(  language=d['language'], page__slug=page_slug ).filter( **d['filters'] )
-				}
-	except Page.DoesNotExist,e:
-		d['exception'] = e
-		
-	# d['walt'] = dict([(p.slug,p) for p in Page.objects.filter( language=d['language'], slug__in=WALT_PAGES ) ] ) if load_walt else {}
-	
-
-	# load edit mode
-	d['login_form'] = LoginForm( auto_id="id_login_%s")
-	d['add_pin_form'] = AddPinForm( auto_id="id_add_pin_%s")
-	d['add_serie_form'] = AddSerieForm( auto_id="id_add_serie_%s")
-	d['attach_tag_form'] = AddTagForm( auto_id="id_attach_tag_%s")
-
-	return d
+def home( request ):
+  data = _shared_data( request, tags=['home'] )
+  return render_to_response(  "walt/index.html", RequestContext(request, data ) )
 
 
+def browse(request, walt_category, slug):
+  '''
+
+  Display document tagged as WALT: WANDER
+  =======================================
+
+  '''
+  data = _shared_data(request, tags=[walt_category, slug])
+  data['documents'] = Document.objects.filter(tags__type=walt_category, tags__slug=slug)
+
+  return render_to_response(  "walt/browse.html", RequestContext(request, data ) )
+
+
+def storage( request, folder=None, index=None, extension=None ):
+  '''
+	  
+	Storage
+	=======
+
+	Direct storage solution. You only have to login. extension are given as first arg
+
+	'''
+  data = _shared_data(request, tags=['me'])
+
+  storage_path = settings.STORAGE_ROOT_PROTECTED if request.user.is_authenticated() else settings.STORAGE_ROOT_PUBLIC 
+
+  filepath = os.path.join(storage_path, folder, "%s.%s" % (index,extension));
+
+  if os.path.exists(filepath):
+    from django.core.servers.basehttp import FileWrapper
+    from mimetypes import guess_type
+
+    content_type = guess_type(filepath)
+
+    wrapper = FileWrapper(file(filepath))
+    response = HttpResponse(wrapper, content_type=content_type[0])
+    response['Content-Length'] = os.path.getsize(filepath)
+    return response
+
+
+  data['filepath'] = {
+    'folder':folder,
+    'index':index,
+    'extension':extension,
+    'total': filepath,
+    'content-type':  guess_type( filepath )[0],
+    'exists': os.path.exists( filepath )
+  }
+  
+  return render_to_response(  "walt/404.html", RequestContext(request, data ) )
+
+
+def _shared_data( request, tags=[], d={} ):
+  d['tags'] = tags
+  d['debug'] = settings.DEBUG
+  d['walt'] = {}
+
+  for t in Tag.objects.filter(Q(type=Tag.WALT_WANDER) | Q(type=Tag.WALT_AUGMENT) | Q(type=Tag.WALT_LEARN) | Q(type=Tag.WALT_TOOLS)).order_by('type'):
+    if t.type not in d['walt']:
+      d['walt'][t.type] = []
+
+    d['walt'][t.type].append(t)
+
+  return d
 
 def login_view( request ):
-	
-	form = LoginForm( request.POST )
-	next = request.REQUEST.get('next', 'walt_home')
+  if request.user.is_authenticated():
+    return home( request )
 
-	login_message = { 'next': next if len( next ) else 'walt_home'}
+  form = LoginForm( request.POST )
+  next = request.REQUEST.get('next', 'walt_home')
 
-	if request.method != 'POST':
-		data = sc( request, tags=[ "index" ], d=login_message )
-		return render_to_response('walt/login.html', RequestContext(request, data ) )
-	
-	if form.is_valid():
-		user = authenticate(username=form.cleaned_data['username'], password=form.cleaned_data['password'])
-		if user is not None:
-			if user.is_active:
-				login(request, user)
-				# @todo: Redirect to next page
+  login_message = { 'next': next if len( next ) else 'walt_home'}
 
-				return redirect( login_message['next'] )
-			else:
-				login_message['error'] = _("user has been disabled")
-		else:
-			login_message['error'] = _("invalid credentials")
-			# Return a 'disabled account' error message
-	else:
-		login_message['error'] = _("invalid credentials")
-		login_message['invalid_fields'] = form.errors
+  if request.method != 'POST':
+    data = _shared_data( request, tags=[ "login" ], d=login_message )
+    return render_to_response('walt/login.html', RequestContext(request, data ) )
 
+  if form.is_valid():
+    user = authenticate(username=form.cleaned_data['username'], password=form.cleaned_data['password'])
+    if user is not None:
+      if user.is_active:
+        login(request, user)
+        # @todo: Redirect to next page
 
-	data = sc( request, tags=[ "index" ], d=login_message )
+        return redirect( login_message['next'] )
+      else:
+        login_message['error'] = _("user has been disabled")
+    else:
+      login_message['error'] = _("invalid credentials")
+      # Return a 'disabled account' error message
+  else:
+    login_message['error'] = _("invalid credentials")
+    login_message['invalid_fields'] = form.errors
+  
+  data = _shared_data( request, tags=[ "login" ], d=login_message )
+  return render_to_response('walt/login.html', RequestContext(request, data ) )
 
-
-	return render_to_response('walt/login.html', RequestContext(request, data ) )
 
 def logout_view( request ):
-	logout( request )
-	return redirect( 'walt_home' )
+  logout( request )
+  return redirect( 'walt_home' )
 
 
-@login_required
-def home( request ):
-	data = sc( request, tags=[ "home" ] )
-	data['series'] = Serie.objects.filter( language=data['language'] ).order_by( '-date_last_modified','-id' )
-
-
-	if request.user.is_authenticated():
-		
-		serie = Serie.objects.filter( language=data['language'], authors=request.user ).order_by( '-date_last_modified','-id' )[:1]
-
-		data['workon_serie'] = serie
-	else:
-		data['workon_serie'] = None
-	# has last serie
-	
-	return render_to_response(  "walt/index.html", RequestContext(request, data ) )
-
-@login_required
-def spiff( request, username ):
-	data = sc( request, tags=([ "my-walt" ] if request.user.username == username else ['their-walt']), username=username )
-
-	
-
-	data['series'] = Serie.objects.all()
-
-	return render_to_response(  "walt/index.html", RequestContext(request, data ) )
-
-@login_required
-def tag( request, tag_type, tag_slug ):
-	data = sc( request, tags=[ "tags" ], view_filters={'tags__slug':tag_slug} )
-	
-
-	return render_to_response(  "walt/index.html", RequestContext(request, data ) )
-
-@login_required
-def pin( request, pin_slug ):
-	data = sc( request, tags=[ "pin" ] )
-	data['pin'] = get_object_or_404( Pin, language=data['language'], slug=pin_slug )
-	data['series'] = Serie.objects.filter( frames__pin__slug=pin_slug ).distinct()
-	
-	return render_to_response(  "walt/pin.html", RequestContext(request, data ) )
-
-@login_required
-def series( request ):
-	data = sc( request, tags=[ "serie" ] )
-	data['series'] = Serie.objects.filter( language=data['language'] )
-	
-	return render_to_response(  "walt/series.html", RequestContext(request, data ) )
-
-@login_required
-def serie( request, serie_slug ):
-	data = sc( request, tags=[ "serie" ] )
-	data['serie'] = get_object_or_404( Serie, slug=serie_slug, language=data['language'] )
-	
-	return render_to_response(  "walt/serie.html", RequestContext(request, data ) )
-
-
-@login_required
-def serie_stack( request, serie_slug ):
-	data = sc( request, tags=[ "serie" ] )
-	data['serie'] = get_object_or_404( Serie, slug=serie_slug, language=data['language'] )
-	
-	return render_to_response(  "walt/stack.html", RequestContext(request, data ) )
-
-
-
-
-def _walt( data, slug, username ):
-	"""
-	This loader is a common walt-page loader; it should be used as view helper
-	and not as standalone view.
-	(n.b. function name starts with an underscore )
-	"""
-	data['page'] = get_object_or_404( Page, language=data['language'], slug=slug )
-	
-	data['pins'] = Pin.objects.filter(  language=data['language'], page__slug=slug ).filter( **data['filters'] )
-
-	# top series (series using )
-
-	data['series'] = Serie.objects.filter( frames__pin__page__slug=slug, language=data['language'] ).distinct()
-	
-	return data
-
-@login_required
-def waltw( request, username=None ):
-	data = sc( request, tags=[ "w" ] )
-	data = _walt( data, WALT_W, username )
-	return render_to_response(  "walt/walt.html", RequestContext(request, data ) )
-
-@login_required
-def walta( request, username=None ):
-	data = sc( request, tags=[ "a" ] )
-	data = _walt( data, WALT_A, username )
-	return render_to_response(  "walt/walt.html", RequestContext(request, data ) )
-
-@login_required
-def waltl( request, username=None ):
-	data = sc( request, tags=[ "l" ] )
-	data = _walt( data, WALT_L, username )
-	return render_to_response(  "walt/walt.html", RequestContext(request, data ) )
-
-@login_required
-def waltt( request, username=None ):
-	data = sc( request, tags=[ "t" ] )
-	data = _walt( data, WALT_T, username )
-	return render_to_response(  "walt/walt.html", RequestContext(request, data ) )
-
-# call this function once. It will check for page availability and other stories...
-@staff_member_required
-def setup( request ):
-	data = sc( request, tags=[ "home" ], load_walt=False )
-	logger.info('setup view called')
-
-	logger.info('check for GLUE editor group...')
-	try:
-		g = Group.objects.get( name='GLUE EDITORS' )
-		logger.info( "group name='%s' exists" % 'GLUE EDITORS' )
-	except Group.DoesNotExist, e:
-		g = Group( name='GLUE EDITORS' )
-		g.save()
-		logger.info( "group name='%s' created" % 'GLUE EDITORS' )
-		request.user.groups.add( g )
-		logger.info( "staff user name='%s' added to group '%s'" % ( request.user.username, 'GLUE EDITORS' ) )
-		
-
-	if len( data['languages'] )< 2:
-		data['warnings']['languages'] = _("not enough languages")
-		logger.warning("not enough languages (at least 2). Check local_settings.py LANGUAGES tuple!")
-		return render_to_response(  "walt/index.html", RequestContext(request, data ) )
-
-	if len( data['languages'] ) > 8:
-		data['warnings']['languages'] = _("too many languages")
-		logger.warning("too many languages (max 8). Check local_settings.py LANGUAGES tuple!")
-		
-		return render_to_response(  "walt/index.html", RequestContext(request, data ) )
-
-	logger.info('check for WALT pages...')
-
-	for slug in WALT_PAGES:
-		for l in data['languages']:
-			
-			try:
-				p = Page.objects.get( slug=slug, language=l )
-				logger.info( "slug='%s', language: %s exists" % ( slug,l ) )
-			except Page.DoesNotExist, e :
-				p = Page( title=slug, language=l, slug=slug, abstract=WALT_PAGES_ABSTRACT[ slug ])
-				p.save()
-				logger.info( "slug='%s', language: %s created" % ( slug, l ) )
-
-	logger.info('setup completed!')
-	return home( request )
-
+def not_found( request ):
+  return render_to_response(  "walt/404.html", RequestContext(request, {} ) )

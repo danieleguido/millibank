@@ -1,404 +1,53 @@
 {% extends "walt/boilerplate.html" %}
 {% load i18n %}
 
-{% block urls %}
-	{{ block.super }}
-	{% if user.is_authenticated %}
-	oo.urls.get_serie = "{% url glue_api_serie_frames 0 %}";
-	oo.urls.list_serie = "{% url glue_api_series %}";
-	oo.urls.remove_serie = "{% url glue_api_serie 0 %}";
-	oo.urls.add_serie = "{% url glue_api_series %}";
-    oo.urls.edit_serie = "{% url glue_api_serie 0 %}";
-    oo.urls.sync_serie = "{% url glue_api_serie_frames 0 %}";
-
-    oo.urls.serie_stack = "{% url walt_serie_stack 0 %}";
-
-
-	oo.urls.get_pin = "{% url glue_api_pin 0 %}";
-	oo.urls.list_pin = "{% url glue_api_pins %}";
-	oo.urls.edit_pin = "{% url glue_api_pin 0 %}";
-	oo.urls.remove_pin = "{% url glue_api_pin 0 %}";
-
-	oo.urls.add_tag = "{% url glue_api_tags %}";
-	oo.urls.list_tag = "{% url glue_api_tags %}";
-	{% endif %}
-{% endblock %}
 
 {% block body %}
-		
-		<header >
-			<div class="container_12">
-				<div id="menu" class="grid_12">	
-					<h1><a href="{% url walt_home %}">walt.</a></h1>
-					<div style="margin:12px 0 ">
-						{% comment %}
-						<a href="{% url walt_series %}" class="crimson">{% trans "series" %} </a> |
-						{% endcomment %}
-					<!-- a href="{% url walt_home %}" {% if 'home' in tags %}class="active"{% endif %}>{% trans "all walts" %}</a> |
-					{% if user.is_authenticated %}
-						<a href="{% url walt_spiff user.username %}" {% if 'my-walt' in tags %}class="active"{% endif %}>{% trans "my walt"%} ( {{ user.username }} )</a> || 
-					{% endif %}
-				-->
-					<!-- a href="{% url walt_series %}">{% trans "all series" %} ({{ series.count }})</a> | -->
-					{% if user.is_authenticated %}
-						<a href="{% url walt_logout %}">{% trans "logout" %} </a>
-					{% else %}
-						<a href="{% url walt_login %}">{% trans "login" %}</a>
-					{% endif %}
-					<!-- {{ tags}} -->
-					</div>
+  <!-- fixed sidebar -->
+  <sidebar {%if user.is_staff %}class="staff"{%endif%}>
+    <div class="inner">
+      <h1>walt.</h1>
+      <ul>
+        <li {%if 'home' in tags %}class="active"{% endif %}><a href="{% url 'walt_home'%}">{%trans 'home'%}</a></li>
+      </ul>
+      
+      {% for category, w in walt.items %}
+      <ul>
+        {% for t in w %}
+        <li {%if t.slug in tags and category in tags%}class="active"{% endif %}><a href="{% url 'walt_browse' category t.slug %}">{{t.name}}</a></li>
+        {% endfor %}
+      </ul>
+      {% endfor %}
+      
+      {% if user.is_staff %}
+      <ul>
+        <li>
+          <a href="{% url 'admin:walt_document_add' %}"> - {{user.username}}, add doc</a>
+        </li>
+      </ul>
+      {% endif %}
+    </div>
+  </sidebar>
 
-					{% if spiff %}
-					<h1>{{ spiff }}'s walt</h1>
-					{% endif %}
+  <div id="wrap">
+    <div id="main">
+      <div class="inner">
+      
+        {% block view %}
+        <h1>Invitation</h1>
+        <p>
+        Thanks for using WALT - a very admin friendly Content Management System (AFCMS) to build and manage the content of your website, using the established format consisting of an index for navigating the site and a main area for displaying your works.
+        </p>
+        <p>
+        In order to not display this page, override the <code>block view</code> in django index.html template.
+        </p>
+        {% endblock %}
+      </div>
+    </div>
+  </div>
 
-				</div>
-			</div>
-
-			<div  id="navbar">
-				<div class="container_12">
-				{% block navbar %}
-
-				{% endblock %}
-				</div>
-			</div>
-		</header>
-
-		<div class="container_12" style="">
-			
-			
-			{% if exception %}
-				<div class="grid_12">
-					<h2>maybe you want to <a href="{% url walt_setup %}">SETUP</a> first ?</h2>
-
-				</div>
-			{% else %}
-
-
-				{% block page %}
-
-				{% endblock %}
-			{% endif %}
-			
-		</div>
-
-
-		<!-- ACTLUA SERIE DROP -->
-		<footer>
-			<div class="container_12">
-				<div id="footer-inner" class="grid_12">
-					{% block footer %}
-					{% endblock %}
-				</div>
-
-				<div id="logos" class="grid_12">
-					sciencespo | current language: {{ language }} ( {% for language in languages %} {{ language }}{%if not forloop.last %}, {%endif%}{% endfor %} )
-				</div>
-			</div>
-			
-		
-		</footer>
-
-		
-
-		{% if user.is_authenticated %}
-		
-		<!-- create new serie -->
-	
- 	
-		<div id="add-serie-modal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-			<div class="modal-header">
-				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-				<h2>{% trans "create a new serie" %}</h2>
-			</div>
-			<div class="modal-body">
-				<p>
-					<label for='id_add_serie_title_en' >{% trans "its title" %}</label>
-					<input type='text' class="span6 repeatable" data-target="id_add_serie_slug" id="id_add_serie_title_en" placeholder="title"/>
-				</p>
-				
-				<p>
-					<label for='id_add_serie_slug'>{% trans "slug" %}</label>
-					<input type='text' class="span6" id="id_add_serie_slug" placeholder="slug"/>
-				</p>
-				
-				<p>
-				<label for='id_add_serie_type'>{% trans "serie type" %}</label>
-				{{ add_serie_form.type }}
-				</p>
-
-			
-			</div>
-			<div class="modal-footer">
-				<button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
-				<button class="btn btn-primary" id="add-serie">Save changes</button>
-			</div>
-		</div>
-
-		<!-- Edit walt pin -->
-		<div id="edit-pin-modal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-			<div class="modal-header">
-				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-				<h2>{% trans "edit item" %}</h2>
-			</div>
-			<div class="modal-body">
-				<p>
-					<label for='id_edit_pin_title'>{% trans "its title" %}</label>
-					<input type='text' class="span6" id="id_edit_pin_title" placeholder="title"/>
-					<input type='hidden' id="id_edit_pin_id" value="0" />
-				</p>
-
-				<p>
-					<label for='id_edit_pin_permalink'>{% trans "external link" %}</label>
-					<input type='text' class="span6" id="id_edit_pin_permalink" placeholder="http://"/>
-
-				</p>
-
-				<p>
-					<label for='id_edit_pin_abstract'>{% trans "sum it up" %}</label>
-					<textarea class="span6" id="id_edit_pin_abstract" rows="3"></textarea>
-				</p>
-
-				<p>
-					<label for='id_edit_pin_content'>{% trans "content" %}</label>
-					<textarea class="span6" id="id_edit_pin_content" rows="6">
-
-
-					</textarea>
-					
-				</p>
-
-			</div>
-			<div class="modal-footer">
-				<button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
-				<button class="btn btn-primary update-pin" data-auto-id="id_edit_pin">Save changes</button>
-			</div>
-		</div>
-
-		<!-- A modal for each walt ! always available -->
-		
-		<!-- WANDER -->
-		<div id="add-walt-w-modal" class="modal hide fade " tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-			<div class="modal-header">
-				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-				<h2>{% trans "add item to wander list" %}</h2>
-			</div>
-			<div class="modal-body resizable">
-				<p>Each object should have at least a <b>slug</b> and a <b>title</b>.</p>
-				
-				
-				<p>
-					<label for='id_add_walt_w_title_en'>{% trans "its title" %}</label>
-					<input type='text' class="span6  repeatable" data-target="id_add_walt_w_slug" id="id_add_walt_w_title_en" placeholder="title"/>
-				</p>
-				
-				<p>
-					<label for='id_add_walt_w_slug'>{% trans "slug" %}</label>
-					<input type='text' class="span6" id="id_add_walt_w_slug" placeholder="slug"/>
-				</p>
-
-				<p>
-					<label for='id_add_walt_w_permalink'>{% trans "external link" %}</label>
-					<input type='text' class="span6" id="id_add_walt_w_permalink" placeholder="http://"/>
-
-				</p>
-
-				<p>
-					<label for='id_add_walt_w_content'>{% trans "content" %}</label>
-					<textarea class="span6" id="id_add_walt_w_content">
-
-
-					</textarea>
-					
-				</p>
-			
-			</div>
-			<div class="modal-footer">
-				<button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
-				<button class="btn btn-primary add-walt-pin" data-page-slug="wander" data-auto-id="id_add_walt_w">Save changes</button>
-			</div>
-		</div>
-
-		<!-- AUGMENT -->
-		<div id="add-walt-a-modal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-			<div class="modal-header">
-				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-				<h2>{% trans "add item to augment list" %}</h2>
-			</div>
-			<div class="modal-body resizable">
-				<p>Augmented items are items which allow object embedding</p>
-				
-				<p>
-					<label for='id_add_walt_a_content'>{% trans "embed html code" %}</label>
-					<textarea class="span6 embeddable" rows="7" data-target-permalink="id_add_walt_a_permalink" id="id_add_walt_a_content">
-
-
-					</textarea>
-					<input type='hidden' id="id_add_walt_a_mimetype" value="text/html"/>
-				</p>
-				<p>
-					<label for='id_add_walt_a_permalink'>{% trans "permalink" %}</label>
-					<input type='text' class="span6" id="id_add_walt_a_permalink" placeholder="title"/>
-				</p>
-				
-				<p>
-					<label for='id_add_walt_a_title_en'>{% trans "its title" %}</label>
-					<input type='text' class="span6 repeatable" data-target="id_add_walt_a_slug" id="id_add_walt_a_title_en" placeholder="title"/>
-				</p>
-
-				<p>
-					<label for='id_add_walt_a_slug'>{% trans "slug" %}</label>
-					<input type='text' class="span6" id="id_add_walt_a_slug" placeholder="slug"/>
-				</p>
-				
-			</div>
-			<div class="modal-footer">
-				<button class="btn" data-dismiss="modal" aria-hidden="true">{% trans "close" %}</button>
-				<button class="btn btn-primary add-walt-pin" data-page-slug="augment" data-auto-id="id_add_walt_a">{% trans "add augmented item" %}</button>
-			</div>
-		</div>
-
-		<!-- LEARN -->
-		<div id="add-walt-l-modal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-			<div class="modal-header">
-				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-				<h2>{% trans "add a publication" %}</h2>
-			</div>
-			<div class="modal-body">
-				<p>type bib text entry directly.
-				Each object should have at least a <b>slug</b> and a <b>title</b>.</p>
-			
-				<p>
-					<label for='id_add_pin_content'>{% trans "bibtext entry" %}</label>
-					<textarea class="span6" id="id_add_walt_l_content">
-
-
-					</textarea>
-					<input type='hidden' id="id_add_walt_l_mimetype" value="text/x-bibtex"/>
-				</p>
-				<p>
-					<label for='id_add_walt_l_title_en'>{% trans "its title" %}</label>
-					<input type='text' class="span6 repeatable" data-target="id_add_walt_l_slug" id="id_add_walt_l_title_en" placeholder="title"/>
-				</p>
-				
-				<p>
-					<label for='id_add_walt_l_slug'>{% trans "slug" %}</label>
-					<input type='text' class="span6" id="id_add_walt_l_slug" placeholder="slug"/>
-				</p>
-			
-			</div>
-			<div class="modal-footer">
-				<button class="btn" data-dismiss="modal" aria-hidden="true">{% trans "close" %}</button>
-				<button class="btn btn-primary add-walt-pin" data-page-slug="learn" data-auto-id="id_add_walt_l">{% trans "add publication" %}</button>
-			</div>
-		</div>
-		
-
-		<!-- TRY -->
-		{% if user.is_staff %}
-		<div id="add-walt-t-modal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-			<div class="modal-header">
-				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-				<h2>{% trans "add a tool" %}</h2>
-			</div>
-			<div class="modal-body">
-				<p>Please provide a short description of your tool, its <b>title</b> and its <b>slug</b>(the url representation of the title).
-				
-				</p>
-			
-				<p>
-					<label for='id_add_walt_t_abstract'>{% trans "short description" %}</label>
-					<textarea class="span6" id="id_add_walt_t_abstract">
-
-
-					</textarea>
-					<input type='hidden' id="id_add_walt_t_mimetype" value="text/html"/>
-				</p>
-				<p>
-					<label for='id_add_walt_t_content'>{% trans "long description" %}</label>
-					<textarea class="span6" id="id_add_walt_t_content">
-
-
-					</textarea>
-					<input type='hidden' id="id_add_walt_t_mimetype" value="text/html"/>
-				</p>
-				<p>
-					<label for='id_add_walt_t_title_en'>{% trans "its title" %}</label>
-					<input type='text' class="span6 repeatable" data-target="id_add_walt_t_slug" id="id_add_walt_t_title_en" placeholder="title"/>
-				</p>
-				
-				<p>
-					<label for='id_add_walt_t_slug'>{% trans "slug" %}</label>
-					<input type='text' class="span6" id="id_add_walt_t_slug" placeholder="slug"/>
-				</p>
-
-				<p>
-					<label for='id_add_walt_t_permalink'>{% trans "code source location (e.g github url)" %}</label>
-					<input type='text' class="span6" id="id_add_walt_t_permalink" placeholder="http://"/>
-				</p>
-			
-			</div>
-			<div class="modal-footer">
-				<button class="btn" data-dismiss="modal" aria-hidden="true">{% trans "close" %}</button>
-				<button class="btn btn-primary add-walt-pin" data-page-slug="try" data-auto-id="id_add_walt_t">{% trans "add tool" %}</button>
-			</div>
-		</div>
-		{% endif %}
-
-		<!-- attach tag -->
-		<div id="attach-tag-modal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-			<div class="modal-header">
-				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-				<h2>{% trans "attach a tagl" %}</h2>
-			</div>
-			<div class="modal-body">
-				<form>
-				<p>
-					<label for='id_attach_tag_name'>{% trans "tag it" %}</label>
-					<input type='text' class="span6 typeahead" data-source="oo.glue.tag.typeahead" id="id_attach_tag_name" placeholder="tag"/>
-					<input type='hidden' id="id_attach_tag_pin_slug" value="0" />
-					<input type='hidden' class="span6" id="id_attach_tag_slug" placeholder="tag"/>
-				</p>
-				<p>
-					<label for='id_attach_tag_type'>{% trans "tag type" %}</label>
-					{{ attach_tag_form.type }}
-				</p>
-				<a class="btn" data-dismiss="modal" aria-hidden="true">{% trans "close" %}</a>
-				<button class="btn btn-primary attach-tag" data-page-slug="" data-auto-id="id_attach_tag">{% trans "attach tag" %}"</button>
-				</form>
-			</div>
-		</div>
-
-
-
-		
-	{% endif %}
-{% endblock %}
-
-
-{% block grain %}
-	
-	<div id="serie-viewer" data-object="serie" class="item" style="display:none">
-		<div style="float: right" data-make-small="parent">&larr;</div>
-		<h3>
-			<a href="(( url|slug|{% url walt_serie 0 %} ))">(( title )) (( slug ))</a></h3>
-			<span>( (( length|frames )) frames, type (( type )) )</span>
-			<a href="(( url|slug|{% url walt_serie_stack 0 %} ))">{% trans "view as stack" %}</a>
-			<div class="">
-				<div class="timeline-inner">
-					<div class="frames ui-sortable" data-serie-id="(( id ))">
-						(( loop|frames|frame ))
-					</div>
-				</div>
-			</div>
-
-	</div>
-
-	<div data-object="frame" class="frame" style="display:none">
-		<div class="icon"></div>
-		<div class="title">(( title ))</div>
-		<div class="counter-wrapper"><div class="counter">(( sort ))</div></div>
-	</div>
-				
+  <div id="footer">
+    <div class="inner">copyright....</div>
+  </div>
 
 {% endblock %}

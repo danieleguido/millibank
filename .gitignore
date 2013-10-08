@@ -8,3 +8,5 @@ local_settings.py
 .DS_Store
 
 static/admin
+
+*.sublime-workspace
