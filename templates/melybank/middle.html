@@ -1,0 +1,53 @@
+{% extends "walt/boilerplate.html" %}
+{% load i18n %}
+
+
+{% block body %}
+  <!-- fixed sidebar -->
+  <sidebar {%if user.is_staff %}class="staff"{%endif%}>
+    <div class="inner">
+      <h1>walt.</h1>
+      <ul>
+        <li {%if 'home' in tags %}class="active"{% endif %}><a href="{% url 'walt_home'%}">{%trans 'home'%}</a></li>
+      </ul>
+      
+      {% for category, w in walt.items %}
+      <ul>
+        {% for t in w %}
+        <li {%if t.slug in tags and category in tags%}class="active"{% endif %}><a href="{% url 'walt_browse' category t.slug %}">{{t.name}}</a></li>
+        {% endfor %}
+      </ul>
+      {% endfor %}
+      
+      {% if user.is_staff %}
+      <ul>
+        <li>
+          <a href="{% url 'admin:walt_document_add' %}"> - {{user.username}}, add doc</a>
+        </li>
+      </ul>
+      {% endif %}
+    </div>
+  </sidebar>
+
+  <div id="wrap">
+    <div id="main">
+      <div class="inner">
+      
+        {% block view %}
+        <h1>Invitation</h1>
+        <p>
+        Thanks for using WALT - a very admin friendly Content Management System (AFCMS) to build and manage the content of your website, using the established format consisting of an index for navigating the site and a main area for displaying your works.
+        </p>
+        <p>
+        In order to not display this page, override the <code>block view</code> in django index.html template.
+        </p>
+        {% endblock %}
+      </div>
+    </div>
+  </div>
+
+  <div id="footer">
+    <div class="inner">copyright....</div>
+  </div>
+
+{% endblock %}
