@@ -12,30 +12,42 @@ from django.template import RequestContext
 from django.utils.translation import ugettext as _
 from django.utils.translation import get_language
 
-from walt.forms import LoginForm
-from walt.models import Document, Tag
+from millybank.forms import LoginForm
+from millybank.models import Project, Tag
 
-from walt import local_settings
+from millybank import local_settings
 
 logger = logging.getLogger(__name__)
 
 
-def home( request ):
+def home(request):
   data = _shared_data( request, tags=['home'] )
-  return render_to_response(  "walt/index.html", RequestContext(request, data ) )
 
+  if request.user.is_authenticated():
+    return me_public(request, username=request.user.username, data=data)
 
-def browse(request, walt_category, slug):
+  return render_to_response(  "millybank/index.html", RequestContext(request, data ) )
+
+@login_required(login_url=settings.LOGIN_URL)
+def me_public(request, username, data):
+  if data is None:
+    data = _shared_data( request, tags=['home'] )
+
+  data['projects'] = Project.objects.filter(Q(owner__username=username)|Q(authors__username=username))
+
+  return render_to_response(  "millybank/me.html", RequestContext(request, data ) )
+
+def browse(request, millybank_section, slug):
   '''
 
-  Display document tagged as WALT: WANDER
+  Display Project tagged as millybank: WANDER
   =======================================
 
   '''
-  data = _shared_data(request, tags=[walt_category, slug])
-  data['documents'] = Document.objects.filter(tags__type=walt_category, tags__slug=slug)
+  data = _shared_data(request, tags=[millybank_section, slug])
+  data['projects'] = Project.objects.filter(tags__type=millybank_section, tags__slug=slug)
 
-  return render_to_response(  "walt/browse.html", RequestContext(request, data ) )
+  return render_to_response(  "millybank/browse.html", RequestContext(request, data ) )
 
 
 def storage( request, folder=None, index=None, extension=None ):
@@ -74,19 +86,13 @@ def storage( request, folder=None, index=None, extension=None ):
     'exists': os.path.exists( filepath )
   }
   
-  return render_to_response(  "walt/404.html", RequestContext(request, data ) )
+  return render_to_response(  "millybank/404.html", RequestContext(request, data ) )
 
 
 def _shared_data( request, tags=[], d={} ):
   d['tags'] = tags
   d['debug'] = settings.DEBUG
-  d['walt'] = {}
-
-  for t in Tag.objects.filter(Q(type=Tag.WALT_WANDER) | Q(type=Tag.WALT_AUGMENT) | Q(type=Tag.WALT_LEARN) | Q(type=Tag.WALT_TOOLS)).order_by('type'):
-    if t.type not in d['walt']:
-      d['walt'][t.type] = []
-
-    d['walt'][t.type].append(t)
+  d['millybank'] = Tag.objects.filter(type=Tag.SECTION)
 
   return d
 
@@ -95,13 +101,13 @@ def login_view( request ):
     return home( request )
 
   form = LoginForm( request.POST )
-  next = request.REQUEST.get('next', 'walt_home')
+  next = request.REQUEST.get('next', 'millybank_home')
 
-  login_message = { 'next': next if len( next ) else 'walt_home'}
+  login_message = { 'next': next if len( next ) else 'millybank_home'}
 
   if request.method != 'POST':
     data = _shared_data( request, tags=[ "login" ], d=login_message )
-    return render_to_response('walt/login.html', RequestContext(request, data ) )
+    return render_to_response('millybank/login.html', RequestContext(request, data ) )
 
   if form.is_valid():
     user = authenticate(username=form.cleaned_data['username'], password=form.cleaned_data['password'])
@@ -121,13 +127,13 @@ def login_view( request ):
     login_message['invalid_fields'] = form.errors
   
   data = _shared_data( request, tags=[ "login" ], d=login_message )
-  return render_to_response('walt/login.html', RequestContext(request, data ) )
+  return render_to_response('millybank/login.html', RequestContext(request, data ) )
 
 
 def logout_view( request ):
   logout( request )
-  return redirect( 'walt_home' )
+  return redirect( 'millybank_home' )
 
 
 def not_found( request ):
-  return render_to_response(  "walt/404.html", RequestContext(request, {} ) )
+  return render_to_response(  "millybank/404.html", RequestContext(request, {} ) )

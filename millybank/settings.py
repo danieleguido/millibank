@@ -1,5 +1,4 @@
 import local_settings
-# Django settings for walt project.
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
@@ -30,7 +29,7 @@ ALLOWED_HOSTS = []
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
 # although not all choices may be available on all operating systems.
 # In a Windows environment this must be set to your system time zone.
-TIME_ZONE = 'Europe/Rome'
+TIME_ZONE = local_settings.TIME_ZONE
 
 # Language code for this installation. All choices can be found here:
 # http://www.i18nguy.com/unicode/language-identifiers.html
@@ -66,7 +65,7 @@ STATIC_ROOT = ''
 
 # URL prefix for static files.
 # Example: "http://example.com/static/", "http://static.example.com/"
-STATIC_URL = '/static/'
+STATIC_URL = local_settings.STATIC_URL
 
 # Additional locations of static files
 STATICFILES_DIRS = local_settings.STATICFILES_DIRS
@@ -99,10 +98,10 @@ MIDDLEWARE_CLASSES = (
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
 
-ROOT_URLCONF = 'walt.urls'
+ROOT_URLCONF = 'millybank.urls'
 
 # Python dotted path to the WSGI application used by Django's runserver.
-WSGI_APPLICATION = 'walt.wsgi.application'
+WSGI_APPLICATION = 'millybank.wsgi.application'
 
 TEMPLATE_DIRS = local_settings.TEMPLATE_DIRS
 
@@ -113,7 +112,7 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'walt',
+    'millybank',
     # Uncomment the next line to enable the admin:
     'django.contrib.admin',
     # Uncomment the next line to enable admin documentation:
@@ -150,3 +149,7 @@ LOGGING = {
         },
     }
 }
+
+
+LOGIN_URL = local_settings.LOGIN_URL
+LOGOUT_URL = local_settings.LOGOUT_URL

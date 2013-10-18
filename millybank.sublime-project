@@ -14,12 +14,12 @@
 			"path": "static/less"
 		},
 		{
-			"name": "walt:templates",
-			"path": "templates/walt"
+			"name": "millybank: templates",
+			"path": "templates/millybank"
 		},
 		{
-			"name": "walt:app",
-			"path": "walt"
+			"name": "millybank: project",
+			"path": "millybank"
 		}
 	],
 	"settings":

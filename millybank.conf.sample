@@ -1,0 +1,14 @@
+# CONF sample for apache2 site
+
+  WSGIScriptAlias /millybank /path/to/millybank/millybank.wsgi
+  <Directory /path/to/millybank>
+    Order allow,deny
+    Allow from all
+  </Directory>
+
+  Alias /millybank/static /path/to/millybank/static
+  <Directory /path/to/millybank/static>
+    Order allow,deny
+    Allow from all
+  </Directory>
+
