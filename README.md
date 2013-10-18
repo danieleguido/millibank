@@ -1,4 +1,4 @@
-frontcast
+millibank
 =========
 
 Fedora
@@ -7,19 +7,18 @@ create and activate virtualenv, install dependecies
 
 copy and modify local_settings according to your own django settings. Cfr. settings.py 
 	
-	mv frontcast/local_settings.sample.py frontcast/local_settings.py 
+	mv millybank/local_settings.sample.py millybank/local_settings.py 
 
 
 
 
 Mac & Unix installation
+Clone the project, we use '/path/to/' as base folder
 
-Note: we use '/path/to/' as base folder
+Create your project virtualenv:
 
-Create your frontcast virtualenv:
-
-	$ mkvirtualenv frontcast
-	$ cd frontcast
+	$ cd /path/to/millybank
+	$ mkvirtualenv millybank
 	$ pip install -r requirements.txt
 
 … and create the lacking folders (change permissions according to your system configuration)
@@ -34,21 +33,6 @@ How to compile handlebars templates
 Frontcast makes use of handlebars templates.
 So, firstly install all handlebars requirement for _precompilation. Cfr http://handlebarsjs.com/precompilation.html
 
-	$ cd frontcast
+	$ cd millybank
 	$ handlebars static/js/templates/* -f static/js/walt.handlebars.js
 
-
-How to override Domino Handlebars Templates
----
-
-Domino Handlebars templates can be overridden by changing the CustomTemplateUrl path in domino settings
-
-How to override CSS templates
----
-custom.css
-
-Remote storage
----
-
-Use the `settings.STORAGE_ROOT` and `settings.STORAGE_ROOT_PROTECTED` to set root path of files that are not available from outside.
-This allows you to check for django user permission to access protected files.
