@@ -98,10 +98,10 @@ MIDDLEWARE_CLASSES = (
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
 
-ROOT_URLCONF = 'millybank.urls'
+ROOT_URLCONF = 'millibank.urls'
 
 # Python dotted path to the WSGI application used by Django's runserver.
-WSGI_APPLICATION = 'millybank.wsgi.application'
+WSGI_APPLICATION = 'millibank.wsgi.application'
 
 TEMPLATE_DIRS = local_settings.TEMPLATE_DIRS
 
@@ -112,7 +112,7 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'millybank',
+    'millibank',
     # Uncomment the next line to enable the admin:
     'django.contrib.admin',
     # Uncomment the next line to enable admin documentation:
@@ -153,3 +153,6 @@ LOGGING = {
 
 LOGIN_URL = local_settings.LOGIN_URL
 LOGOUT_URL = local_settings.LOGOUT_URL
+
+# MILLIBANK specifics
+MILLIBANK_NAME = local_settings.MILLIBANK_NAME 

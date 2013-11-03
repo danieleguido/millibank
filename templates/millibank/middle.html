@@ -1,0 +1,58 @@
+{% extends "millibank/boilerplate.html" %}
+{% load i18n %}
+
+
+{% block body %}
+  <!-- fixed sidebar -->
+  <sidebar {%if user.is_staff %}class="staff"{%endif%}>
+    <div class="inner">
+      <h1>{{MILLIBANK_NAME}}</h1>
+      <ul>
+        <li {%if 'home' in tags %}class="active"{% endif %}><a href="{% url 'millibank_home'%}">{%trans 'home'%}</a></li>
+        {% if user.is_authenticated %}
+        <li {%if 'login' in tags %}class="active"{% endif %}><a href="{% url 'millibank_logout'%}">{%trans 'logout'%}</a></li>
+        {% else %}
+        <li {%if 'login' in tags %}class="active"{% endif %}><a href="{% url 'millibank_login'%}">{%trans 'login'%}</a></li>
+        {% endif %}
+      </ul>
+      
+      {% for section in sections %}
+      <ul>
+        {% for t in w %}
+        <li {%if t.slug in tags and category in tags%}class="active"{% endif %}><a href="{% url 'millibank_browse' category t.slug %}">{{t.name}}</a></li>
+        {% endfor %}
+      </ul>
+      {% endfor %}
+      
+      {% if user.is_staff %}
+      <ul>
+        <li>
+          <a href="{% url 'admin:millibank_project_add' %}"> - {{user.username}}, add project</a>
+        </li>
+      </ul>
+      {% endif %}
+    </div>
+  </sidebar>
+
+  <div id="wrap">
+    <div id="main">
+      <div class="inner">
+      
+        {% block view %}
+        <h1>Invitation</h1>
+        <p>
+        Thanks for using millibank - a very admin friendly Content Management System (AFCMS) to build and manage the content of your website, using the established format consisting of an index for navigating the site and a main area for displaying your works.
+        </p>
+        <p>
+        In order to not display this page, override the <code>block view</code> in django index.html template.
+        </p>
+        {% endblock %}
+      </div>
+    </div>
+  </div>
+
+  <div id="footer">
+    <div class="inner">fork  <a href="https://github.com/danieleguido/millibank">millibank</a> on Github</div>
+  </div>
+
+{% endblock %}

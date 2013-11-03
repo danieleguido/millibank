@@ -12,10 +12,10 @@ from django.template import RequestContext
 from django.utils.translation import ugettext as _
 from django.utils.translation import get_language
 
-from millybank.forms import LoginForm
-from millybank.models import Project, Tag
+from millibank.forms import LoginForm
+from millibank.models import Project, Tag
 
-from millybank import local_settings
+from millibank import local_settings
 
 logger = logging.getLogger(__name__)
 
@@ -26,7 +26,7 @@ def home(request):
   if request.user.is_authenticated():
     return me_public(request, username=request.user.username, data=data)
 
-  return render_to_response(  "millybank/index.html", RequestContext(request, data ) )
+  return render_to_response(  "millibank/index.html", RequestContext(request, data ) )
 
 @login_required(login_url=settings.LOGIN_URL)
 def me_public(request, username, data):
@@ -35,19 +35,19 @@ def me_public(request, username, data):
 
   data['projects'] = Project.objects.filter(Q(owner__username=username)|Q(authors__username=username))
 
-  return render_to_response(  "millybank/me.html", RequestContext(request, data ) )
+  return render_to_response(  "millibank/me.html", RequestContext(request, data ) )
 
-def browse(request, millybank_section, slug):
+def browse(request, millibank_section, slug):
   '''
 
-  Display Project tagged as millybank: WANDER
+  Display Project tagged as millibank: WANDER
   =======================================
 
   '''
-  data = _shared_data(request, tags=[millybank_section, slug])
-  data['projects'] = Project.objects.filter(tags__type=millybank_section, tags__slug=slug)
+  data = _shared_data(request, tags=[millibank_section, slug])
+  data['projects'] = Project.objects.filter(tags__type=millibank_section, tags__slug=slug)
 
-  return render_to_response(  "millybank/browse.html", RequestContext(request, data ) )
+  return render_to_response(  "millibank/browse.html", RequestContext(request, data ) )
 
 
 def storage( request, folder=None, index=None, extension=None ):
@@ -86,28 +86,30 @@ def storage( request, folder=None, index=None, extension=None ):
     'exists': os.path.exists( filepath )
   }
   
-  return render_to_response(  "millybank/404.html", RequestContext(request, data ) )
+  return render_to_response(  "millibank/404.html", RequestContext(request, data ) )
 
 
 def _shared_data( request, tags=[], d={} ):
   d['tags'] = tags
   d['debug'] = settings.DEBUG
-  d['millybank'] = Tag.objects.filter(type=Tag.SECTION)
+  d['MILLIBANK_NAME'] = settings.MILLIBANK_NAME
+  d['millibank'] = Tag.objects.filter(type=Tag.SECTION)
 
   return d
+
 
 def login_view( request ):
   if request.user.is_authenticated():
     return home( request )
 
   form = LoginForm( request.POST )
-  next = request.REQUEST.get('next', 'millybank_home')
+  next = request.REQUEST.get('next', 'millibank_home')
 
-  login_message = { 'next': next if len( next ) else 'millybank_home'}
+  login_message = { 'next': next if len( next ) else 'millibank_home'}
 
   if request.method != 'POST':
     data = _shared_data( request, tags=[ "login" ], d=login_message )
-    return render_to_response('millybank/login.html', RequestContext(request, data ) )
+    return render_to_response('millibank/login.html', RequestContext(request, data ) )
 
   if form.is_valid():
     user = authenticate(username=form.cleaned_data['username'], password=form.cleaned_data['password'])
@@ -127,13 +129,13 @@ def login_view( request ):
     login_message['invalid_fields'] = form.errors
   
   data = _shared_data( request, tags=[ "login" ], d=login_message )
-  return render_to_response('millybank/login.html', RequestContext(request, data ) )
+  return render_to_response('millibank/login.html', RequestContext(request, data ) )
 
 
 def logout_view( request ):
   logout( request )
-  return redirect( 'millybank_home' )
+  return redirect( 'millibank_home' )
 
 
 def not_found( request ):
-  return render_to_response(  "millybank/404.html", RequestContext(request, {} ) )
+  return render_to_response(  "millibank/404.html", RequestContext(request, {} ) )

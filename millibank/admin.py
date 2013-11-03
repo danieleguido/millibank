@@ -1,5 +1,5 @@
 from django.contrib import admin
-from millybank.models import Project, Me, Cling, Tag
+from millibank.models import Project, Me, Cling, Tag
 
 
 class ClingAdmin(admin.ModelAdmin):

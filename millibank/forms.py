@@ -1,7 +1,7 @@
 from django import forms
 from django.forms import ModelForm
 from django.utils.translation import ugettext as _
-from millybank.models import Project
+from millibank.models import Project
 
 class LoginForm(forms.Form):
 	username = forms.CharField( label=_('login'), max_length=64 )

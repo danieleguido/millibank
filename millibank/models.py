@@ -9,7 +9,7 @@ from django.db import models
 from django.utils.text import slugify
 from django.utils.timezone import utc
 
-from millybank.utils import uuslug, uutinyurl
+from millibank.utils import uuslug, uutinyurl
 
 
 class Tag(models.Model):
@@ -58,7 +58,7 @@ class Tag(models.Model):
 class Cling(models.Model):
   '''
 
-  The millybank atom
+  The millibank atom
   ---
 
   '''
@@ -78,7 +78,7 @@ class Cling(models.Model):
 class Me(models.Model):
   '''
 
-  A Millybank Entity - or just extension of the self
+  A Millibank Entity - or just extension of the self
   ---
 
   '''
@@ -117,7 +117,7 @@ class Me(models.Model):
 class Alter(models.Model):
   '''
 
-  Millybank Entity Alter-Egos
+  Millibank Entity Alter-Egos
   ---
 
   '''
@@ -130,7 +130,7 @@ class Alter(models.Model):
 class Project(models.Model):
   '''
 
-  Millybank Project, a serie of Me
+  Millibank Project, a serie of Me
   ---
 
   '''
@@ -197,7 +197,7 @@ class Project(models.Model):
 class Serie(models.Model):
   '''
 
-  THe serie of Millybank Entity constituing a project
+  THe serie of Millibank Entity constituing a project
   ---
 
   '''

@@ -6,20 +6,7 @@
 			[
 				"*.min.js"
 			],
-			"name": "js",
-			"path": "static/js"
-		},
-		{
-			"name": "less",
-			"path": "static/less"
-		},
-		{
-			"name": "millybank: templates",
-			"path": "templates/millybank"
-		},
-		{
-			"name": "millybank: project",
-			"path": "millybank"
+			"path": "."
 		}
 	],
 	"settings":
