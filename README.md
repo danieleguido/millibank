@@ -1,13 +1,23 @@
 millibank
 =========
 
-Fedora
-create and activate virtualenv, install dependecies
+fork the millibank repositor - we use '/path/to/' as base folder - create a specific virtualenv and activate it;
+then, install dependecies from the requirements.txt:
+	
+	$ cd /path/to/millibank
+	$ workon millibank
+	(millibank)$ pip install -r requirements.txt
+
+create lacking folders and attribute permissions:
+
+	$ cd /path/to/millibank
+	(millibank)$ mkdir sqlite logs
 	
 
 copy and modify local_settings according to your own django settings. Cfr. settings.py 
-	
-	mv millybank/local_settings.sample.py millybank/local_settings.py 
+	$ cd /path/to/millibank
+	(millibank)$ cp millybank/local_settings.sample.py millybank/local_settings.py 
+
 
 
 
