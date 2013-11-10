@@ -10,11 +10,11 @@ then, install dependecies from the requirements.txt:
 
 create lacking folders and attribute permissions:
 
-	$ cd /path/to/millibank
-	(millibank)$ mkdir sqlite logs
+	(millibank)$ cd /path/to/millibank
+	(millibank)$ mkdir sqlite logs locale media
 
 copy local_settings configuration file and modify millibank/local_settings.py according to your own django settings. Cfr. settings.py 
-	$ cd /path/to/millibank
+	(millibank)$ cd /path/to/millibank
 	(millibank)$ cp millybank/local_settings.sample.py millybank/local_settings.py 
 
 The local_settings.py stores some basic information about your millibank installation.
@@ -31,22 +31,27 @@ Remaining variables are related to settings.py (feel free to consult the django 
 	DB_HOST = ''
 	DB_PORT	= ''
 
+Note that we will use a sqlite db: if you do the same, make sure that apache or wsgi user
+has the right to write both the millibank.db file AND millibank.db parent folder.
 
-Mac & Unix installation
-Clone the project, we use '/path/to/' as base folder
+Finish the installation by doing:
 
-Create your project virtualenv:
+	(millibank)$ cd /path/to/millibank
+	(millibank)$ python manage.py syncdb
 
-	$ cd /path/to/millybank
-	$ mkvirtualenv millybank
-	$ pip install -r requirements.txt
+Then, start the django default dev server to test thath everything is ok, then point your browser to http://127.0.0.1:8000/
 
-… and create the lacking folders (change permissions according to your system configuration)
+	(millibank)$ python manage.py runserver
+	Validating models...
+
+	0 errors found
+	November 10, 2013 - 20:06:17
+	Django version 1.5.4, using settings 'millibank.settings'
+	Development server is running at http://127.0.0.1:8000/
+	Quit the server with CONTROL-C.
 	
-	$ mkdir logs media locale sqlite
-	
+That's it for the basic installation!
 
-We added sqlite folder because we will use a sqlite db. Make sure that apache user has the right to write the .db parent folder.
 
 How to compile handlebars templates
 ---
