@@ -1,4 +1,4 @@
-import csv
+import csv, re
 
 from django.conf import settings
 from django.utils.text import slugify
@@ -19,22 +19,20 @@ def uuslug(model, instance, value, max_length=128):
     @param text - the text to be slugified 
 
   '''
-  if not instance.slug:
-    slug = slugify(value)[:max_length] # safe autolimiting
-    slug_base = slug
-    i = 1;
+  slug = slugify(value)[:max_length] # safe autolimiting
+  slug_base = slug
+  i = 1;
 
-    while model.filter(slug=slug).count():
-      candidate = '%s-%s' % (slug_base, i)
+  while model.objects.filter(slug=slug).count():
+    candidate = '%s-%s' % (slug_base, i)
 
-      if len(candidate) > max_length:
-        slug = slug[:max_length-len('-%s' % i)]
+    if len(candidate) > max_length:
+      slug = slug[:max_length-len('-%s' % i)]
 
-      slug = re.sub('\-+','-',candidate)
-      i += 1
+    slug = re.sub('\-+','-',candidate)
+    i += 1
 
-    return slug
-  return instance.slug
+  return slug
 
 
 def uutinyurl(value, max_length=8):

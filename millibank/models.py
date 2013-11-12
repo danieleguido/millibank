@@ -1,4 +1,4 @@
-import re, os
+import re, os, hashlib
 from datetime import datetime
 from markdown import markdown
 
@@ -12,49 +12,6 @@ from django.utils.timezone import utc
 from millibank.utils import uuslug, uutinyurl
 
 
-class Tag(models.Model):
-  '''
-    feel free to add tag types to this model ... :D
-  '''
-  
-  FREE = '' # i.e, no special category at all
-  PLACE = 'Pl'
-  DATE = 'Da'
-  SECTION = 'S' # project only
-  
-  TYPE_CHOICES = (
-    (FREE, 'no category'),
-    (PLACE, 'Place'),
-    (DATE, 'Date'),
-    (SECTION, 'SECTION'),
-  )
-
-  name = models.CharField(max_length=128) # e.g. 'Mr. E. Smith'
-  slug = models.SlugField(max_length=128, unique=True) # e.g. 'mr-e-smith'
-  type = models.CharField(max_length=2, choices=TYPE_CHOICES, default=FREE) # e.g. 'author' or 'institution'
-  
-  related = models.ManyToManyField('self', symmetrical=False, null=True, blank=True) # tag specification e.g. we want to specify an institution for a given author
-  
-  def __unicode__(self):
-    return "%s : %s"% (self.get_type_display(), self.name)
-
-  class Meta:
-    ordering = ["type", "slug" ]
-
-  def json(self):
-    return{
-      'id': self.id,
-      'slug':self.slug,
-      'name':self.name,
-      'type':self.type,
-      'type_label':self.get_type_display()
-    }
-
-  def save(self, **kwargs):
-    self.slug = uuslug(model=Tag, instance=self, value='%s-%s' % (self.type, self.name))
-    super(Tag, self).save()
-
-
 class Cling(models.Model):
   '''
 
@@ -62,16 +19,46 @@ class Cling(models.Model):
   ---
 
   '''
-  owner = models.ForeignKey(User) # the first owner ;D
-  url  = models.TextField(default="") # remote link
-  url_hash  = models.CharField(max_length=64) # easy index for url. Not unique, but ...
-  tinyurl = models.CharField(max_length=8, unique=True) # database unique url
+  url  = models.TextField() # remote link. Obbligatorio !
+  url_hash  = models.CharField(unique=True, max_length=64, null=True, blank=True) # easy index for url. Not unique, but rare enough...
+  
+  oembed  = models.TextField(default="", null=True, blank=True) # oembed json as plain text
+  description  = models.TextField(default="", null=True, blank=True) # remote link
+  
+  owner = models.ForeignKey(User) # the first digger ;D
+  diggers = models.ManyToManyField(User, blank=True, null=True, related_name="shared_clings") # co-authors co-owners
+  
+  value = models.IntegerField(default=1, blank=True) # number of diggers, without doing any JOIN. updated on save.
+
+  date_created = models.DateTimeField(default=datetime.now, blank=True)
+  date_last_modified = models.DateTimeField(auto_now=True)
+
+  def json(self):
+    d = _shared_json(self)
+    d.update({
+      'url': self.url,
+      'url_hash': self.url_hash,
+      'oembed' : self.oembed,
+      'description': self.description,
+      'owner': _shared_user(self.owner),
+      'owner': _shared_user(self.owner)
+    })
+    return d
 
   def __unicode__(self):
     return "%s"% (self.url)
 
   def save(self, **kwargs):
-    tinyurl = uutinyurl(value=self.url_hash)
+    if self.pk is None:
+      # check url unicity, save url hash. Otherwise add the user to the list of diggers.
+      self.url_hash = hashlib.sha224(self.url).hexdigest()
+
+      # try to save
+
+      pass
+    else:
+      # it is an update
+      pass
     super(Cling, self).save()
 
 
@@ -81,6 +68,7 @@ class Me(models.Model):
   A Millibank Entity - or just extension of the self
   ---
 
+  A Me is a shareable objects, that is you have to define the contributors
   '''
   PUBLIC  = 'P'
   DRAFT   = 'D'
@@ -91,19 +79,16 @@ class Me(models.Model):
   )
 
   title = models.CharField(max_length=160, default="")
-  content = models.TextField(default="", blank=True, null=True)
   slug = models.SlugField(max_length=160, unique=True)
 
   status  = models.CharField(max_length=1, choices=STATUS_CHOICES, default=DRAFT, blank=True, null=True)
 
-  owner = models.ForeignKey(User) # the original owner
-  authors = models.ManyToManyField(User, blank=True, null=True, related_name="other_mes") # co-authors co-owners
+  owner = models.ForeignKey(User, related_name="mes")
+  contributors = models.ManyToManyField(User, blank=True, null=True, related_name="shared_mes", through='Me_User') # co-authors co-owners
   
-  tags = models.ManyToManyField(Tag, blank=True, null=True)
+  clings = models.ManyToManyField(Cling, through='Me_Cling')
 
-  mirror = models.ForeignKey(Cling)
-  clings = models.ManyToManyField(Cling, through='Alter', related_name="other_mes")
-
+  date_created = models.DateTimeField(default=datetime.now, blank=True)
   date_last_modified = models.DateTimeField(auto_now=True)
 
   def __unicode__(self):
@@ -114,7 +99,18 @@ class Me(models.Model):
     super(Me, self).save()
 
 
-class Alter(models.Model):
+class Me_User(models.Model):
+  '''
+
+  Millibank Entity Users:
+  ---
+  '''
+  me = models.ForeignKey(Me)
+  user = models.ForeignKey(User)
+  role = models.CharField(max_length=160, default="", blank=True)
+
+
+class Me_Cling(models.Model):
   '''
 
   Millibank Entity Alter-Egos
@@ -123,8 +119,9 @@ class Alter(models.Model):
   '''
   me = models.ForeignKey(Me)
   cling = models.ForeignKey(Cling)
-  date_joined = models.DateTimeField(auto_now=True)
-  position = models.IntegerField(default=-1,null=True, blank=True)
+  position = models.IntegerField(default=0) # last 0 added is the me "cover" cling
+
+  date_created = models.DateTimeField(default=datetime.now, blank=True)
 
 
 class Project(models.Model):
@@ -143,21 +140,20 @@ class Project(models.Model):
   )
 
   title = models.CharField(max_length=128)
-  content = models.TextField(default="", blank=True, null=True)
-  slug = models.SlugField(max_length=128, unique=True)
+  slug = models.SlugField(max_length=128, unique=True, blank=True)
 
   status  = models.CharField(max_length=1, choices=STATUS_CHOICES, default=DRAFT, blank=True, null=True)
 
-  owner = models.ForeignKey(User) # the original owner
-  authors = models.ManyToManyField(User, blank=True, null=True, related_name="other_projects") # co-authors
-  
-  tags = models.ManyToManyField(Tag, blank=True, null=True)
-  mes = models.ManyToManyField(Me, through='Serie')
+  owner = models.ForeignKey(User) # the original owner. Contributors are contributor to the project's me!
+  position = models.IntegerField(default=0) # the position in the user projects!
 
+  mes = models.ManyToManyField(Me, through='Project_Me')
+
+  date_created = models.DateTimeField(default=datetime.now, blank=True)
   date_last_modified = models.DateTimeField(auto_now=True)
 
   def __unicode__(self):
-    return "%s"% (self.title)
+    return "%s (by %s)"% (self.title, self.owner.username)
 
   def clings(self):
     '''
@@ -194,7 +190,7 @@ class Project(models.Model):
     super(Project, self).save()
 
 
-class Serie(models.Model):
+class Project_Me(models.Model):
   '''
 
   THe serie of Millibank Entity constituing a project
@@ -203,7 +199,36 @@ class Serie(models.Model):
   '''
   project = models.ForeignKey(Project)
   me = models.ForeignKey(Me)
-  date_joined = models.DateTimeField(auto_now=True)
-  position = models.IntegerField(default=-1,null=True, blank=True)
+  position = models.IntegerField(default=0) # last 0 added is the me "cover" cling
+
+  date_created = models.DateTimeField(default=datetime.now, blank=True)
 
 
+
+def _shared_json(item):
+  '''
+  Return a common json object for api invoc.
+  '''
+  d = {
+    'id': item.id
+  }
+
+  if hasattr(item,'date_created'):
+    d['date_created'] = item.date_created.isoformat()
+
+  if hasattr(item,'date_last_modified'):
+    d['date_last_modified'] = item.date_last_modified.isoformat()
+
+  return d
+
+
+def _shared_user(user):
+  '''
+  Return a common json object for a User api invoc.
+  '''
+  d = {
+    'id': user.id,
+    'fullname': user.username,
+    'username': user.username
+  }
+  return d

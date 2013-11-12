@@ -13,7 +13,7 @@ from django.utils.translation import ugettext as _
 from django.utils.translation import get_language
 
 from millibank.forms import LoginForm
-from millibank.models import Project, Tag
+from millibank.models import Project
 
 from millibank import local_settings
 
@@ -27,6 +27,14 @@ def home(request):
     return me_public(request, username=request.user.username, data=data)
 
   return render_to_response(  "millibank/index.html", RequestContext(request, data ) )
+
+
+def author(request, username):
+  data = _shared_data( request, tags=['author'] )
+  data['projects'] = Project.objects.filter(owner__username=username)
+
+  return render_to_response(  "millibank/author.html", RequestContext(request, data ) )
+
 
 @login_required(login_url=settings.LOGIN_URL)
 def me_public(request, username, data):
@@ -93,8 +101,6 @@ def _shared_data( request, tags=[], d={} ):
   d['tags'] = tags
   d['debug'] = settings.DEBUG
   d['MILLIBANK_NAME'] = settings.MILLIBANK_NAME
-  d['millibank'] = Tag.objects.filter(type=Tag.SECTION)
-
   return d
 
 

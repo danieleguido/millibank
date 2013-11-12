@@ -1,0 +1,51 @@
+MILLIBANK_HOME = "/home/lime/public/dev/millibank"
+MILLIBANK_NAME = "millibank"
+
+DB_BACKEND	= 'django.db.backends.sqlite3'
+DB_NAME	= '%s/sqlite/millibank.db' % MILLIBANK_HOME
+DB_USER = ''
+DB_PASS = ''
+DB_HOST = ''
+DB_PORT	= ''
+
+TIME_ZONE = 'Europe/Rome'
+
+MEDIA_ROOT = '%s/media' % MILLIBANK_HOME
+
+SECRET_KEY = 'secret very secret key!'
+
+TEMPLATE_DIRS = (
+	'%s/templates' % MILLIBANK_HOME,
+    # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
+    # Always use forward slashes, even on Windows.
+    # Don't forget to use absolute paths, not relative paths.
+)
+
+STATICFILES_DIRS = (
+    '%s/static' % MILLIBANK_HOME,
+)
+
+STATIC_ROOT = '%s/static/assets' % MILLIBANK_HOME
+STATIC_URL = '/static/'
+
+LOCALE_PATHS = (
+	'%s/locale' % MILLIBANK_HOME,
+)
+
+LANGUAGES = (
+	('it', 'Italian'),
+    ('en', 'English'),
+    ('fr', 'French'),
+)
+
+LOGIN_URL = '/login/'
+LOGOUT_URL = '/logout/'
+
+GLUE_LOG_PATH = '%s/logs/glue.log' % MILLIBANK_HOME
+GLUE_ACCESS_DENIED_URL ='/api/access-denied/'
+
+
+ALCHEMY_API_KEY = 'if any'
+
+EMAIL_HOST = 'smtp.domain.com'
+EMAIL_PORT = 25
