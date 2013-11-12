@@ -1,5 +1,4 @@
-*.py~
-*~millibank/local_settings.py
+*~
 *.log
 *.pot
 *.pyc
