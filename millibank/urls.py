@@ -4,8 +4,11 @@ from django.conf.urls import patterns, include, url
 from django.contrib import admin
 admin.autodiscover()
 
-urlpatterns = patterns('millibank.views',
-    url(r'^$', 'home', name='millibank_home'),
+import millibank
+#from glue.urls import glue_api_urlpatterns
+
+urlpatterns = patterns('',
+    url(r'^$', 'millibank.views.home', name='millibank_home'),
     url(r'^a/(?P<username>[a-zA-Z])/$', 'author', name='millibank_author'),
     # login / logout
     url(r'^logout/$', 'logout_view', name='millibank_logout'),
@@ -13,7 +16,7 @@ urlpatterns = patterns('millibank.views',
     url(r'^ouch/$', 'ot_found', name='millibank_not_found'),
 
     url(r'^admin/', include(admin.site.urls)),
-
+    url(r'^glue/', include('glue.urls')),
     # millybank categories
     url(r'^(?P<millibank_category>[a-z])/(?P<slug>[a-zA-Z\-\d]+)$', 'millibank.views.browse', name='millibank_browse'),
 )

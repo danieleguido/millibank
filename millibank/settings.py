@@ -112,6 +112,7 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'glue',
     'millibank',
     # Uncomment the next line to enable the admin:
     'django.contrib.admin',
@@ -134,12 +135,24 @@ LOGGING = {
             '()': 'django.utils.log.RequireDebugFalse'
         }
     },
+    'formatters': {
+        'verbose': {
+            'format': '%(levelname)s %(asctime)s %(module)s.%(funcName)s(%(lineno)d) %(message)s'
+        },
+    },
     'handlers': {
         'mail_admins': {
             'level': 'ERROR',
             'filters': ['require_debug_false'],
             'class': 'django.utils.log.AdminEmailHandler'
-        }
+        },
+        'glue':{
+            'level': 'DEBUG',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': local_settings.GLUE_LOG_PATH,
+            'maxBytes': '16777216', # 16 megabytes
+            'formatter': 'verbose'
+        },
     },
     'loggers': {
         'django.request': {
@@ -147,6 +160,11 @@ LOGGING = {
             'level': 'ERROR',
             'propagate': True,
         },
+        'glue':{ # glue content management app
+            'handlers': ['glue'],
+            'level': 'INFO',
+            'propagate': True
+        }
     }
 }
 
@@ -156,3 +174,6 @@ LOGOUT_URL = local_settings.LOGOUT_URL
 
 # MILLIBANK specifics
 MILLIBANK_NAME = local_settings.MILLIBANK_NAME 
+
+# GLUE specific settings
+GLUE_ACCESS_DENIED_URL = local_settings.GLUE_ACCESS_DENIED_URL

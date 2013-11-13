@@ -1,4 +1,4 @@
-import re, os, hashlib
+import re, os, hashlib, logging
 from datetime import datetime
 from markdown import markdown
 
@@ -6,11 +6,15 @@ from django.contrib.auth.models import User, Group
 from django.core.urlresolvers import reverse
 from django.conf import settings
 from django.db import models
+from django.db.models.signals import pre_save
+from django.dispatch import receiver
 from django.utils.text import slugify
 from django.utils.timezone import utc
 
 from millibank.utils import uuslug, uutinyurl
 
+
+logger = logging.getLogger('glue')
 
 class Cling(models.Model):
   '''
@@ -41,24 +45,22 @@ class Cling(models.Model):
       'oembed' : self.oembed,
       'description': self.description,
       'owner': _shared_user(self.owner),
-      'owner': _shared_user(self.owner)
     })
     return d
 
   def __unicode__(self):
-    return "%s"% (self.url)
+    return "%s (%s)"% (self.url, self.value)
 
+  
   def save(self, **kwargs):
-    if self.pk is None:
-      # check url unicity, save url hash. Otherwise add the user to the list of diggers.
-      self.url_hash = hashlib.sha224(self.url).hexdigest()
-
-      # try to save
-
-      pass
-    else:
-      # it is an update
-      pass
+    self.url_hash = hashlib.sha224(self.url).hexdigest()
+    if self.pk is not None:
+      self.value = self.diggers.count()
+      logger.info('update instance diggers to %s' % self.value)
+      
+      
+      super(Cling, self).save()
+      
     super(Cling, self).save()
 
 

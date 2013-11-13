@@ -173,7 +173,7 @@ class Epoxy:
   def single(self, model, kwargs):
     self.response['meta']['model'] = model.__name__
     try:
-      self.response['object'] = model.objects.get(**kwargs).json(deep=True)
+      self.response['object'] = model.objects.get(**kwargs).json()
     except model.DoesNotExist, e:
       return self.throw_error(error="%s" % e, code=API_EXCEPTION_EMPTY)
     return self
@@ -208,7 +208,8 @@ class Epoxy:
       qs = qs[ self.offset : self.offset + self.limit ]
 
     self.response['meta']['model'] = queryset.model.__name__
-    
+
+
     # "easier to ask for forgiveness than permission" (EAFP) rather than "look before you leap" (LBYL)
     try:
       self.response['objects'] = [ o.json() for o in qs ]
