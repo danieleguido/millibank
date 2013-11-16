@@ -22,28 +22,22 @@ logger = logging.getLogger(__name__)
 
 def home(request):
   data = _shared_data( request, tags=['home'] )
-
-  if request.user.is_authenticated():
-    return me_public(request, username=request.user.username, data=data)
-
   return render_to_response(  "millibank/index.html", RequestContext(request, data ) )
 
 
-def author(request, username):
-  data = _shared_data( request, tags=['author'] )
+def portfolio(request, username):
+  data = _shared_data( request, tags=['portfolio'] )
+
   data['projects'] = Project.objects.filter(owner__username=username)
 
-  return render_to_response(  "millibank/author.html", RequestContext(request, data ) )
+  return render_to_response(  "millibank/portfolio.html", RequestContext(request, data ) )
 
 
-@login_required(login_url=settings.LOGIN_URL)
-def me_public(request, username, data):
-  if data is None:
-    data = _shared_data( request, tags=['home'] )
+def project(request, slug):
+  data = _shared_data( request, tags=['portfolio'] )
+  data['project'] = get_object_or_404(Project, slug=slug)
 
-  data['projects'] = Project.objects.filter(Q(owner__username=username)|Q(authors__username=username))
-
-  return render_to_response(  "millibank/me.html", RequestContext(request, data ) )
+  return render_to_response(  "millibank/portfolio.html", RequestContext(request, data ) )
 
 def browse(request, millibank_section, slug):
   '''

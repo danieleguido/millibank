@@ -10,6 +10,9 @@
       <ul>
         <li {%if 'home' in tags %}class="active"{% endif %}><a href="{% url 'millibank_home'%}">{%trans 'home'%}</a></li>
         {% if user.is_authenticated %}
+        <li {%if 'portfolio' in tags %}class="active"{% endif %}>
+          <a href="{% url 'millibank_portfolio' user.username%}">{{user.username}}'s bank</a>
+        </li>
         <li {%if 'login' in tags %}class="active"{% endif %}><a href="{% url 'millibank_logout'%}">{%trans 'logout'%}</a></li>
         {% else %}
         <li {%if 'login' in tags %}class="active"{% endif %}><a href="{% url 'millibank_login'%}">{%trans 'login'%}</a></li>

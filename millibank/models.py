@@ -165,26 +165,14 @@ class Project(models.Model):
 
   def json(self, deep=False):
     # divide tags according to type
-    tags = {}
-
-    for t in self.tags.all():
-      t_type = '%s'%t.get_type_display()
-      if t_type not in tags:
-        tags[t_type] = []
-      tags[t_type].append(t.json())
-
+    
     return{
       'id': self.id,
       'slug':self.slug,
       'status': self.get_status_display(),
       'title': self.title,
-      'content': self.content,
       'owner': self.owner.username,
-      'tags': tags,
-      'type': self.type,
-      'date_last_modified': self.date_last_modified.isoformat() if self.date_last_modified is not None else None,
-      'authors': [a.username for a in self.authors.all()]
-
+      'date_last_modified': self.date_last_modified.isoformat() if self.date_last_modified is not None else None
     }
 
   def save(self, **kwargs):
