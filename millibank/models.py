@@ -149,9 +149,9 @@ class Project(models.Model):
   owner = models.ForeignKey(User) # the original owner. Contributors are contributor to the project's me!
   position = models.IntegerField(default=0) # the position in the user projects!
 
-  mes = models.ManyToManyField(Me, through='Project_Me')
+  mes = models.ManyToManyField(Me, through='Project_Me', null=True, blank=True)
 
-  date_created = models.DateTimeField(default=datetime.now, blank=True)
+  date_created = models.DateTimeField(auto_now_add=True, blank=True)
   date_last_modified = models.DateTimeField(auto_now=True)
 
   def __unicode__(self):
@@ -176,7 +176,7 @@ class Project(models.Model):
     }
 
   def save(self, **kwargs):
-    self.slug = uuslug(model=Project, instance=self,value=self.title)
+    self.slug = uuslug(model=Project, instance=self, value=self.title)
     super(Project, self).save()
 
 
