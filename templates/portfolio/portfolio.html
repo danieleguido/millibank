@@ -1,0 +1,13 @@
+{% extends "millibank/middle.html" %}
+{% load i18n %}
+
+{% block view %}
+  <h1>{{user.username}}</h1>
+  {% for project in projects %}
+    <div>
+      <h2><a href='{%url 'millibank_project' project.slug%}'>{{project.title}}</a></h2>
+      
+    </div>
+
+  {%endfor%}
+{% endblock %}

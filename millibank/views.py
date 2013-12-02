@@ -13,7 +13,7 @@ from django.utils.translation import ugettext as _
 from django.utils.translation import get_language
 
 from millibank.forms import LoginForm
-from millibank.models import Project
+from millibank.models import Project, Profile
 
 from millibank import local_settings
 
@@ -22,6 +22,19 @@ logger = logging.getLogger(__name__)
 
 def home(request):
   data = _shared_data( request, tags=['home'] )
+
+  if settings.MILLIBANK_TYPE == local_settings.MILLIBANK_AS_PORTFOLIO:
+    try:
+      data['profile'] = profile = Profile.objects.get(user__username=local_settings.MILLIBANK_PROFILE)
+      data['projects'] = Project.objects.filter(owner=profile.user)
+    except Profile.DoesNotExist, e:
+      return render_to_response(  "portfolio/setup.html", RequestContext(request, data ) )
+    
+      # @todo redirect to add default user profile (admin)
+      pass
+
+    return render_to_response(  "portfolio/index.html", RequestContext(request, data ) )
+    
   return render_to_response(  "millibank/index.html", RequestContext(request, data ) )
 
 

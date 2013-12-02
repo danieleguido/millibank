@@ -1,0 +1,7 @@
+{% extends "portfolio/middle.html" %}
+{% load i18n %}
+
+{% block view %}
+  Please create a profile according to your localsettings.MILLIBANK
+  <a href="{% url 'admin:millibank_profile_add' %}">create the default profile</a>
+{% endblock %}

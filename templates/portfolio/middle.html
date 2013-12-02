@@ -1,4 +1,4 @@
-{% extends "millibank/boilerplate.html" %}
+{% extends "portfolio/boilerplate.html" %}
 {% load i18n %}
 
 
@@ -6,7 +6,13 @@
   <!-- fixed sidebar -->
   <sidebar {%if user.is_staff %}class="staff"{%endif%}>
     <div class="inner">
-      <h1>{{MILLIBANK_NAME}}</h1>
+      <h1>{{profile}}</h1>
+      <div style="margin: 10px 0; overflow: hidden; width: 64px; height: 64px; border-radius: 32px; text-align: center">
+        <img src="{{profile.picture.url}}" style="width:100%"/>
+
+      </div>
+      <h3>{{profile.excerpt}}</h3>
+
       <ul>
         <li {%if 'home' in tags %}class="active"{% endif %}><a href="{% url 'millibank_home'%}">{%trans 'home'%}</a></li>
         {% if user.is_authenticated %}
@@ -14,13 +20,11 @@
           <a href="{% url 'millibank_portfolio' user.username%}">{{user.username}}'s bank</a>
         </li>
         <li {%if 'login' in tags %}class="active"{% endif %}><a href="{% url 'millibank_logout'%}">{%trans 'logout'%}</a></li>
-        {% else %}
-        <li {%if 'login' in tags %}class="active"{% endif %}><a href="{% url 'millibank_login'%}">{%trans 'login'%}</a></li>
         {% endif %}
       </ul>
       
-      
-      
+
+
       {% for section in sections %}
       <ul>
         {% for t in w %}
@@ -44,13 +48,7 @@
       <div class="inner">
       
         {% block view %}
-        <h1>Invitation</h1>
-        <p>
-        Thanks for using millibank - a very admin friendly Content Management System (AFCMS) to build and manage the content of your website, using the established format consisting of an index for navigating the site and a main area for displaying your works.
-        </p>
-        <p>
-        In order to not display this page, override the <code>block view</code> in django index.html template.
-        </p>
+        
         {% endblock %}
       </div>
     </div>

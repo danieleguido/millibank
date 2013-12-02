@@ -11,10 +11,28 @@ from django.dispatch import receiver
 from django.utils.text import slugify
 from django.utils.timezone import utc
 
-from millibank.utils import uuslug, uutinyurl
+from millibank.utils import uuslug, uutinyurl, oembed
 
 
 logger = logging.getLogger('glue')
+
+class Tag(models.Model):
+  '''
+
+  Millibank projects simple and FLAT tag system
+  ---
+  '''
+  name = models.CharField(max_length=160, default="")
+  slug = models.SlugField(max_length=160, unique=True)
+
+  def __unicode__(self):
+    return "%s"% (self.name)
+
+  def save(self, **kwargs):
+    self.slug = uuslug(model=Tag, instance=self, value=self.name)
+    super(Tag, self).save()
+
+
 
 class Cling(models.Model):
   '''
@@ -60,7 +78,7 @@ class Cling(models.Model):
       
       
       super(Cling, self).save()
-      
+    self.oembed = oembed(self.url)
     super(Cling, self).save()
 
 
@@ -150,6 +168,7 @@ class Project(models.Model):
   position = models.IntegerField(default=0) # the position in the user projects!
 
   mes = models.ManyToManyField(Me, through='Project_Me', null=True, blank=True)
+  tags = models.ManyToManyField(Tag, null=True, blank=True)
 
   date_created = models.DateTimeField(auto_now_add=True, blank=True)
   date_last_modified = models.DateTimeField(auto_now=True)
@@ -193,6 +212,21 @@ class Project_Me(models.Model):
 
   date_created = models.DateTimeField(default=datetime.now, blank=True)
 
+
+class Profile(models.Model):
+  '''
+  
+  Millibank way to handle users. Add some bio specific fields
+  ---
+
+  '''
+  user = models.ForeignKey(User, unique=True)
+  picture = models.ForeignKey(Cling) # the picture given as cling
+  bio = models.TextField()
+  excerpt = models.TextField() # a hand crafted summary, in markdown
+
+  def __unicode__(self):
+    return "%s (%s %s)"% (self.user.username, self.user.first_name, self.user.last_name)
 
 
 def _shared_json(item):

@@ -1,0 +1,8 @@
+{% extends "portfolio/middle.html" %}
+{% load i18n %}
+
+{% block view %}
+  {%for project in projects%}
+    {% include "portfolio/partials/project.html" %}    
+  {% endfor %}
+{% endblock %}

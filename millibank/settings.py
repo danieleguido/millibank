@@ -173,7 +173,8 @@ LOGIN_URL = local_settings.LOGIN_URL
 LOGOUT_URL = local_settings.LOGOUT_URL
 
 # MILLIBANK specifics
-MILLIBANK_NAME = local_settings.MILLIBANK_NAME 
+MILLIBANK_NAME = local_settings.MILLIBANK_NAME
+MILLIBANK_TYPE = local_settings.MILLIBANK_TYPE
 
 # GLUE specific settings
 GLUE_ACCESS_DENIED_URL = local_settings.GLUE_ACCESS_DENIED_URL

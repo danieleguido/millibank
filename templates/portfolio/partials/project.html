@@ -1,0 +1,6 @@
+{% load i18n %}
+<div class="project">
+      <h2><a href='{%url 'millibank_project' project.slug%}'>{{project.title}}</a></h2>
+      
+      {%trans "last updates at"%} {{project.date_created}}
+ </div>
