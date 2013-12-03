@@ -228,6 +228,16 @@ class Profile(models.Model):
   def __unicode__(self):
     return "%s (%s %s)"% (self.user.username, self.user.first_name, self.user.last_name)
 
+  def json(self):
+    d = _shared_json(self)
+    d.update({
+      #'url': reverse('millibank_api_profile', kwargs={'username': self.user.username}),
+      'picture': self.picture.url,
+      'excerpt' : markdown(self.excerpt),
+      'bio': markdown(self.bio),
+      'user': _shared_user(self.user),
+    })
+    return d
 
 def _shared_json(item):
   '''

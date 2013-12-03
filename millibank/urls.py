@@ -7,6 +7,15 @@ admin.autodiscover()
 import millibank
 #from glue.urls import glue_api_urlpatterns
 
+apipatterns = patterns('millibank.api',
+  url(r'^$', 'home', name='millibank_api_home'),
+  url(r'^profile/$', 'profiles', name='millibank_api_profiles'),
+  url(r'^profile/(?P<username>[:a-zA-Z\-\.\d]+)/$', 'profile', name='millibank_api_profile'),
+  url(r'^project/$', 'projects', name='millibank_api_projects'),
+  url(r'^project/(?P<slug>[:a-zA-Z\-\.\d]+)/$', 'project', name='millibank_api_project'),
+  url(r'^.*$', 'not_found', name='millibank_api_not_found'),
+)
+
 urlpatterns = patterns('',
     url(r'^$', 'millibank.views.home', name='millibank_home'),
     url(r'^u/(?P<username>[a-zA-Z_\-\.\d]+)/$', 'millibank.views.portfolio', name='millibank_portfolio'),
@@ -18,6 +27,7 @@ urlpatterns = patterns('',
 
     url(r'^admin/', include(admin.site.urls)),
     url(r'^glue/', include('glue.urls')),
+    url(r'^api/', include(apipatterns)),
     # millybank categories
     # url(r'^(?P<millibank_category>[a-z])/(?P<slug>[a-zA-Z\-\d]+)$', 'millibank.views.browse', name='millibank_browse'),
 )
