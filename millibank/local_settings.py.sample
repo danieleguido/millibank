@@ -9,12 +9,12 @@
     
 '''
 
-MILLIBANK_IS_PORTFOLIO = 'portfolio' # home page is first profile (pk=1) home page. sidebar show the profile excerpt.
+MILLIBANK_AS_PORTFOLIO = 'portfolio' # home page is first profile (pk=1) home page. sidebar show the profile excerpt.
 MILLIBANK_AS_SOCIAL = 'social' # home page is social. sidebar show login, home and top projects / catregory @todo
 
 MILLIBANK_HOME = "/path/to/millibank"
 MILLIBANK_NAME = "millibank"
-MILLIBANK_TYPE = MILLIBANK_IS_PORTFOLIO
+MILLIBANK_TYPE = MILLIBANK_AS_PORTFOLIO
 MILLIBANK_PROFILE = 'daniele.guido' # user username to be used in MILLIBANK_AS_PORTFOLIO type. Cfr views.home
 
 
