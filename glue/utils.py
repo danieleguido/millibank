@@ -103,6 +103,10 @@ class Epoxy:
     return self.method == 'POST'
 
 
+  def is_GET(self):
+    return self.method == 'GET'
+
+
   def is_DELETE(self):
     return self.method == 'DELETE'
 
@@ -244,7 +248,6 @@ class Epoxy:
     self.response[ 'status' ] = 'error'
     self.response[ 'error' ] = error
     self.response[ 'code' ] = code
-
     return self
 
 
