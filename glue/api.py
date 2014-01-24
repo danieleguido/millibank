@@ -4,6 +4,7 @@ from django.db.models.loading import get_model
 from django.conf import settings
 from django.contrib.admin.views.decorators import staff_member_required
 from django.forms import ModelForm
+from django.forms.models import model_to_dict
 
 from glue.utils import Epoxy, API_EXCEPTION_AUTH, API_EXCEPTION_FORMERRORS, API_EXCEPTION_DOESNOTEXIST
 
@@ -69,25 +70,38 @@ def get_object(request, app_name, model_name, pk):
     obj = mod.objects.get(pk=pk)
   except mod.DoesNotExist, e:
     return Epoxy.error(request, message="%s" % e, code=API_EXCEPTION_DOESNOTEXIST)
-  
-  
 
   if result.is_POST():
     class ObjForm(ModelForm):
       class Meta:
         model = mod
-        exclude =()
+        exclude =[f.name for f in obj._meta.many_to_many]
+    
+    data = model_to_dict(obj)
+    data.update(request.REQUEST)
 
-    form = ObjForm(instance=obj, data=request.REQUEST)
+    form = ObjForm(instance=obj, data=data)
+
     if form.is_valid():
-      form.save(commit=False)
-      obj.save()
+      obj = form.save()
     else:
       return result.throw_error(error=form.errors, code=API_EXCEPTION_FORMERRORS).json()
-    result.add('item', obj.json())
+    
+    result.item(obj)
   elif result.is_DELETE():
     obj.delete()
   else:
-    result.add('item', obj.json())
+    result.item(obj)
 
   return result.json()
+
+
+def edit_object(instance, Form, request):
+  data = model_to_dict(instance)
+  data.update(request.REQUEST)
+
+  form = Form(instance=instance, data=data)
+  if form.is_valid():
+    instance = form.save(commit=False)
+    return True, instance
+  return False, form.errors
