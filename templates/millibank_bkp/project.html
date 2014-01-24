@@ -1,0 +1,18 @@
+{% extends "millibank/middle.html" %}
+{% load i18n %}
+
+{% block view %}
+
+  {% if form %}
+    Please provide a first url - you can provide more later on!
+    <form action="{% url 'millibank_project_add' %}" method="post">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <input type="submit" value="{% trans 'create a new project' %}"/>
+    </form>
+  {% else %}
+    {{project}}
+  {% endif %}
+
+
+{% endblock %}

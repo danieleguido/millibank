@@ -1,0 +1,16 @@
+{% extends "millibank/index.html" %}
+{% load i18n %}
+
+{% block title %}
+  add project
+{% endblock %}
+
+  {% block content %}
+    <h2>add a new project</h2>
+    Please provide a first url - you can provide more later on!
+    <form action="{% url 'millibank_project_add' %}" method="post">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <button type="submit">{% trans 'create a new project' %}</button>
+    </form>
+  {% endblock %}

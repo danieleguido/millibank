@@ -45,3 +45,9 @@ class ClingForm(forms.ModelForm):
         pass  
     
     return super(ClingForm, self).clean()
+
+class CreateProjectForm(forms.Form):
+  project_title = forms.CharField(label=_('project title, e.g Untitled'), max_length=128)
+  me_title = forms.CharField(label=_('media title, e.g. Printed version'), max_length=128)
+  cling_url = forms.CharField(label=_('Could you provide an url for the media?'), max_length=256)
+  cling_description = forms.CharField(label=_('what does this url describe?'), max_length=256)

@@ -44,8 +44,8 @@ class Cling(models.Model):
   url  = models.TextField() # remote link. Obbligatorio !
   url_hash  = models.CharField(unique=True, max_length=64, null=True, blank=True) # easy index for url. Not unique, but rare enough...
   
-  oembed  = models.TextField(default="", null=True, blank=True) # oembed json as plain text
-  description  = models.TextField(default="", null=True, blank=True) # remote link
+  oembed  = models.TextField(default="", null=True, blank=True) # oembed json as plain text. Compiled automatically!!
+  description  = models.TextField(default="", null=True, blank=True) # a short description, as to speak.
   
   owner = models.ForeignKey(User) # the first digger ;D
   diggers = models.ManyToManyField(User, blank=True, null=True, related_name="shared_clings") # co-authors co-owners

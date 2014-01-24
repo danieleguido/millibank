@@ -19,7 +19,9 @@ apipatterns = patterns('millibank.api',
 urlpatterns = patterns('',
     url(r'^$', 'millibank.views.home', name='millibank_home'),
     url(r'^u/(?P<username>[a-zA-Z_\-\.\d]+)/$', 'millibank.views.portfolio', name='millibank_portfolio'),
+    url(r'^p/add/$', 'millibank.views.project_add', name='millibank_project_add'),
     url(r'^p/(?P<slug>[a-zA-Z_\-\.\d]+)/$', 'millibank.views.project', name='millibank_project'),
+    
     # login / logout
     url(r'^logout/$', 'millibank.views.logout_view', name='millibank_logout'),
     url(r'^login/$', 'millibank.views.login_view', name='millibank_login'),

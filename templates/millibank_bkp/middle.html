@@ -12,6 +12,11 @@
         {% if user.is_authenticated %}
         <li {%if 'portfolio' in tags %}class="active"{% endif %}>
           <a href="{% url 'millibank_portfolio' user.username%}">{{user.username}}'s bank</a>
+          
+          
+        </li>
+        <li {%if 'project-add' in tags %}class="active"{% endif %}>
+          <a href="{% url 'millibank_project_add' %}">{% trans 'add project' %}</a>
         </li>
         <li {%if 'login' in tags %}class="active"{% endif %}><a href="{% url 'millibank_logout'%}">{%trans 'logout'%}</a></li>
         {% else %}
@@ -29,13 +34,7 @@
       </ul>
       {% endfor %}
       
-      {% if user.is_staff %}
-      <ul>
-        <li>
-          <a href="{% url 'admin:millibank_project_add' %}"> - {{user.username}}, add project</a>
-        </li>
-      </ul>
-      {% endif %}
+      
     </div>
   </sidebar>
 

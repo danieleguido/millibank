@@ -12,8 +12,8 @@ from django.template import RequestContext
 from django.utils.translation import ugettext as _
 from django.utils.translation import get_language
 
-from millibank.forms import LoginForm
-from millibank.models import Project, Profile
+from millibank.forms import LoginForm, CreateProjectForm
+from millibank.models import Project, Profile, Cling, Me, Me_Cling, Project_Me
 
 from millibank import local_settings
 
@@ -33,7 +33,7 @@ def home(request):
       # @todo redirect to add default user profile (admin)
       pass
 
-    return render_to_response(  "portfolio/index.html", RequestContext(request, data ) )
+    return render_to_response(  "millibank/index.html", RequestContext(request, data ) )
     
   return render_to_response(  "millibank/index.html", RequestContext(request, data ) )
 
@@ -50,7 +50,32 @@ def project(request, slug):
   data = _shared_data( request, tags=['portfolio'] )
   data['project'] = get_object_or_404(Project, slug=slug)
 
-  return render_to_response(  "millibank/portfolio.html", RequestContext(request, data ) )
+  return render_to_response(  "millibank/project.html", RequestContext(request, data ) )
+
+
+def project_add(request):
+  data = _shared_data( request, tags=['portfolio', 'project-add'] )
+  if request.method == 'POST':
+    data['form'] = form = CreateProjectForm(request.POST)
+    if form.is_valid():
+      c = Cling(url=form.cleaned_data['cling_url'], description=form.cleaned_data['cling_description'], owner=request.user)
+      c.save()
+      m = Me(title=form.cleaned_data['me_title'], owner=request.user)
+      m.save()
+      mc = Me_Cling(me=m, cling=c)
+      mc.save()
+      p = Project(title=form.cleaned_data['project_title'])
+      p.save()
+      pm = Project_Me(project=p,me=me)
+      pm.save()
+      return project(request,p.slug)
+    else:
+      data['warnings'] = "fill the form correctly, as to speak."
+  else:
+    data['form'] = CreateProjectForm();
+  return render_to_response(  "millibank/project_add.html", RequestContext(request, data ) )
+
+
 
 def browse(request, millibank_section, slug):
   '''

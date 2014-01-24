@@ -1,6 +1,118 @@
-{% extends "millibank/middle.html" %}
 {% load i18n %}
+<!DOCTYPE html>
+<!--[if lt IE 7 ]><html class="ie ie6" lang="en"> <![endif]-->
+<!--[if IE 7 ]><html class="ie ie7" lang="en"> <![endif]-->
+<!--[if IE 8 ]><html class="ie ie8" lang="en"> <![endif]-->
+<!--[if (gte IE 9)|!(IE)]><!--><html lang="en"> <!--<![endif]-->
+<head>
 
-{% block view %}
-  {{block.super}}
-{% endblock %}
+  <!-- Basic Page Needs
+  ================================================== -->
+  <meta charset="utf-8">
+  <title>{{MILLIBANK_NAME }} | {% block title %}{% endblock %}</title>
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <!-- Mobile Specific Metas
+  ================================================== -->
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <!-- CSS
+  ================================================== -->
+  <link href='http://fonts.googleapis.com/css?family=Open+Sans:400italic,600italic,400,600' rel='stylesheet' type='text/css'>
+  <link rel="stylesheet" href="{{ STATIC_URL }}/css/font-awesome.css">
+  
+  <link rel="stylesheet" href="{{ STATIC_URL }}/css/base.css">
+  <link rel="stylesheet" href="{{ STATIC_URL }}/css/skeleton.css">
+  <link rel="stylesheet" href="{{ STATIC_URL }}/css/layout.css">
+
+
+
+  <!--[if lt IE 9]>
+    <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+  <![endif]-->
+
+  <!-- Favicons
+  ================================================== -->
+  <link rel="shortcut icon" href="{{ STATIC_URL }}/images/favicon.ico">
+  <link rel="apple-touch-icon" href="{{ STATIC_URL }}/images/apple-touch-icon.png">
+  <link rel="apple-touch-icon" sizes="72x72" href="{{ STATIC_URL }}/images/apple-touch-icon-72x72.png">
+  <link rel="apple-touch-icon" sizes="114x114" href="{{ STATIC_URL }}/images/apple-touch-icon-114x114.png">
+
+  
+</head>
+<body>
+
+
+
+  <!-- Primary Page Layout
+  ================================================== -->
+  
+  <div id="main">
+
+  
+    <div class="container">
+    
+    
+      <div class="three columns" style="height:100px;">
+        <nav>
+          <h1>{{MILLIBANK_NAME}}</h1>
+          <ul>
+            <li {%if 'home' in tags %}class="active"{% endif %}><a href="{% url 'millibank_home'%}">{%trans 'home'%}</a></li>
+            {% if user.is_authenticated %}
+            <li {%if 'portfolio' in tags %}class="active"{% endif %}>
+              <a href="{% url 'millibank_portfolio' user.username%}">{{user.username}}'s bank</a>
+              
+              
+            </li>
+            <li {%if 'project-add' in tags %}class="active"{% endif %}>
+              <a href="{% url 'millibank_project_add' %}">{% trans 'add project' %}</a>
+            </li>
+            <li {%if 'login' in tags %}class="active"{% endif %}><a href="{% url 'millibank_logout'%}">{%trans 'logout'%}</a></li>
+            {% else %}
+            <li {%if 'login' in tags %}class="active"{% endif %}><a href="{% url 'millibank_login'%}">{%trans 'login'%}</a></li>
+            {% endif %}
+          </ul>
+        </nav>
+      </div>
+      
+
+      <div class="thirteen columns">
+        {% block content %}
+          <h2>Invitation</h2>
+        <p>
+        Thanks for using millibank - a very admin friendly Content Management System (AFCMS) to build and manage the content of your website, using the established format consisting of an index for navigating the site and a main area for displaying your works.
+        </p>
+        <p>
+        In order to not display this page, override the <code>block view</code> in django index.html template.
+        </p>
+        
+        {% endblock %}
+      </div>
+    </div>
+
+  </div>
+
+  <footer>
+    <div class="container">
+      <div class="four columns">
+        &nbsp;
+      </div>
+      <div class="four columns">
+        fork millibank on github
+      </div>
+      <div class="four columns">
+        &nbsp;
+      </div>
+      <div class="four columns">
+       
+      </div>
+
+
+  </footer>
+  
+
+<!-- End Document
+================================================== -->
+</body>
+</html>
