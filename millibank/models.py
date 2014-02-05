@@ -5,7 +5,7 @@ from markdown import markdown
 from django.contrib.auth.models import User, Group
 from django.core.urlresolvers import reverse
 from django.conf import settings
-from django.db import models
+from django.db import models, IntegrityError
 from django.db.models.signals import pre_save
 from django.dispatch import receiver
 from django.utils.text import slugify
@@ -69,17 +69,32 @@ class Cling(models.Model):
   def __unicode__(self):
     return "%s (%s)"% (self.url, self.value)
 
-  
+  @staticmethod
+  def get_hash(url):
+    return hashlib.sha224(url).hexdigest()
+
   def save(self, **kwargs):
-    self.url_hash = hashlib.sha224(self.url).hexdigest()
-    if self.pk is not None:
+    # computate url hash to check unicity
+    self.url_hash = Cling.get_hash(self.url)
+
+    if self.pk is None: # brand new stuff
+      try:
+        super(Cling, self).save()
+      except IntegrityError, e:
+        cling = Cling.objects.get(url_hash=self.url_hash)
+        self.pk = cling.pk
+        self.diggers.add(self.owner)
+        self.value = self.diggers.count()
+        super(Cling, self).save()
+      else:
+        self.oembed = oembed(self.url)
+        self.diggers.add(self.owner)
+        super(Cling, self).save()
+    else:
       self.value = self.diggers.count()
       logger.info('update instance diggers to %s' % self.value)
-      
-      
+    
       super(Cling, self).save()
-    self.oembed = oembed(self.url)
-    super(Cling, self).save()
 
 
 class Me(models.Model):
@@ -117,6 +132,9 @@ class Me(models.Model):
   def save(self, **kwargs):
     self.slug = uuslug(model=Me, instance=self, value=self.title)
     super(Me, self).save()
+
+  def cover(self):
+    return self.clings[0]
 
 
 class Me_User(models.Model):

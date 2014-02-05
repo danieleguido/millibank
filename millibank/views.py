@@ -53,6 +53,7 @@ def project(request, slug):
   return render_to_response(  "millibank/project.html", RequestContext(request, data ) )
 
 
+@login_required
 def project_add(request):
   data = _shared_data( request, tags=['portfolio', 'project-add'] )
   if request.method == 'POST':
@@ -64,11 +65,11 @@ def project_add(request):
       m.save()
       mc = Me_Cling(me=m, cling=c)
       mc.save()
-      p = Project(title=form.cleaned_data['project_title'])
+      p = Project(title=form.cleaned_data['project_title'],owner=request.user)
       p.save()
-      pm = Project_Me(project=p,me=me)
+      pm = Project_Me(project=p,me=m)
       pm.save()
-      return project(request,p.slug)
+      return redirect('millibank_project', slug=p.slug)
     else:
       data['warnings'] = "fill the form correctly, as to speak."
   else:

@@ -1,0 +1,22 @@
+{% extends "millibank/index.html" %}
+{% load i18n %}
+
+{% block title %}
+  add project
+{% endblock %}
+
+  {% block content %}
+    {%for project in projects%}
+    <h2>{{project.title}} #{{project.pk}}</h2>
+    <div>{{project.date_created}}</div>
+    {%for me in project.mes.all%}
+      <h3>{{me.title}}</h3>
+      <div>{{me.date_created}}</div>
+      {%for cling in me.clings.all%}
+        <img src="{{cling.url}}">
+      <div>{{cling.description}}</div>
+      {% endfor %}
+
+    {% endfor %}
+    {% endfor %}
+  {% endblock %}
