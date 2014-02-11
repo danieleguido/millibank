@@ -45,7 +45,7 @@ class Cling(models.Model):
   url_hash  = models.CharField(unique=True, max_length=64, null=True, blank=True) # easy index for url. Not unique, but rare enough...
   
   oembed  = models.TextField(default="", null=True, blank=True) # oembed json as plain text. Compiled automatically!!
-  description  = models.TextField(default="", null=True, blank=True) # a short description, as to speak.
+  # description  = models.TextField(default="", null=True, blank=True) # a short description, as to speak.
   
   owner = models.ForeignKey(User) # the first digger ;D
   diggers = models.ManyToManyField(User, blank=True, null=True, related_name="shared_clings") # co-authors co-owners
@@ -61,7 +61,6 @@ class Cling(models.Model):
       'url': self.url,
       'url_hash': self.url_hash,
       'oembed' : self.oembed,
-      'description': self.description,
       'owner': _shared_user(self.owner),
     })
     return d
@@ -113,7 +112,9 @@ class Me(models.Model):
     (DRAFT, 'draft'),
   )
 
-  title = models.CharField(max_length=160, default="")
+  # title = models.CharField(max_length=160, default="")
+  description  = models.TextField(default="", null=True, blank=True) # a short description, as to speak.
+  
   slug = models.SlugField(max_length=160, unique=True)
 
   status  = models.CharField(max_length=1, choices=STATUS_CHOICES, default=DRAFT, blank=True, null=True)
@@ -121,7 +122,7 @@ class Me(models.Model):
   owner = models.ForeignKey(User, related_name="mes")
   contributors = models.ManyToManyField(User, blank=True, null=True, related_name="shared_mes", through='Me_User') # co-authors co-owners
   
-  clings = models.ManyToManyField(Cling, through='Me_Cling')
+  clings = models.ManyToManyField(Cling, through='Me_Cling',  blank=True, null=True,)
 
   date_created = models.DateTimeField(default=datetime.now, blank=True)
   date_last_modified = models.DateTimeField(auto_now=True)
